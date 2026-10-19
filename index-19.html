@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lykkelig Hjem – fordi lykke ikke måles i kvadratmeter</title>
+<meta name="description" content="Lykkelig Hjem gir boligen du vurderer en lykkescore – basert på det forskningen sier faktisk gjør oss lykkelige der vi bor.">
+<meta name="theme-color" content="#ff5a3c">
+<meta property="og:title" content="Lykkelig Hjem">
+<meta property="og:description" content="Fordi lykke ikke måles i kvadratmeter.">
+<meta property="og:url" content="https://lykkelighjem.no">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23ff5a3c'/%3E%3Cpath d='M13 31 32 15l19 16v18a2 2 0 0 1-2 2H15a2 2 0 0 1-2-2z' fill='%23fff'/%3E%3Cpath d='M32 45s-8.5-5-8.5-10.8A4.8 4.8 0 0 1 32 31.3a4.8 4.8 0 0 1 8.5 2.9C40.5 40 32 45 32 45z' fill='%23ffc83d'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0f1b3d; --muted:#55607a; --bg:#ffffff; --soft:#f6f7fb;
+    --coral:#ff5a3c; --coral-dark:#e8452a; --sun:#ffc83d; --mint:#19b48a; --sky:#3d7bff;
+    --peach:#fff1ea; --lemon:#fff8dc; --mintbg:#e6f8f1; --skybg:#eaf1ff; --lilac:#f1ecff;
+    --line:#e6e8f0; --max:1160px; --r:24px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font:500 17px/1.6 "Plus Jakarta Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 20px}
+  h1,h2,h3{margin:0 0 .45em;line-height:1.08;letter-spacing:-.025em;font-weight:800}
+  h1{font-size:clamp(2.5rem,6.4vw,4.6rem)}
+  h2{font-size:clamp(2rem,4.4vw,3.1rem)}
+  h3{font-size:1.25rem;letter-spacing:-.01em}
+  p{margin:0 0 1em}
+  .muted{color:var(--muted)}
+  .pill{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:.85rem;font-weight:600;box-shadow:0 4px 14px rgba(15,27,61,.06)}
+  .pill .dot{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 4px rgba(25,180,138,.18)}
+  .btn{display:inline-flex;align-items:center;gap:10px;background:var(--coral);color:#fff;font-weight:700;padding:16px 26px;border-radius:999px;border:0;cursor:pointer;font-size:1.02rem;font-family:inherit;transition:transform .15s,background .15s;box-shadow:0 10px 24px rgba(255,90,60,.28)}
+  .btn:hover{background:var(--coral-dark);transform:translateY(-2px)}
+  .btn.ghost{background:#fff;color:var(--ink);box-shadow:none;border:2px solid var(--ink)}
+  .btn.ghost:hover{background:var(--ink);color:#fff}
+  .btn.small{padding:10px 18px;font-size:.92rem;box-shadow:none}
+
+  /* HEADER */
+  header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:70px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.2rem;letter-spacing:-.02em}
+  .logo svg{width:36px;height:36px}
+  .nav-links{display:flex;gap:28px;font-weight:600;font-size:.95rem}
+  .nav-links a:hover{color:var(--coral)}
+  .nav-right{display:flex;gap:12px;align-items:center}
+  .lang{display:flex;background:var(--soft);border-radius:999px;padding:4px}
+  .lang button{border:0;background:transparent;color:var(--muted);font:700 .8rem "Plus Jakarta Sans",sans-serif;padding:6px 12px;border-radius:999px;cursor:pointer}
+  .lang button[aria-pressed="true"]{background:var(--ink);color:#fff}
+
+  /* HERO */
+  .hero{position:relative;padding:70px 0 90px;background:linear-gradient(180deg,var(--peach) 0%,#fff 100%);overflow:hidden}
+  .blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55;z-index:0}
+  .b1{width:420px;height:420px;background:var(--sun);top:-120px;right:8%}
+  .b2{width:360px;height:360px;background:#ffb4a3;bottom:-140px;left:-80px}
+  .b3{width:260px;height:260px;background:#9fe3cc;top:40%;right:-80px}
+  .hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+  .hl{position:relative;white-space:nowrap}
+  .hl::after{content:"";position:absolute;left:-4px;right:-4px;bottom:.08em;height:.32em;background:var(--sun);border-radius:6px;z-index:-1;transform:rotate(-1deg)}
+  .hero h1 .c{color:var(--coral)}
+  .lead{font-size:1.22rem;color:var(--muted);max-width:33ch;margin-bottom:28px}
+  .cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:26px}
+  .chips{display:flex;gap:18px;flex-wrap:wrap;font-size:.9rem;font-weight:600;color:var(--muted)}
+  .chips span::before{content:"✓";color:var(--mint);font-weight:800;margin-right:6px}
+
+  /* PHONE */
+  .phone-zone{position:relative;display:flex;justify-content:center;padding:20px 0}
+  .phone{width:290px;aspect-ratio:9/19.3;background:#0b1430;border-radius:52px;padding:11px;box-shadow:0 50px 90px rgba(15,27,61,.3),inset 0 0 0 2px #2a3866,inset 0 0 0 5px #0b1430,inset 0 0 0 6px #3b4a7a;transform:rotate(3deg);position:relative}
+  .phone::before,.phone::after{content:"";position:absolute;background:#2a3866;border-radius:2px;width:4px}
+  .phone::before{left:-3px;top:120px;height:56px}
+  .phone::after{right:-3px;top:150px;height:84px}
+  .screen{background:linear-gradient(180deg,#fff7f2 0%,#fff 38%);border-radius:42px;overflow:hidden;padding:0 18px 12px;position:relative;height:100%;display:flex;flex-direction:column}
+  .status{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;font-weight:800;padding:14px 8px 0;height:44px}
+  .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:80px;height:24px;background:#0b1430;border-radius:20px}
+  .sicons{display:flex;gap:5px;align-items:center}
+  .sicons i{display:block;background:var(--ink);border-radius:2px}
+  .apptop{display:flex;justify-content:space-between;align-items:center;margin:10px 0 4px}
+  .apptop .back{width:30px;height:30px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(15,27,61,.08);display:grid;place-items:center;font-size:.8rem}
+  .apptop .heart{color:var(--coral);font-size:1rem}
+  .appbtn{margin-top:auto;background:var(--coral);color:#fff;text-align:center;font-weight:800;font-size:.82rem;padding:12px;border-radius:14px}
+  .homebar{width:110px;height:5px;border-radius:9px;background:var(--ink);margin:10px auto 0;opacity:.85}
+  .addr{font-size:.72rem;color:var(--muted);font-weight:600}
+  .addr b{display:block;color:var(--ink);font-size:.95rem}
+  .score{display:flex;justify-content:center;margin:16px 0 12px}
+  .ring{width:124px;height:124px;border-radius:50%;background:conic-gradient(var(--mint) 0 30%,var(--sun) 30% 55%,var(--coral) 55% 82%,#eef0f6 82%);display:grid;place-items:center}
+  .ring div{width:98px;height:98px;border-radius:50%;background:#fff;display:grid;place-items:center;text-align:center;line-height:1}
+  .ring strong{font-size:2.2rem;font-weight:800;letter-spacing:-.04em}
+  .ring small{display:block;font-size:.62rem;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-top:4px}
+  .verdict{text-align:center;font-weight:700;font-size:.85rem;margin-bottom:12px}
+  .verdict span{background:var(--mintbg);color:#0e7a5c;border-radius:999px;padding:4px 10px}
+  .rows{display:grid;gap:8px;margin-bottom:12px}
+  .row{display:grid;grid-template-columns:22px 1fr 74px;gap:8px;align-items:center;font-size:.76rem;font-weight:600}
+  .row i{height:7px;border-radius:99px;background:#eef0f6;overflow:hidden;display:block}
+  .row i b{display:block;height:100%;border-radius:99px}
+  .float{position:absolute;background:#fff;border-radius:16px;padding:10px 14px;box-shadow:0 18px 40px rgba(15,27,61,.16);font-size:.82rem;font-weight:700;display:flex;gap:10px;align-items:center;z-index:2;animation:bob 5s ease-in-out infinite}
+  .float .e{font-size:1.4rem}
+  .float small{display:block;font-weight:600;color:var(--muted);font-size:.72rem}
+  .f1{top:-6px;left:-30px}
+  .f2{top:46%;right:-40px;animation-delay:-2.5s}
+  .f3{bottom:-6px;left:10px;animation-delay:-1.2s}
+  .f4{top:36%;left:-70px;animation-delay:-3.6s}
+  .f5{top:6%;right:-50px;animation-delay:-.6s}
+  .f6{bottom:14%;right:-60px;animation-delay:-4.2s}
+  .f7{top:62%;left:-40px;animation-delay:-1.9s}
+  @keyframes bob{50%{transform:translateY(-8px)}}
+  @media (prefers-reduced-motion:reduce){.float{animation:none}}
+
+  /* SECTIONS */
+  section{padding:96px 0;scroll-margin-top:70px}
+  .head{text-align:center;max-width:740px;margin:0 auto 52px}
+  .kicker{display:inline-block;font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--coral);background:var(--peach);padding:6px 14px;border-radius:999px;margin-bottom:16px}
+  .head p{font-size:1.12rem;color:var(--muted)}
+
+  /* VS */
+  .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:22px;align-items:stretch}
+  .vs-card{border-radius:var(--r);padding:34px}
+  .vs-card h3{display:flex;gap:10px;align-items:center}
+  .vs-card ul{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:12px}
+  .vs-card li{display:flex;gap:12px;align-items:flex-start;font-weight:600}
+  .vs-old{background:var(--soft);color:var(--muted)}
+  .vs-old li::before{content:"✕";flex:0 0 26px;height:26px;border-radius:50%;background:#e1e4ee;color:#8a93a8;display:grid;place-items:center;font-size:.8rem}
+  .vs-new{background:var(--ink);color:#fff;box-shadow:0 30px 60px rgba(15,27,61,.22)}
+  .vs-new li::before{content:"✓";flex:0 0 26px;height:26px;border-radius:50%;background:var(--sun);color:var(--ink);display:grid;place-items:center;font-size:.85rem;font-weight:800}
+  .vs-arrow{display:grid;place-items:center;font-size:2rem;color:var(--coral);font-weight:800}
+
+  /* STEPS */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .step{border-radius:var(--r);padding:32px;position:relative;overflow:hidden}
+  .step .num{font-size:4.2rem;font-weight:800;line-height:1;opacity:.9;margin-bottom:14px;letter-spacing:-.05em}
+  .step p{color:var(--muted);margin:0}
+  .st1{background:var(--skybg)} .st1 .num{color:var(--sky)}
+  .st2{background:var(--peach)} .st2 .num{color:var(--coral)}
+  .st3{background:var(--mintbg)} .st3 .num{color:var(--mint)}
+
+  /* FACTORS */
+  .factors{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .factor{border-radius:var(--r);padding:26px;transition:transform .2s}
+  .factor:hover{transform:translateY(-4px)}
+  .factor .e{font-size:2.2rem;display:block;margin-bottom:14px}
+  .factor h3{font-size:1.08rem;margin-bottom:.35em}
+  .factor p{font-size:.92rem;color:var(--muted);margin:0}
+  .fc1{background:var(--skybg)} .fc2{background:var(--peach)} .fc3{background:var(--mintbg)} .fc4{background:var(--lemon)}
+  .fc5{background:#fff4d6} .fc6{background:var(--lilac)} .fc7{background:#ffe9ef}
+  .factor.big{background:var(--coral);color:#fff;display:flex;flex-direction:column;justify-content:center}
+  .factor.big p{color:rgba(255,255,255,.88)}
+
+  /* RESEARCH */
+  .dark{background:var(--ink);color:#fff;position:relative;overflow:hidden}
+  .dark .kicker{background:rgba(255,200,61,.15);color:var(--sun)}
+  .dark .head p{color:#b7c0d8}
+  .quote{font-size:clamp(1.6rem,3.6vw,2.5rem);font-weight:800;letter-spacing:-.02em;line-height:1.2;text-align:center;max-width:860px;margin:0 auto 60px}
+  .quote span{color:var(--sun)}
+  .research{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  .finding{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:var(--r);padding:28px}
+  .finding .tagline{display:inline-block;background:var(--sun);color:var(--ink);font-weight:800;font-size:.75rem;padding:4px 10px;border-radius:999px;margin-bottom:14px;letter-spacing:.02em}
+  .finding p{color:#d9def0;margin-bottom:14px}
+  .finding .src{font-size:.82rem;color:#8f9bbd;font-weight:600}
+
+  /* WAITLIST */
+  .wl{background:linear-gradient(135deg,var(--coral) 0%,#ff8a3d 100%);border-radius:36px;padding:64px 48px;color:#fff;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;position:relative;overflow:hidden}
+  .wl::before{content:"";position:absolute;width:380px;height:380px;border-radius:50%;background:rgba(255,255,255,.12);top:-140px;left:-120px}
+  .wl > *{position:relative}
+  .wl h2{color:#fff}
+  .wl p{color:rgba(255,255,255,.92);font-size:1.1rem}
+  form{background:#fff;color:var(--ink);border-radius:24px;padding:28px;display:grid;gap:14px;box-shadow:0 30px 60px rgba(120,30,10,.25)}
+  label{font-size:.88rem;font-weight:700}
+  input,select{width:100%;padding:14px 16px;border:2px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font:500 1rem "Plus Jakarta Sans",sans-serif}
+  input:focus,select:focus{outline:none;border-color:var(--coral)}
+  .fr{display:grid;gap:6px}
+  .consent{font-size:.8rem;color:var(--muted);margin:0}
+  form .btn{justify-content:center;width:100%}
+  .msg{display:none;padding:12px 14px;border-radius:12px;background:var(--mintbg);color:#0e7a5c;font-weight:700}
+  .msg.err{background:#ffe5e0;color:#b4321b}
+
+  footer{background:var(--ink);color:#b7c0d8;padding:44px 0;font-size:.92rem}
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+  footer .logo{color:#fff}
+
+  @media (max-width:980px){
+    .hero-grid,.wl{grid-template-columns:1fr}
+    .factors{grid-template-columns:repeat(2,1fr)}
+    .nav-links{display:none}
+    .phone-zone{margin-top:20px}
+  }
+  @media (max-width:720px){
+    section{padding:70px 0}
+    .hero{padding:44px 0 70px}
+    .vs,.steps,.research{grid-template-columns:1fr}
+    .vs-arrow{transform:rotate(90deg);font-size:1.6rem}
+    .wl{padding:40px 22px;border-radius:28px}
+    .nav-right .btn{display:none}
+    .f1,.f2,.f4,.f6,.f7{display:none}.f3{left:-4px}.f5{top:2%;right:-4px}
+    .float{padding:8px 11px;font-size:.76rem}.float .e{font-size:1.15rem}
+    .hl{white-space:normal}
+  }
+  @media (max-width:420px){.factors{grid-template-columns:1fr}.phone{width:262px}}
+
+  /* DEMO */
+  .demo{display:grid;grid-template-columns:1.15fr .85fr;gap:26px;align-items:start}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:30px;box-shadow:0 20px 50px rgba(15,27,61,.06)}
+  .ctrl{padding:16px 0;border-bottom:1px dashed var(--line)}
+  .ctrl:last-child{border-bottom:0;padding-bottom:0}
+  .ctrl:first-child{padding-top:0}
+  .ctrl-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
+  .ctrl-top label{font-size:.98rem;font-weight:700}
+  .ctrl-top output{font-weight:800;color:var(--coral);white-space:nowrap}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:99px;background:linear-gradient(90deg,var(--coral) var(--fill,50%),#eef0f6 var(--fill,50%));border:0;padding:0;outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid var(--coral);box-shadow:0 4px 10px rgba(255,90,60,.35);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#fff;border:3px solid var(--coral);cursor:pointer}
+  input[type=range]:focus-visible::-webkit-slider-thumb{outline:3px solid var(--sun)}
+  .stars{display:flex;gap:6px}
+  .stars button{flex:1;border:2px solid var(--line);background:#fff;border-radius:12px;padding:8px 0;font:700 .9rem "Plus Jakarta Sans",sans-serif;color:var(--muted);cursor:pointer;transition:.15s}
+  .stars button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+  .result{position:sticky;top:90px;display:grid;gap:16px}
+  .res-card{background:var(--ink);color:#fff;border-radius:var(--r);padding:30px;text-align:center}
+  .res-card .ring{width:170px;height:170px;margin:4px auto 16px;transition:background .3s}
+  .res-card .ring div{width:136px;height:136px;background:var(--ink)}
+  .res-card .ring strong{font-size:3.2rem;color:#fff}
+  .res-card .ring small{color:#b7c0d8}
+  .res-verdict{font-weight:800;font-size:1.15rem;margin-bottom:6px}
+  .res-sub{color:#b7c0d8;font-size:.92rem;margin:0}
+  .tuesday{background:var(--lemon);border-radius:var(--r);padding:24px}
+  .tuesday .big{font-size:2.3rem;font-weight:800;letter-spacing:-.03em;line-height:1.05}
+  .tuesday p{margin:.4em 0 0;color:var(--muted);font-size:.92rem}
+  .tuesday b{color:var(--ink)}
+  .demo-note{font-size:.8rem;color:var(--muted);text-align:center;margin:0}
+
+  /* FAQ */
+  .faq{max-width:780px;margin:0 auto;display:grid;gap:12px}
+  .faq details{background:#fff;border:1px solid var(--line);border-radius:18px;padding:0 24px;transition:box-shadow .2s}
+  .faq details[open]{box-shadow:0 14px 34px rgba(15,27,61,.08)}
+  .faq summary{list-style:none;cursor:pointer;padding:20px 0;font-weight:700;font-size:1.05rem;display:flex;justify-content:space-between;gap:16px;align-items:center}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";flex:0 0 32px;height:32px;border-radius:50%;background:var(--peach);color:var(--coral);display:grid;place-items:center;font-size:1.3rem;font-weight:700;transition:transform .2s}
+  .faq details[open] summary::after{transform:rotate(45deg)}
+  .faq details p{color:var(--muted);margin:0 0 20px}
+
+  /* REVEAL */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+  /* MOBILE CTA */
+  .mcta{display:none}
+  @media (max-width:980px){.demo{grid-template-columns:1fr}.result{position:static}}
+  @media (max-width:720px){
+    .mcta{display:block;position:fixed;left:16px;right:16px;bottom:16px;z-index:30;transform:translateY(120px);transition:transform .3s}
+    .mcta.show{transform:none}
+    .mcta .btn{width:100%;justify-content:center}
+    .panel{padding:22px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a href="#" class="logo" aria-label="Lykkelig Hjem">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#ff5a3c"/><path d="M13 31 32 15l19 16v18a2 2 0 0 1-2 2H15a2 2 0 0 1-2-2z" fill="#fff"/><path d="M32 45s-8.5-5-8.5-10.8A4.8 4.8 0 0 1 32 31.3a4.8 4.8 0 0 1 8.5 2.9C40.5 40 32 45 32 45z" fill="#ffc83d"/></svg>
+      Lykkelig Hjem
+    </a>
+    <nav class="nav-links">
+      <a href="#prov" data-i18n="navTry">Prøv selv</a>
+      <a href="#slik" data-i18n="navHow">Slik fungerer det</a>
+      <a href="#faktorer" data-i18n="navFactors">Faktorene</a>
+      <a href="#forskning" data-i18n="navResearch">Forskningen</a>
+    </nav>
+    <div class="nav-right">
+      <div class="lang" role="group" aria-label="Språk / Language">
+        <button type="button" data-lang="nb" aria-pressed="true">NO</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+      <a href="#venteliste" class="btn small" data-i18n="navCta">Bli med</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+    <div class="wrap hero-grid">
+      <div>
+        <div class="pill" style="margin-bottom:22px"><span class="dot"></span><span data-i18n="heroPill">Bygget på lykkeforskning</span></div>
+        <h1 data-i18n-html="heroTitle">Fordi lykke ikke måles i <span class="hl">kvadratmeter</span>.</h1>
+        <p class="lead" data-i18n="heroLead">Lykkelig Hjem gir boligen du vurderer en lykkescore – basert på det som faktisk gjør oss lykkelige der vi bor.</p>
+        <div class="cta-row">
+          <a href="app.html" class="btn" data-i18n="heroCta">Prøv her →</a>
+          <a href="#slik" class="btn ghost" data-i18n="heroCta2">Se hvordan</a>
+        </div>
+        <div class="chips">
+          <span data-i18n="chip1">Gratis</span>
+          <span data-i18n="chip2">Tar 2 minutter</span>
+          <span data-i18n="chip3">Basert på forskning</span>
+        </div>
+      </div>
+
+      <div class="phone-zone" aria-label="Eksempel på appen">
+        <div class="float f1"><span class="e">🚆</span><div><span data-i18n="fl1">12 min til jobb</span><small data-i18n="fl1s">Kort pendlevei</small></div></div>
+        <div class="float f2"><span class="e">🌲</span><div><span data-i18n="fl2">Skog 300 m unna</span><small data-i18n="fl2s">Natur i nærheten</small></div></div>
+        <div class="float f3"><span class="e">🫂</span><div><span data-i18n="fl3">Nær vennene dine</span><small data-i18n="fl3s">3 av 3 innen 15 min</small></div></div>
+        <div class="float f4"><span class="e">☀️</span><div><span data-i18n="fl4">Sol hele kvelden</span><small data-i18n="fl4s">Vestvendt balkong</small></div></div>
+        <div class="float f5"><span class="e">⛳</span><div><span data-i18n="fl5">Golfbane 8 min unna</span><small data-i18n="fl5s">Fritid i nærheten</small></div></div>
+        <div class="float f6"><span class="e">🏡</span><div><span data-i18n="fl6">Barnefamilier i gata</span><small data-i18n="fl6s">Godt naboskap</small></div></div>
+        <div class="float f7"><span class="e">💸</span><div><span data-i18n="fl7">Romslig budsjett</span><small data-i18n="fl7s">Økonomisk luft</small></div></div>
+        <div class="phone">
+          <div class="screen">
+            <div class="island"></div>
+            <div class="status"><span>9:41</span><span class="sicons"><i style="width:3px;height:5px"></i><i style="width:3px;height:7px"></i><i style="width:3px;height:9px"></i><i style="width:20px;height:9px;border-radius:3px;margin-left:4px"></i></span></div>
+            <div class="apptop"><span class="back">←</span><span class="heart">♥</span></div>
+            <div class="addr"><span data-i18n="phAddrL">Boligen du vurderer</span><b>Solsiden 14</b></div>
+            <div class="score"><div class="ring"><div><span><strong>82</strong><small data-i18n="phScore">Lykkescore</small></span></div></div></div>
+            <div class="verdict"><span data-i18n="phVerdict">Passer livet ditt godt 🎉</span></div>
+            <div class="rows">
+              <div class="row"><span>🚆</span><i><b style="width:88%;background:var(--mint)"></b></i><span data-i18n="fCommute">Pendling</span></div>
+              <div class="row"><span>🫂</span><i><b style="width:92%;background:var(--mint)"></b></i><span data-i18n="fFriendsS">Venner</span></div>
+              <div class="row"><span>🌲</span><i><b style="width:95%;background:var(--mint)"></b></i><span data-i18n="fNature">Natur</span></div>
+              <div class="row"><span>☀️</span><i><b style="width:70%;background:var(--sun)"></b></i><span data-i18n="fLightS">Lys</span></div>
+              <div class="row"><span>🏡</span><i><b style="width:58%;background:var(--coral)"></b></i><span data-i18n="fNeighboursS">Naboer</span></div>
+            </div>
+            <div class="appbtn" data-i18n="phBtn">Sammenlign boliger</div>
+            <div class="homebar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROBLEM -->
+  <section>
+    <div class="wrap">
+      <div class="head">
+        <span class="kicker" data-i18n="probKicker">Problemet</span>
+        <h2 data-i18n="probTitle">Annonsen viser ikke det som gjør deg lykkelig</h2>
+        <p data-i18n="probLead">Vi sammenligner boliger på pris, størrelse og standard. Men forskningen viser at helt andre ting avgjør hvor godt du trives – hver eneste dag.</p>
+      </div>
+      <div class="vs">
+        <div class="vs-card vs-old">
+          <h3 data-i18n="probLeftTitle">Det vi ser på</h3>
+          <ul>
+            <li data-i18n="probL1">Kvadratmeter og antall soverom</li>
+            <li data-i18n="probL2">Pris per kvadratmeter</li>
+            <li data-i18n="probL3">Nytt kjøkken og bad</li>
+          </ul>
+        </div>
+        <div class="vs-arrow" aria-hidden="true">→</div>
+        <div class="vs-card vs-new">
+          <h3 data-i18n="probRightTitle">Det som faktisk betyr noe ✨</h3>
+          <ul>
+            <li data-i18n="probR1">Hvor lang tid du bruker på å pendle</li>
+            <li data-i18n="probR2">Hvor nær du bor vennene og familien din</li>
+            <li data-i18n="probR3">Natur, lys og et nabolag du blir en del av</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEMO -->
+  <section id="prov" style="background:var(--soft)">
+    <div class="wrap">
+      <div class="head">
+        <span class="kicker" data-i18n="demoKicker">Prøv selv</span>
+        <h2 data-i18n="demoTitle">Hvor lykkelig blir du i drømmeboligen?</h2>
+        <p data-i18n="demoLead">Dra i spakene og se hvordan scoren endrer seg. Tenk på en bolig du vurderer – eller der du bor nå.</p>
+      </div>
+      <div class="demo">
+        <div class="panel">
+          <div class="ctrl">
+            <div class="ctrl-top"><label for="dCommute" data-i18n="dCommute">🚆 Pendletid til jobb/studier (én vei)</label><output id="oCommute"></output></div>
+            <input type="range" id="dCommute" min="0" max="90" step="5" value="35">
+          </div>
+          <div class="ctrl">
+            <div class="ctrl-top"><label for="dFriends" data-i18n="dFriends">🫂 Reisetid til venner og familie</label><output id="oFriends"></output></div>
+            <input type="range" id="dFriends" min="0" max="120" step="5" value="25">
+          </div>
+          <div class="ctrl">
+            <div class="ctrl-top"><label for="dNature" data-i18n="dNature">🌲 Gangtid til skog, sjø eller park</label><output id="oNature"></output></div>
+            <input type="range" id="dNature" min="0" max="30" step="1" value="8">
+          </div>
+          <div class="ctrl">
+            <div class="ctrl-top"><label for="dLeisure" data-i18n="dLeisure">⛳ Reisetid til fritidsaktiviteten din</label><output id="oLeisure"></output></div>
+            <input type="range" id="dLeisure" min="0" max="60" step="5" value="15">
+          </div>
+          <div class="ctrl">
+            <div class="ctrl-top"><span style="font-weight:700" data-i18n="dLight">☀️ Sol og lys i boligen</span></div>
+            <div class="stars" data-key="light"></div>
+          </div>
+          <div class="ctrl">
+            <div class="ctrl-top"><span style="font-weight:700" data-i18n="dNeigh">🏡 Naboskap og fellesskap</span></div>
+            <div class="stars" data-key="neigh"></div>
+          </div>
+          <div class="ctrl">
+            <div class="ctrl-top"><span style="font-weight:700" data-i18n="dMoney">💸 Hvor komfortabel er du med boutgiftene?</span></div>
+            <div class="stars" data-key="money"></div>
+          </div>
+        </div>
+        <div class="result">
+          <div class="res-card" aria-live="polite">
+            <div class="ring" id="rRing"><div><span><strong id="rScore">0</strong><small data-i18n="phScore">Lykkescore</small></span></div></div>
+            <div class="res-verdict" id="rVerdict"></div>
+            <p class="res-sub" id="rTip"></p>
+          </div>
+          <div class="tuesday">
+            <div class="big" id="tHours">0 t</div>
+            <p id="tText"></p>
+          </div>
+          <p class="demo-note" data-i18n="demoNote">Forenklet demo for å vise ideen – ikke den endelige modellen.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW -->
+  <section id="slik">
+    <div class="wrap">
+      <div class="head">
+        <span class="kicker" data-i18n="howKicker">Slik fungerer det</span>
+        <h2 data-i18n="howTitle">Fra visning til trygt valg på 2 minutter</h2>
+      </div>
+      <div class="steps">
+        <div class="step st1"><div class="num">01</div><h3 data-i18n="s1t">Fortell om livet ditt</h3><p data-i18n="s1d">Hvor du jobber, hvor de viktigste menneskene dine bor, og hva du liker å gjøre på fritiden.</p></div>
+        <div class="step st2"><div class="num">02</div><h3 data-i18n="s2t">Legg inn boligen</h3><p data-i18n="s2d">Skriv inn adressen – eller skann QR-koden på visningen – og svar på tre raske spørsmål.</p></div>
+        <div class="step st3"><div class="num">03</div><h3 data-i18n="s3t">Få din lykkescore</h3><p data-i18n="s3d">Se hvordan boligen passer livet ditt, og sammenlign flere boliger side om side.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FACTORS -->
+  <section id="faktorer" style="background:var(--soft)">
+    <div class="wrap">
+      <div class="head">
+        <span class="kicker" data-i18n="facKicker">Hva scoren bygger på</span>
+        <h2 data-i18n="facTitle">Sju ting som gjør et hjem lykkelig</h2>
+      </div>
+      <div class="factors">
+        <div class="factor fc1"><span class="e">🚆</span><h3 data-i18n="fCommuteL">Pendletid</h3><p data-i18n="fCommuteD">Lang pendling er en av hverdagens største lykketyver.</p></div>
+        <div class="factor fc2"><span class="e">🫂</span><h3 data-i18n="fFriends">Venner og familie</h3><p data-i18n="fFriendsD">Gode relasjoner er den sterkeste kilden til lykke vi kjenner.</p></div>
+        <div class="factor fc3"><span class="e">🌲</span><h3 data-i18n="fNature">Natur</h3><p data-i18n="fNatureD">Tid i naturen henger sammen med bedre helse og trivsel.</p></div>
+        <div class="factor fc4"><span class="e">⛳</span><h3 data-i18n="fLeisure">Fritid</h3><p data-i18n="fLeisureD">Kort vei til det du liker, betyr at du faktisk gjør det.</p></div>
+        <div class="factor fc5"><span class="e">☀️</span><h3 data-i18n="fLight">Sol og lys</h3><p data-i18n="fLightD">Dagslys påvirker humør og energi – særlig i norske vintre.</p></div>
+        <div class="factor fc6"><span class="e">🏡</span><h3 data-i18n="fNeighbours">Naboskap</h3><p data-i18n="fNeighboursD">Små hverdagsmøter med naboer gir mer glede enn vi tror.</p></div>
+        <div class="factor fc7"><span class="e">💸</span><h3 data-i18n="fMoney">Økonomisk luft</h3><p data-i18n="fMoneyD">En bolig du har råd til, gir rom for et liv utenfor husveggene.</p></div>
+        <div class="factor big"><h3 data-i18n="bigT">= Din lykkescore</h3><p data-i18n="bigD">Alt samlet i ett tall, tilpasset akkurat ditt liv.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESEARCH -->
+  <section id="forskning" class="dark">
+    <div class="wrap">
+      <p class="quote" data-i18n-html="quote">Du kjøper ikke visningen på søndag.<br><span>Du kjøper en helt vanlig tirsdag.</span></p>
+      <div class="head">
+        <span class="kicker" data-i18n="resKicker">Forskningen</span>
+        <h2 data-i18n="resTitle">Bygget på lykkeforskning</h2>
+      </div>
+      <div class="research">
+        <div class="finding"><span class="tagline" data-i18n="t1">Pendlerparadokset</span><p data-i18n="r1">Folk med lang pendlevei rapporterer lavere livstilfredshet – og blir ikke kompensert av større bolig eller høyere lønn.</p><div class="src">Stutzer &amp; Frey (2008), Scandinavian Journal of Economics</div></div>
+        <div class="finding"><span class="tagline" data-i18n="t2">Vi gjetter feil</span><p data-i18n="r2">Studenter trodde boligens fysiske egenskaper ville avgjøre hvor fornøyde de ble. I virkeligheten var det de sosiale forholdene som betydde noe.</p><div class="src">Dunn, Wilson &amp; Gilbert (2003), Personality and Social Psychology Bulletin</div></div>
+        <div class="finding"><span class="tagline" data-i18n="t3">120 minutter natur</span><p data-i18n="r3">Personer som tilbrakte minst 120 minutter i naturen i uka, rapporterte oftere god helse og høy trivsel.</p><div class="src">White mfl. (2019), Scientific Reports</div></div>
+        <div class="finding"><span class="tagline" data-i18n="t4">Hedonisk tilvenning</span><p data-i18n="r4">Vi venner oss fort til et ekstra soverom eller et nytt kjøkken – men mye vanskeligere til en lang og slitsom hverdag.</p><div class="src" data-i18n="r4src">Sentralt begrep i lykkeforskningen</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="wrap">
+      <div class="head">
+        <span class="kicker" data-i18n="faqKicker">Spørsmål og svar</span>
+        <h2 data-i18n="faqTitle">Lurer du på noe?</h2>
+      </div>
+      <div class="faq">
+        <details><summary data-i18n="q1">Hva koster det?</summary><p data-i18n="a1">Lykkelig Hjem er gratis å bruke.</p></details>
+        <details><summary data-i18n="q2">Hvordan regnes lykkescoren ut?</summary><p data-i18n="a2">Scoren vekter sju faktorer som forskningen knytter til trivsel der vi bor – pendling, nærhet til venner og familie, natur, fritid, lys, naboskap og økonomisk luft – opp mot livet ditt. Kildene finner du under «Forskningen».</p></details>
+        <details><summary data-i18n="q3">Hva skjer med opplysningene mine?</summary><p data-i18n="a3">Vi spør aldri om lønn eller formue, og adressene du legger inn brukes bare til å regne ut scoren din. På ventelisten lagrer vi kun e-posten din.</p></details>
+        <details><summary data-i18n="q4">Erstatter dette megleren eller takstmannen?</summary><p data-i18n="a4">Nei. Megleren og takstrapporten forteller deg om boligen. Lykkelig Hjem hjelper deg å tenke gjennom hvordan livet ditt blir der.</p></details>
+        <details><summary data-i18n="q5">Hvem står bak?</summary><p data-i18n="a5">Lykkelig Hjem er startet av Victor Nilsen, student ved Handelshøyskolen BI, som en del av emnet The Science of Happiness.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- WAITLIST -->
+  <section id="venteliste" style="padding-top:0">
+    <div class="wrap">
+      <div class="wl">
+        <div>
+          <h2 data-i18n="wlTitle">Bli blant de første 🏡</h2>
+          <p data-i18n="wlLead">Appen er under utvikling. Meld deg på ventelisten, så får du tilgang til første versjon – og kan være med å forme den.</p>
+        </div>
+        <!-- Bytt ut DIN_FORMSPREE_ID med ID-en fra formspree.io -->
+        <form id="wl" action="https://formspree.io/f/DIN_FORMSPREE_ID" method="POST">
+          <div class="fr">
+            <label for="email" data-i18n="wlEmail">E-post</label>
+            <input id="email" name="email" type="email" required autocomplete="email" placeholder="navn@epost.no">
+          </div>
+          <div class="fr">
+            <label for="status" data-i18n="wlStatus">Hvor er du i boligjakten?</label>
+            <select id="status" name="status">
+              <option value="leter-na" data-i18n="o1">Jeg leter etter bolig nå</option>
+              <option value="innen-ett-ar" data-i18n="o2">Jeg skal kjøpe innen et år</option>
+              <option value="kanskje-senere" data-i18n="o3">Kanskje senere</option>
+              <option value="bransje" data-i18n="o4">Jeg jobber i boligbransjen</option>
+            </select>
+          </div>
+          <input type="hidden" name="lang" id="langField" value="nb">
+          <button class="btn" type="submit" data-i18n="wlBtn">Meld meg på</button>
+          <p class="consent" data-i18n="wlConsent">Vi bruker e-posten din bare til å gi deg beskjed om Lykkelig Hjem. Du kan melde deg av når som helst.</p>
+          <div class="msg" id="msg" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a href="#" class="logo"><svg viewBox="0 0 64 64" aria-hidden="true" style="width:30px;height:30px"><rect width="64" height="64" rx="16" fill="#ff5a3c"/><path d="M13 31 32 15l19 16v18a2 2 0 0 1-2 2H15a2 2 0 0 1-2-2z" fill="#fff"/><path d="M32 45s-8.5-5-8.5-10.8A4.8 4.8 0 0 1 32 31.3a4.8 4.8 0 0 1 8.5 2.9C40.5 40 32 45 32 45z" fill="#ffc83d"/></svg>Lykkelig Hjem</a>
+    <div data-i18n="footAbout">Et studentprosjekt av Victor Nilsen · Handelshøyskolen BI · The Science of Happiness</div>
+  </div>
+</footer>
+
+<div class="mcta" id="mcta"><a href="app.html" class="btn" data-i18n="heroCta">Prøv her →</a></div>
+
+<script>
+const EN = {
+  navTry:"Try it", navHow:"How it works",
+  demoKicker:"Try it", demoTitle:"How happy will you be in your dream home?",
+  demoLead:"Drag the sliders and watch the score change. Think of a home you're considering – or where you live now.",
+  dCommute:"🚆 Commute to work/studies (one way)", dFriends:"🫂 Travel time to friends and family", dNature:"🌲 Walk to forest, sea or park",
+  dLeisure:"⛳ Travel time to your favourite activity", dLight:"☀️ Sun and light in the home", dNeigh:"🏡 Neighbourhood and community",
+  dMoney:"💸 How comfortable are you with the housing costs?",
+  demoNote:"Simplified demo to show the idea – not the final model.",
+  faqKicker:"Questions & answers", faqTitle:"Wondering about something?",
+  q1:"What does it cost?", a1:"Lykkelig Hjem is free to use.",
+  q2:"How is the happiness score calculated?", a2:"The score weighs seven factors that research links to well-being where we live – commute, closeness to friends and family, nature, leisure, light, neighbourhood and financial breathing room – against your life. You'll find the sources under \u201cResearch\u201d.",
+  q3:"What happens to my information?", a3:"We never ask about your salary or wealth, and the addresses you enter are only used to calculate your score. For the waitlist we only store your email.",
+  q4:"Does this replace the estate agent or the surveyor?", a4:"No. The agent and the survey report tell you about the home. Lykkelig Hjem helps you think through what your life will be like there.",
+  q5:"Who is behind it?", a5:"Lykkelig Hjem was started by Victor Nilsen, a student at BI Norwegian Business School, as part of the course The Science of Happiness.", navFactors:"Factors", navResearch:"Research", navCta:"Join",
+  heroPill:"Built on happiness research",
+  heroTitle:"Because happiness isn't measured in <span class=\"hl\">square metres</span>.",
+  heroLead:"Lykkelig Hjem gives the home you're considering a happiness score – based on what actually makes us happy where we live.",
+  heroCta:"Try it here →", heroCta2:"See how",
+  chip1:"Free", chip2:"Takes 2 minutes", chip3:"Research-based",
+  fl1:"12 min to work", fl1s:"Short commute", fl2:"Forest 300 m away", fl2s:"Nature nearby", fl3:"Close to your friends", fl3s:"3 of 3 within 15 min", fl4:"Sun all evening", fl4s:"West-facing balcony", fl5:"Golf course 8 min away", fl5s:"Leisure nearby", fl6:"Families on the street", fl6s:"Great neighbourhood", fl7:"Comfortable budget", fl7s:"Financial breathing room",
+  phAddrL:"The home you're considering", phScore:"Happiness", phVerdict:"A great fit for your life 🎉", phBtn:"Compare homes",
+  fCommute:"Commute", fFriendsS:"Friends", fNature:"Nature", fLightS:"Light", fNeighboursS:"Neighbours",
+  probKicker:"The problem", probTitle:"The listing doesn't show what makes you happy",
+  probLead:"We compare homes on price, size and finish. But research shows that completely different things decide how well you thrive – every single day.",
+  probLeftTitle:"What we look at", probL1:"Square metres and number of bedrooms", probL2:"Price per square metre", probL3:"A new kitchen and bathroom",
+  probRightTitle:"What actually matters ✨", probR1:"How much time you spend commuting", probR2:"How close you live to friends and family", probR3:"Nature, light and a neighbourhood you become part of",
+  howKicker:"How it works", howTitle:"From viewing to a confident choice in 2 minutes",
+  s1t:"Tell us about your life", s1d:"Where you work, where the most important people in your life live, and what you love doing in your free time.",
+  s2t:"Add the home", s2d:"Enter the address – or scan the QR code at the viewing – and answer three quick questions.",
+  s3t:"Get your happiness score", s3d:"See how the home fits your life, and compare several homes side by side.",
+  facKicker:"What the score is based on", facTitle:"Seven things that make a home happy",
+  fCommuteL:"Commute", fFriends:"Friends & family", fLeisure:"Leisure", fLight:"Sun & light", fNeighbours:"Neighbourhood", fMoney:"Financial breathing room",
+  fCommuteD:"Long commutes are one of everyday life's biggest happiness thieves.",
+  fFriendsD:"Close relationships are the strongest source of happiness we know of.",
+  fNatureD:"Time in nature is linked to better health and well-being.",
+  fLeisureD:"Living close to what you enjoy means you actually do it.",
+  fLightD:"Daylight affects mood and energy – especially in Norwegian winters.",
+  fNeighboursD:"Small everyday encounters with neighbours bring more joy than we expect.",
+  fMoneyD:"A home you can afford leaves room for a life beyond its walls.",
+  bigT:"= Your happiness score", bigD:"Everything in one number, tailored to your life.",
+  quote:"You're not buying the Sunday viewing.<br><span>You're buying an ordinary Tuesday.</span>",
+  resKicker:"The research", resTitle:"Built on happiness research",
+  t1:"The commuting paradox", t2:"We guess wrong", t3:"120 minutes of nature", t4:"Hedonic adaptation",
+  r1:"People with long commutes report lower life satisfaction – and are not compensated by a bigger home or higher pay.",
+  r2:"Students expected the physical features of their housing to decide how satisfied they would be. In reality, the social aspects were what mattered.",
+  r3:"People who spent at least 120 minutes a week in nature were more likely to report good health and high well-being.",
+  r4:"We quickly get used to an extra bedroom or a new kitchen – but far less to a long, draining daily routine.",
+  r4src:"A core concept in happiness research",
+  wlTitle:"Be among the first 🏡", wlLead:"The app is in development. Join the waitlist to get access to the first version – and help shape it.",
+  wlEmail:"Email", wlStatus:"Where are you in your home search?",
+  o1:"I'm looking for a home now", o2:"I'm buying within a year", o3:"Maybe later", o4:"I work in real estate",
+  wlBtn:"Sign me up", wlConsent:"We only use your email to let you know about Lykkelig Hjem. You can unsubscribe at any time.",
+  footAbout:"A student project by Victor Nilsen · BI Norwegian Business School · The Science of Happiness",
+  ok:"Thanks! You're on the list 🎉", err:"Something went wrong. Please try again in a moment.",
+  title:"Lykkelig Hjem – because happiness isn't measured in square metres"
+};
+const NB = {ok:"Takk! Du står på listen 🎉", err:"Noe gikk galt. Prøv igjen om litt."};
+
+document.querySelectorAll("[data-i18n]").forEach(el=>{el.dataset.nb=el.textContent});
+document.querySelectorAll("[data-i18n-html]").forEach(el=>{el.dataset.nb=el.innerHTML});
+const nbTitle=document.title; let current="nb";
+
+function setLang(lang){
+  current=lang; document.documentElement.lang=lang;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{const k=el.dataset.i18n; el.textContent=(lang==="en"&&EN[k])?EN[k]:el.dataset.nb;});
+  document.querySelectorAll("[data-i18n-html]").forEach(el=>{const k=el.dataset.i18nHtml; el.innerHTML=(lang==="en"&&EN[k])?EN[k]:el.dataset.nb;});
+  document.title=lang==="en"?EN.title:nbTitle;
+  document.getElementById("email").placeholder=lang==="en"?"name@email.com":"navn@epost.no";
+  document.getElementById("langField").value=lang;
+  document.querySelectorAll(".lang button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===lang));
+  try{localStorage.setItem("lh-lang",lang)}catch(e){}
+  if(window.updateDemo) updateDemo();
+}
+document.querySelectorAll(".lang button").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
+let saved=null; try{saved=localStorage.getItem("lh-lang")}catch(e){}
+const q=new URLSearchParams(location.search).get("lang");
+setLang(q==="en"||q==="nb"?q:(saved==="en"?"en":"nb"));
+
+// ---------- DEMO ----------
+const TXT={
+  nb:{min:m=>m===0?"0 min":m+" min", v:["Her kan du bli skikkelig lykkelig 🎉","Et godt sted å leve 😊","Greit – men noe trekker ned 🤔","Tenk deg godt om før du byr 😬"],
+      tips:{commute:"Pendlingen er det som trekker mest ned. Forskningen viser at den koster mer enn folk tror.",friends:"Avstanden til venner og familie trekker mest ned – relasjoner er den sterkeste kilden til lykke.",nature:"Lang vei til natur trekker ned. Tid ute henger tett sammen med trivsel.",leisure:"Lang vei til fritidsaktiviteten gjør at du sannsynligvis gjør den sjeldnere.",light:"Lite lys trekker ned – særlig merkbart i mørketida.",neigh:"Naboskapet trekker ned. Små hverdagsmøter betyr mer enn vi tror.",money:"Boutgiftene trekker ned. Økonomisk stress følger deg hjem hver dag."},
+      perfect:"Alt ser bra ut – denne boligen passer livet ditt.",
+      hours:h=>h+" timer",
+      tue:(h,w)=>`brukt på pendling hvert år. Det tilsvarer <b>${w} arbeidsuker</b> – hver eneste år du bor der.`,
+      tue0:"brukt på pendling i året. Det er tid du får tilbake til det som gjør deg glad."},
+  en:{min:m=>m===0?"0 min":m+" min", v:["You could be really happy here 🎉","A good place to live 😊","Okay – but something drags it down 🤔","Think twice before you bid 😬"],
+      tips:{commute:"Your commute drags the score down the most. Research shows it costs more than people expect.",friends:"Distance to friends and family drags it down most – relationships are the strongest source of happiness.",nature:"A long way to nature drags it down. Time outdoors is closely linked to well-being.",leisure:"A long way to your favourite activity means you'll probably do it less.",light:"Little light drags it down – especially noticeable in the dark season.",neigh:"The neighbourhood drags it down. Small everyday encounters matter more than we think.",money:"Housing costs drag it down. Financial stress follows you home every day."},
+      perfect:"Everything looks good – this home fits your life.",
+      hours:h=>h+" hours",
+      tue:(h,w)=>`spent commuting every year. That's <b>${w} working weeks</b> – every year you live there.`,
+      tue0:"spent commuting per year. That's time you get back for what makes you happy."}
+};
+const state={light:4,neigh:3,money:3};
+document.querySelectorAll(".stars").forEach(box=>{
+  const k=box.dataset.key;
+  for(let i=1;i<=5;i++){
+    const b=document.createElement("button"); b.type="button"; b.textContent=i;
+    b.setAttribute("aria-label",k+" "+i); b.setAttribute("aria-pressed",i===state[k]);
+    b.addEventListener("click",()=>{state[k]=i;box.querySelectorAll("button").forEach((x,j)=>x.setAttribute("aria-pressed",j+1===i));updateDemo();});
+    box.appendChild(b);
+  }
+});
+const $=id=>document.getElementById(id);
+const clamp=x=>Math.max(0,Math.min(100,x));
+function fill(r){r.style.setProperty("--fill",((r.value-r.min)/(r.max-r.min)*100)+"%");}
+window.updateDemo=function(){
+  const L=TXT[current]||TXT.nb;
+  const c=+$("dCommute").value,f=+$("dFriends").value,n=+$("dNature").value,l=+$("dLeisure").value;
+  ["dCommute","dFriends","dNature","dLeisure"].forEach(id=>fill($(id)));
+  $("oCommute").textContent=L.min(c);$("oFriends").textContent=L.min(f);$("oNature").textContent=L.min(n);$("oLeisure").textContent=L.min(l);
+  const s={commute:clamp(100-Math.max(0,c-10)*1.4),friends:clamp(100-Math.max(0,f-10)*0.9),nature:clamp(100-Math.max(0,n-5)*3.2),
+           leisure:clamp(100-Math.max(0,l-10)*1.6),light:(state.light-1)*25,neigh:(state.neigh-1)*25,money:(state.money-1)*25};
+  const w={commute:.25,friends:.2,nature:.1,leisure:.08,light:.1,neigh:.15,money:.12};
+  let score=0; for(const k in w) score+=s[k]*w[k]; score=Math.round(score);
+  $("rScore").textContent=score;
+  const col=score>=75?"var(--mint)":score>=55?"var(--sun)":"var(--coral)";
+  $("rRing").style.background=`conic-gradient(${col} ${score}%, rgba(255,255,255,.12) 0)`;
+  $("rVerdict").textContent=L.v[score>=75?0:score>=60?1:score>=45?2:3];
+  let worst=null,wv=101; for(const k in s){ if(s[k]<wv){wv=s[k];worst=k;} }
+  $("rTip").textContent= wv>=70 ? L.perfect : L.tips[worst];
+  const hours=Math.round(c*2*230/60), weeks=Math.round(hours/37.5*10)/10;
+  $("tHours").textContent=L.hours(hours.toLocaleString(current==="en"?"en-GB":"nb-NO"));
+  $("tText").innerHTML= c===0 ? L.tue0 : L.tue(hours, weeks.toLocaleString(current==="en"?"en-GB":"nb-NO"));
+};
+["dCommute","dFriends","dNature","dLeisure"].forEach(id=>$(id).addEventListener("input",updateDemo));
+updateDemo();
+
+// ---------- REVEAL + MOBIL-CTA ----------
+const io=("IntersectionObserver" in window)?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}}),{threshold:.12}):null;
+document.querySelectorAll(".head,.vs-card,.step,.factor,.finding,.panel,.result,.faq details,.wl,.quote").forEach(el=>{
+  if(io){el.classList.add("reveal");io.observe(el);}
+});
+const mcta=$("mcta"), wlSec=$("venteliste");
+window.addEventListener("scroll",()=>{
+  const r=wlSec.getBoundingClientRect();
+  mcta.classList.toggle("show", window.scrollY>600 && r.top>window.innerHeight);
+},{passive:true});
+
+const form=document.getElementById("wl"), msg=document.getElementById("msg");
+form.addEventListener("submit",async e=>{
+  e.preventDefault(); const m=current==="en"?EN:NB;
+  try{
+    const r=await fetch(form.action,{method:"POST",body:new FormData(form),headers:{Accept:"application/json"}});
+    if(!r.ok) throw 0; form.reset(); msg.className="msg"; msg.textContent=m.ok;
+  }catch(_){ msg.className="msg err"; msg.textContent=m.err; }
+  msg.style.display="block";
+});
+</script>
+</body>
+</html>
