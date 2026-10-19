@@ -3,254 +3,218 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lykkelig Hjem – fordi lykke ikke måles i kvadratmeter</title>
-<meta name="description" content="Lykkelig Hjem gir boligen du vurderer en lykkescore – basert på det forskningen sier faktisk gjør oss lykkelige der vi bor.">
+<title>Sjekk en bolig – Lykkelig Hjem</title>
+<!-- versjon 4 -->
+<meta name="description" content="Skriv inn en adresse og få en lykkescore basert på lykkeforskning.">
 <meta name="theme-color" content="#ff5a3c">
-<meta property="og:title" content="Lykkelig Hjem">
-<meta property="og:description" content="Fordi lykke ikke måles i kvadratmeter.">
-<meta property="og:url" content="https://lykkelighjem.no">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23ff5a3c'/%3E%3Cpath d='M13 31 32 15l19 16v18a2 2 0 0 1-2 2H15a2 2 0 0 1-2-2z' fill='%23fff'/%3E%3Cpath d='M32 45s-8.5-5-8.5-10.8A4.8 4.8 0 0 1 32 31.3a4.8 4.8 0 0 1 8.5 2.9C40.5 40 32 45 32 45z' fill='%23ffc83d'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
   :root{
-    --ink:#0f1b3d; --muted:#55607a; --bg:#ffffff; --soft:#f6f7fb;
-    --coral:#ff5a3c; --coral-dark:#e8452a; --sun:#ffc83d; --mint:#19b48a; --sky:#3d7bff;
-    --peach:#fff1ea; --lemon:#fff8dc; --mintbg:#e6f8f1; --skybg:#eaf1ff; --lilac:#f1ecff;
-    --line:#e6e8f0; --max:1160px; --r:24px;
+    --ink:#0f1b3d; --muted:#55607a; --soft:#f6f7fb; --line:#e6e8f0;
+    --coral:#ff5a3c; --coral-dark:#e8452a; --sun:#ffc83d; --mint:#19b48a; --sky:#3d7bff; --red:#e5484d;
+    --peach:#fff1ea; --mintbg:#e6f8f1; --skybg:#eaf1ff; --lemon:#fff8dc; --lilac:#f1ecff; --pink:#ffe9ef; --redbg:#ffecec;
+    --r:22px;
   }
   *{box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{margin:0;background:var(--bg);color:var(--ink);font:500 17px/1.6 "Plus Jakarta Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-  a{color:inherit;text-decoration:none}
-  .wrap{max-width:var(--max);margin:0 auto;padding:0 20px}
-  h1,h2,h3{margin:0 0 .45em;line-height:1.08;letter-spacing:-.025em;font-weight:800}
-  h1{font-size:clamp(2.5rem,6.4vw,4.6rem)}
-  h2{font-size:clamp(2rem,4.4vw,3.1rem)}
-  h3{font-size:1.25rem;letter-spacing:-.01em}
+  body{margin:0;background:var(--soft);color:var(--ink);font:500 16px/1.55 "Plus Jakarta Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  h1,h2,h3{margin:0 0 .4em;line-height:1.12;letter-spacing:-.02em;font-weight:800}
+  h1{font-size:clamp(1.8rem,4.5vw,2.6rem)} h2{font-size:1.5rem} h3{font-size:1.05rem}
   p{margin:0 0 1em}
   .muted{color:var(--muted)}
-  .pill{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:.85rem;font-weight:600;box-shadow:0 4px 14px rgba(15,27,61,.06)}
-  .pill .dot{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 4px rgba(25,180,138,.18)}
-  .btn{display:inline-flex;align-items:center;gap:10px;background:var(--coral);color:#fff;font-weight:700;padding:16px 26px;border-radius:999px;border:0;cursor:pointer;font-size:1.02rem;font-family:inherit;transition:transform .15s,background .15s;box-shadow:0 10px 24px rgba(255,90,60,.28)}
-  .btn:hover{background:var(--coral-dark);transform:translateY(-2px)}
-  .btn.ghost{background:#fff;color:var(--ink);box-shadow:none;border:2px solid var(--ink)}
-  .btn.ghost:hover{background:var(--ink);color:#fff}
-  .btn.small{padding:10px 18px;font-size:.92rem;box-shadow:none}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 18px}
+  select{font:600 .92rem "Plus Jakarta Sans",sans-serif;color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:12px 10px;background:#fff;cursor:pointer}
+  select:focus{outline:none;border-color:var(--coral)}
 
-  /* HEADER */
-  header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-  .nav{display:flex;align-items:center;justify-content:space-between;height:70px}
-  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.2rem;letter-spacing:-.02em}
-  .logo svg{width:36px;height:36px}
-  .nav-links{display:flex;gap:28px;font-weight:600;font-size:.95rem}
-  .nav-links a:hover{color:var(--coral)}
-  .nav-right{display:flex;gap:12px;align-items:center}
-  .lang{display:flex;background:var(--soft);border-radius:999px;padding:4px}
-  .lang button{border:0;background:transparent;color:var(--muted);font:700 .8rem "Plus Jakarta Sans",sans-serif;padding:6px 12px;border-radius:999px;cursor:pointer}
-  .lang button[aria-pressed="true"]{background:var(--ink);color:#fff}
+  header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1000}
+  .nav{display:flex;justify-content:space-between;align-items:center;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.1rem;text-decoration:none}
+  .logo svg{width:32px;height:32px}
+  .link{background:none;border:0;font:700 .9rem "Plus Jakarta Sans",sans-serif;color:var(--muted);cursor:pointer;text-decoration:none}
+  .link:hover{color:var(--coral)}
 
-  /* HERO */
-  .hero{position:relative;padding:70px 0 90px;background:linear-gradient(180deg,var(--peach) 0%,#fff 100%);overflow:hidden}
-  .blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55;z-index:0}
-  .b1{width:420px;height:420px;background:var(--sun);top:-120px;right:8%}
-  .b2{width:360px;height:360px;background:#ffb4a3;bottom:-140px;left:-80px}
-  .b3{width:260px;height:260px;background:#9fe3cc;top:40%;right:-80px}
-  .hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
-  .hl{position:relative;white-space:nowrap}
-  .hl::after{content:"";position:absolute;left:-4px;right:-4px;bottom:.08em;height:.32em;background:var(--sun);border-radius:6px;z-index:-1;transform:rotate(-1deg)}
-  .hero h1 .c{color:var(--coral)}
-  .lead{font-size:1.22rem;color:var(--muted);max-width:33ch;margin-bottom:28px}
-  .cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:26px}
-  .chips{display:flex;gap:18px;flex-wrap:wrap;font-size:.9rem;font-weight:600;color:var(--muted)}
-  .chips span::before{content:"✓";color:var(--mint);font-weight:800;margin-right:6px}
+  .stepper{display:flex;gap:8px;justify-content:center;margin:28px 0 22px;flex-wrap:wrap}
+  .stepper span{display:flex;align-items:center;gap:8px;font-size:.85rem;font-weight:700;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 14px 6px 6px}
+  .stepper b{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--soft);font-size:.78rem}
+  .stepper .on{color:var(--ink);border-color:var(--ink)}
+  .stepper .on b{background:var(--coral);color:#fff}
+  .stepper .done b{background:var(--mint);color:#fff}
 
-  /* PHONE */
-  .phone-zone{position:relative;display:flex;justify-content:center;padding:20px 0}
-  .phone{width:290px;aspect-ratio:9/19.3;background:#0b1430;border-radius:52px;padding:11px;box-shadow:0 50px 90px rgba(15,27,61,.3),inset 0 0 0 2px #2a3866,inset 0 0 0 5px #0b1430,inset 0 0 0 6px #3b4a7a;transform:rotate(3deg);position:relative}
-  .phone::before,.phone::after{content:"";position:absolute;background:#2a3866;border-radius:2px;width:4px}
-  .phone::before{left:-3px;top:120px;height:56px}
-  .phone::after{right:-3px;top:150px;height:84px}
-  .screen{background:linear-gradient(180deg,#fff7f2 0%,#fff 38%);border-radius:42px;overflow:hidden;padding:0 18px 12px;position:relative;height:100%;display:flex;flex-direction:column}
-  .status{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;font-weight:800;padding:14px 8px 0;height:44px}
-  .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:80px;height:24px;background:#0b1430;border-radius:20px}
-  .sicons{display:flex;gap:5px;align-items:center}
-  .sicons i{display:block;background:var(--ink);border-radius:2px}
-  .apptop{display:flex;justify-content:space-between;align-items:center;margin:10px 0 4px}
-  .apptop .back{width:30px;height:30px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(15,27,61,.08);display:grid;place-items:center;font-size:.8rem}
-  .apptop .heart{color:var(--coral);font-size:1rem}
-  .appbtn{margin-top:auto;background:var(--coral);color:#fff;text-align:center;font-weight:800;font-size:.82rem;padding:12px;border-radius:14px}
-  .homebar{width:110px;height:5px;border-radius:9px;background:var(--ink);margin:10px auto 0;opacity:.85}
-  .addr{font-size:.72rem;color:var(--muted);font-weight:600}
-  .addr b{display:block;color:var(--ink);font-size:.95rem}
-  .score{display:flex;justify-content:center;margin:16px 0 12px}
-  .ring{width:124px;height:124px;border-radius:50%;background:conic-gradient(var(--mint) 0 30%,var(--sun) 30% 55%,var(--coral) 55% 82%,#eef0f6 82%);display:grid;place-items:center}
-  .ring div{width:98px;height:98px;border-radius:50%;background:#fff;display:grid;place-items:center;text-align:center;line-height:1}
-  .ring strong{font-size:2.2rem;font-weight:800;letter-spacing:-.04em}
-  .ring small{display:block;font-size:.62rem;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-top:4px}
-  .verdict{text-align:center;font-weight:700;font-size:.85rem;margin-bottom:12px}
-  .verdict span{background:var(--mintbg);color:#0e7a5c;border-radius:999px;padding:4px 10px}
-  .rows{display:grid;gap:8px;margin-bottom:12px}
-  .row{display:grid;grid-template-columns:22px 1fr 74px;gap:8px;align-items:center;font-size:.76rem;font-weight:600}
-  .row i{height:7px;border-radius:99px;background:#eef0f6;overflow:hidden;display:block}
-  .row i b{display:block;height:100%;border-radius:99px}
-  .float{position:absolute;background:#fff;border-radius:16px;padding:10px 14px;box-shadow:0 18px 40px rgba(15,27,61,.16);font-size:.82rem;font-weight:700;display:flex;gap:10px;align-items:center;z-index:2;animation:bob 5s ease-in-out infinite}
-  .float .e{font-size:1.4rem}
-  .float small{display:block;font-weight:600;color:var(--muted);font-size:.72rem}
-  .f1{top:-6px;left:-30px}
-  .f2{top:46%;right:-40px;animation-delay:-2.5s}
-  .f3{bottom:-6px;left:10px;animation-delay:-1.2s}
-  .f4{top:36%;left:-70px;animation-delay:-3.6s}
-  .f5{top:6%;right:-50px;animation-delay:-.6s}
-  .f6{bottom:14%;right:-60px;animation-delay:-4.2s}
-  .f7{top:62%;left:-40px;animation-delay:-1.9s}
-  @keyframes bob{50%{transform:translateY(-8px)}}
-  @media (prefers-reduced-motion:reduce){.float{animation:none}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:28px;box-shadow:0 18px 44px rgba(15,27,61,.06)}
+  .screen{display:none;animation:fade .35s ease}
+  .screen.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .center{text-align:center;max-width:640px;margin:0 auto 26px}
+  .sec{padding:22px 0;border-bottom:1px dashed var(--line)}
+  .sec:first-child{padding-top:0}
+  .sec:last-of-type{border-bottom:0}
 
-  /* SECTIONS */
-  section{padding:96px 0;scroll-margin-top:70px}
-  .head{text-align:center;max-width:740px;margin:0 auto 52px}
-  .kicker{display:inline-block;font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--coral);background:var(--peach);padding:6px 14px;border-radius:999px;margin-bottom:16px}
-  .head p{font-size:1.12rem;color:var(--muted)}
+  .field{margin-bottom:12px;position:relative}
+  .lbl{display:block;font-weight:800;font-size:1.05rem;margin-bottom:4px}
+  .hint{font-size:.86rem;color:var(--muted);margin:0 0 12px}
+  input[type=text],input[type=number],input[type=search]{width:100%;padding:13px 15px;border:2px solid var(--line);border-radius:14px;font:500 1rem "Plus Jakarta Sans",sans-serif;color:var(--ink);background:#fff}
+  input:focus{outline:none;border-color:var(--coral)}
+  input.ok{border-color:var(--mint);background:#fbfffd}
+  input.bad{border-color:var(--coral)}
+  .ac{position:absolute;left:0;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 40px rgba(15,27,61,.14);z-index:50;overflow:hidden;display:none}
+  .ac button{display:block;width:100%;text-align:left;border:0;background:#fff;padding:12px 16px;font:600 .95rem "Plus Jakarta Sans",sans-serif;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line)}
+  .ac button small{display:block;color:var(--muted);font-weight:500}
+  .ac button:hover,.ac button:focus{background:var(--peach);outline:none}
 
-  /* VS */
-  .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:22px;align-items:stretch}
-  .vs-card{border-radius:var(--r);padding:34px}
-  .vs-card h3{display:flex;gap:10px;align-items:center}
-  .vs-card ul{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:12px}
-  .vs-card li{display:flex;gap:12px;align-items:flex-start;font-weight:600}
-  .vs-old{background:var(--soft);color:var(--muted)}
-  .vs-old li::before{content:"✕";flex:0 0 26px;height:26px;border-radius:50%;background:#e1e4ee;color:#8a93a8;display:grid;place-items:center;font-size:.8rem}
-  .vs-new{background:var(--ink);color:#fff;box-shadow:0 30px 60px rgba(15,27,61,.22)}
-  .vs-new li::before{content:"✓";flex:0 0 26px;height:26px;border-radius:50%;background:var(--sun);color:var(--ink);display:grid;place-items:center;font-size:.85rem;font-weight:800}
-  .vs-arrow{display:grid;place-items:center;font-size:2rem;color:var(--coral);font-weight:800}
+  .row{display:grid;gap:8px;margin-bottom:10px;align-items:start}
+  .row .field{margin:0}
+  .placeRow{grid-template-columns:185px 1fr 145px 120px 44px}
+  .personRow{grid-template-columns:170px 1fr 150px 44px}
+  .x{border:0;background:var(--soft);width:44px;height:50px;border-radius:12px;cursor:pointer;font-size:1.05rem;color:var(--muted)}
+  .x:hover{background:var(--redbg);color:var(--red)}
+  .add{background:none;border:2px dashed var(--line);border-radius:14px;width:100%;padding:11px;font:700 .9rem "Plus Jakarta Sans",sans-serif;color:var(--muted);cursor:pointer}
+  .add:hover{border-color:var(--coral);color:var(--coral)}
 
-  /* STEPS */
-  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
-  .step{border-radius:var(--r);padding:32px;position:relative;overflow:hidden}
-  .step .num{font-size:4.2rem;font-weight:800;line-height:1;opacity:.9;margin-bottom:14px;letter-spacing:-.05em}
-  .step p{color:var(--muted);margin:0}
-  .st1{background:var(--skybg)} .st1 .num{color:var(--sky)}
-  .st2{background:var(--peach)} .st2 .num{color:var(--coral)}
-  .st3{background:var(--mintbg)} .st3 .num{color:var(--mint)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{border:2px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font:700 .88rem "Plus Jakarta Sans",sans-serif;color:var(--ink);cursor:pointer;transition:.12s}
+  .chip:hover{border-color:var(--ink)}
+  .chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+  .chip.sel{background:var(--coral);border-color:var(--coral);color:#fff}
+  .hob-search{position:relative;margin-bottom:12px}
+  .hob-search input{padding-left:44px}
+  .hob-search::before{content:"🔎";position:absolute;left:15px;top:13px;font-size:1rem}
+  .selected{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;min-height:8px}
+  .cats{max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:16px;padding:14px;background:var(--soft)}
+  .cat{margin-bottom:14px}
+  .cat:last-child{margin-bottom:0}
+  .cat h4{margin:0 0 8px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .custom{margin-top:10px}
 
-  /* FACTORS */
-  .factors{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
-  .factor{border-radius:var(--r);padding:26px;transition:transform .2s}
-  .factor:hover{transform:translateY(-4px)}
-  .factor .e{font-size:2.2rem;display:block;margin-bottom:14px}
-  .factor h3{font-size:1.08rem;margin-bottom:.35em}
-  .factor p{font-size:.92rem;color:var(--muted);margin:0}
-  .fc1{background:var(--skybg)} .fc2{background:var(--peach)} .fc3{background:var(--mintbg)} .fc4{background:var(--lemon)}
-  .fc5{background:#fff4d6} .fc6{background:var(--lilac)} .fc7{background:#ffe9ef}
-  .factor.big{background:var(--coral);color:#fff;display:flex;flex-direction:column;justify-content:center}
-  .factor.big p{color:rgba(255,255,255,.88)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:var(--coral);color:#fff;font:800 1rem "Plus Jakarta Sans",sans-serif;padding:16px 26px;border-radius:999px;border:0;cursor:pointer;box-shadow:0 10px 24px rgba(255,90,60,.28);text-decoration:none;transition:.15s}
+  .btn:hover{background:var(--coral-dark);transform:translateY(-1px)}
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+  .btn.full{width:100%}
+  .btn.ghost{background:#fff;color:var(--ink);border:2px solid var(--ink);box-shadow:none}
+  .err{color:#b4321b;font-weight:700;font-size:.9rem;margin-top:10px;display:none}
 
-  /* RESEARCH */
-  .dark{background:var(--ink);color:#fff;position:relative;overflow:hidden}
-  .dark .kicker{background:rgba(255,200,61,.15);color:var(--sun)}
-  .dark .head p{color:#b7c0d8}
-  .quote{font-size:clamp(1.6rem,3.6vw,2.5rem);font-weight:800;letter-spacing:-.02em;line-height:1.2;text-align:center;max-width:860px;margin:0 auto 60px}
-  .quote span{color:var(--sun)}
-  .research{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
-  .finding{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:var(--r);padding:28px}
-  .finding .tagline{display:inline-block;background:var(--sun);color:var(--ink);font-weight:800;font-size:.75rem;padding:4px 10px;border-radius:999px;margin-bottom:14px;letter-spacing:.02em}
-  .finding p{color:#d9def0;margin-bottom:14px}
-  .finding .src{font-size:.82rem;color:#8f9bbd;font-weight:600}
+  .homeGrid{display:grid;grid-template-columns:1fr 200px 170px;gap:10px;align-items:start}
+  .homeGrid .field{margin:0}
+  .homeGrid label{display:block;font-size:.8rem;font-weight:800;color:var(--muted);margin:0 0 6px}
+  .unit{position:relative}
+  .unit input{padding-right:42px}
+  .unit span{position:absolute;right:14px;top:14px;color:var(--muted);font-weight:700;font-size:.9rem}
+  .profile-sum{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;font-size:.84rem}
+  .profile-sum span{background:var(--soft);border-radius:999px;padding:6px 12px;font-weight:600}
 
-  /* WAITLIST */
-  .wl{background:linear-gradient(135deg,var(--coral) 0%,#ff8a3d 100%);border-radius:36px;padding:64px 48px;color:#fff;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;position:relative;overflow:hidden}
-  .wl::before{content:"";position:absolute;width:380px;height:380px;border-radius:50%;background:rgba(255,255,255,.12);top:-140px;left:-120px}
-  .wl > *{position:relative}
-  .wl h2{color:#fff}
-  .wl p{color:rgba(255,255,255,.92);font-size:1.1rem}
-  form{background:#fff;color:var(--ink);border-radius:24px;padding:28px;display:grid;gap:14px;box-shadow:0 30px 60px rgba(120,30,10,.25)}
-  label{font-size:.88rem;font-weight:700}
-  input,select{width:100%;padding:14px 16px;border:2px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font:500 1rem "Plus Jakarta Sans",sans-serif}
-  input:focus,select:focus{outline:none;border-color:var(--coral)}
-  .fr{display:grid;gap:6px}
-  .consent{font-size:.8rem;color:var(--muted);margin:0}
-  form .btn{justify-content:center;width:100%}
-  .msg{display:none;padding:12px 14px;border-radius:12px;background:var(--mintbg);color:#0e7a5c;font-weight:700}
-  .msg.err{background:#ffe5e0;color:#b4321b}
+  /* Loading */
+  .loading{text-align:center;padding:50px 20px}
+  .house{font-size:3.4rem;animation:bounce 1s ease-in-out infinite;display:inline-block;margin-bottom:10px}
+  @keyframes bounce{50%{transform:translateY(-10px) rotate(-4deg)}}
+  .checks{list-style:none;padding:0;margin:20px auto 0;max-width:360px;text-align:left;display:grid;gap:10px}
+  .checks li{display:flex;gap:10px;align-items:center;font-weight:600;color:var(--muted)}
+  .checks li::before{content:"";width:20px;height:20px;border-radius:50%;border:3px solid var(--line);flex:0 0 20px}
+  .checks li.done{color:var(--ink)}
+  .checks li.done::before{background:var(--mint);border-color:var(--mint)}
 
-  footer{background:var(--ink);color:#b7c0d8;padding:44px 0;font-size:.92rem}
-  .foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
-  footer .logo{color:#fff}
+  /* Result */
+  .hero{position:relative;overflow:hidden;background:var(--ink);color:#fff;border-radius:28px;padding:34px;display:grid;grid-template-columns:auto 1fr;gap:34px;align-items:center;margin-bottom:16px}
+  .hero::before{content:"";position:absolute;width:420px;height:420px;border-radius:50%;filter:blur(70px);opacity:.35;right:-120px;top:-160px;background:var(--hc,var(--mint))}
+  .hero > *{position:relative}
+  .gauge{width:190px;height:190px;border-radius:50%;display:grid;place-items:center;position:relative}
+  .gauge .in{width:150px;height:150px;border-radius:50%;background:var(--ink);display:grid;place-items:center;text-align:center;line-height:1}
+  .gauge strong{font-size:3.6rem;font-weight:800;letter-spacing:-.05em}
+  .gauge small{display:block;font-size:.66rem;color:#b7c0d8;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-top:6px}
+  .grade{position:absolute;right:-6px;top:-6px;width:56px;height:56px;border-radius:18px;display:grid;place-items:center;font-size:1.7rem;font-weight:800;color:var(--ink);transform:rotate(8deg);box-shadow:0 10px 24px rgba(0,0,0,.25)}
+  .hero h2{color:#fff;font-size:clamp(1.5rem,3.4vw,2.1rem);margin-bottom:.25em}
+  .hero .addr{color:#b7c0d8;font-weight:600;margin-bottom:12px}
+  .hero .tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .hero .tags span{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:5px 12px;font-size:.82rem;font-weight:700}
+  .hero .warn{background:rgba(229,72,77,.18);border:1px solid rgba(229,72,77,.45);color:#ffd7d8;border-radius:14px;padding:10px 14px;font-weight:600;font-size:.9rem;margin-bottom:14px}
+  .res-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .res-actions .btn{padding:11px 18px;font-size:.9rem;box-shadow:none}
+  .res-actions .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}
 
-  @media (max-width:980px){
-    .hero-grid,.wl{grid-template-columns:1fr}
-    .factors{grid-template-columns:repeat(2,1fr)}
-    .nav-links{display:none}
-    .phone-zone{margin-top:20px}
+  .week{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+  .wk{border-radius:20px;padding:18px}
+  .wk .big{font-size:1.75rem;font-weight:800;letter-spacing:-.03em;line-height:1.05}
+  .wk .lab{font-size:.82rem;font-weight:700;color:var(--muted);margin-top:4px}
+  .wk1{background:var(--skybg)} .wk2{background:var(--peach)} .wk3{background:var(--mintbg)} .wk4{background:var(--lemon)}
+
+  .bw{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+  .bw > div{border-radius:20px;padding:20px}
+  .best{background:var(--mintbg)} .worst{background:var(--redbg)}
+  .bw h3{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .bw ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+  .bw li{display:flex;justify-content:space-between;gap:10px;font-weight:700;background:rgba(255,255,255,.65);border-radius:12px;padding:10px 12px}
+
+  #map{height:320px;border-radius:var(--r);border:1px solid var(--line);margin-bottom:16px;z-index:1}
+  .factors{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .f{border-radius:var(--r);padding:20px;background:#fff;border:1px solid var(--line);display:grid;grid-template-columns:64px 1fr;gap:16px}
+  .mini{width:64px;height:64px;border-radius:50%;display:grid;place-items:center}
+  .mini div{width:50px;height:50px;border-radius:50%;background:#fff;display:grid;place-items:center;font-weight:800;font-size:1.05rem}
+  .f > div,.factors > *{min-width:0}
+  .f-val .item span{min-width:0;overflow-wrap:anywhere}
+  .f h3{margin:0 0 6px}
+  .f-val{font-weight:600;font-size:.92rem;margin-bottom:8px}
+  .f-val .item{display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px solid var(--soft)}
+  .f-val .item:last-child{border-bottom:0}
+  .f-val .item b{white-space:nowrap}
+  .f-why{font-size:.84rem;color:var(--muted);margin:0}
+  .f .chips{margin-top:10px}
+  .f .chip{padding:6px 11px;font-size:.8rem}
+  .est{display:inline-block;font-size:.68rem;font-weight:800;color:#8a5a00;background:var(--lemon);border-radius:999px;padding:2px 7px;margin-left:4px;vertical-align:middle}
+  .note{font-size:.82rem;color:var(--muted);text-align:center;margin:18px 0 0}
+
+  /* Compare */
+  .cmp{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;font-size:.92rem}
+  .cmp th,.cmp td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  .cmp th{background:var(--soft);font-size:.76rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .cmp td.s{font-weight:800}
+  .cmp tr:last-child td{border-bottom:0}
+  .cmp .top{background:var(--mintbg)}
+  .cmp-wrap{overflow-x:auto;border-radius:var(--r)}
+  .del{border:0;background:none;color:var(--muted);cursor:pointer;font-size:1rem}
+
+  /* Konto */
+  .acct{display:flex;align-items:center;gap:14px}
+  .who{font-size:.82rem;color:var(--muted);font-weight:600;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .menu{position:relative}
+  .menu-btn{width:38px;height:38px;border-radius:50%;border:0;background:var(--ink);color:#fff;font:800 .95rem "Plus Jakarta Sans",sans-serif;cursor:pointer}
+  .menu-list{position:absolute;right:0;top:46px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 40px rgba(15,27,61,.16);min-width:230px;padding:6px;display:none;z-index:2000}
+  .menu-list.open{display:block}
+  .menu-list button,.menu-list a{display:block;width:100%;text-align:left;border:0;background:none;padding:11px 14px;border-radius:10px;font:600 .92rem "Plus Jakarta Sans",sans-serif;color:var(--ink);cursor:pointer;text-decoration:none}
+  .menu-list button:hover,.menu-list a:hover{background:var(--soft)}
+  .menu-list .danger{color:#b4321b}
+  #sAuth{padding-top:44px}
+  .auth{max-width:460px;margin:0 auto}
+  .perks{list-style:none;padding:0;margin:0 0 22px;display:grid;gap:8px}
+  .perks li{display:flex;gap:10px;font-weight:600}
+  .perks li::before{content:"✓";color:var(--mint);font-weight:800}
+  .sent{display:none;background:var(--mintbg);color:#0e7a5c;border-radius:14px;padding:16px;font-weight:700;margin-top:14px}
+  .or{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:.85rem;margin:18px 0}
+  .or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+  .small{font-size:.8rem;color:var(--muted);margin:14px 0 0}
+  .sync{font-size:.78rem;color:var(--muted);font-weight:600}
+  footer{text-align:center;color:var(--muted);font-size:.82rem;padding:40px 0}
+
+  @media (max-width:820px){
+    .placeRow{grid-template-columns:1fr 1fr 44px}
+    .placeRow .addrF{grid-column:1/-1;grid-row:1}
+    .personRow{grid-template-columns:1fr 1fr 44px}
+    .personRow .addrF{grid-column:1/-1;grid-row:2}
+    .homeGrid{grid-template-columns:1fr 1fr}
+    .homeGrid .addrF{grid-column:1/-1}
+    .homeGrid .btn{grid-column:1/-1}
+    .hero{grid-template-columns:1fr;text-align:center;justify-items:center;padding:26px}
+    .hero .tags,.res-actions{justify-content:center}
+    .week{grid-template-columns:1fr 1fr}
+    .bw,.factors{grid-template-columns:1fr}
+    .f{grid-template-columns:52px 1fr;gap:12px;padding:16px}.mini{width:52px;height:52px}.mini div{width:40px;height:40px;font-size:.9rem}
+    .f-val .item b{white-space:normal;text-align:right}
   }
-  @media (max-width:720px){
-    section{padding:70px 0}
-    .hero{padding:44px 0 70px}
-    .vs,.steps,.research{grid-template-columns:1fr}
-    .vs-arrow{transform:rotate(90deg);font-size:1.6rem}
-    .wl{padding:40px 22px;border-radius:28px}
-    .nav-right .btn{display:none}
-    .f1,.f2,.f4,.f6,.f7{display:none}.f3{left:-4px}.f5{top:2%;right:-4px}
-    .float{padding:8px 11px;font-size:.76rem}.float .e{font-size:1.15rem}
-    .hl{white-space:normal}
-  }
-  @media (max-width:420px){.factors{grid-template-columns:1fr}.phone{width:262px}}
-
-  /* DEMO */
-  .demo{display:grid;grid-template-columns:1.15fr .85fr;gap:26px;align-items:start}
-  .panel{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:30px;box-shadow:0 20px 50px rgba(15,27,61,.06)}
-  .ctrl{padding:16px 0;border-bottom:1px dashed var(--line)}
-  .ctrl:last-child{border-bottom:0;padding-bottom:0}
-  .ctrl:first-child{padding-top:0}
-  .ctrl-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
-  .ctrl-top label{font-size:.98rem;font-weight:700}
-  .ctrl-top output{font-weight:800;color:var(--coral);white-space:nowrap}
-  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:99px;background:linear-gradient(90deg,var(--coral) var(--fill,50%),#eef0f6 var(--fill,50%));border:0;padding:0;outline:none}
-  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid var(--coral);box-shadow:0 4px 10px rgba(255,90,60,.35);cursor:pointer}
-  input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#fff;border:3px solid var(--coral);cursor:pointer}
-  input[type=range]:focus-visible::-webkit-slider-thumb{outline:3px solid var(--sun)}
-  .stars{display:flex;gap:6px}
-  .stars button{flex:1;border:2px solid var(--line);background:#fff;border-radius:12px;padding:8px 0;font:700 .9rem "Plus Jakarta Sans",sans-serif;color:var(--muted);cursor:pointer;transition:.15s}
-  .stars button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
-  .result{position:sticky;top:90px;display:grid;gap:16px}
-  .res-card{background:var(--ink);color:#fff;border-radius:var(--r);padding:30px;text-align:center}
-  .res-card .ring{width:170px;height:170px;margin:4px auto 16px;transition:background .3s}
-  .res-card .ring div{width:136px;height:136px;background:var(--ink)}
-  .res-card .ring strong{font-size:3.2rem;color:#fff}
-  .res-card .ring small{color:#b7c0d8}
-  .res-verdict{font-weight:800;font-size:1.15rem;margin-bottom:6px}
-  .res-sub{color:#b7c0d8;font-size:.92rem;margin:0}
-  .tuesday{background:var(--lemon);border-radius:var(--r);padding:24px}
-  .tuesday .big{font-size:2.3rem;font-weight:800;letter-spacing:-.03em;line-height:1.05}
-  .tuesday p{margin:.4em 0 0;color:var(--muted);font-size:.92rem}
-  .tuesday b{color:var(--ink)}
-  .demo-note{font-size:.8rem;color:var(--muted);text-align:center;margin:0}
-
-  /* FAQ */
-  .faq{max-width:780px;margin:0 auto;display:grid;gap:12px}
-  .faq details{background:#fff;border:1px solid var(--line);border-radius:18px;padding:0 24px;transition:box-shadow .2s}
-  .faq details[open]{box-shadow:0 14px 34px rgba(15,27,61,.08)}
-  .faq summary{list-style:none;cursor:pointer;padding:20px 0;font-weight:700;font-size:1.05rem;display:flex;justify-content:space-between;gap:16px;align-items:center}
-  .faq summary::-webkit-details-marker{display:none}
-  .faq summary::after{content:"+";flex:0 0 32px;height:32px;border-radius:50%;background:var(--peach);color:var(--coral);display:grid;place-items:center;font-size:1.3rem;font-weight:700;transition:transform .2s}
-  .faq details[open] summary::after{transform:rotate(45deg)}
-  .faq details p{color:var(--muted);margin:0 0 20px}
-
-  /* REVEAL */
-  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
-  .reveal.in{opacity:1;transform:none}
-  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
-
-  /* MOBILE CTA */
-  .mcta{display:none}
-  @media (max-width:980px){.demo{grid-template-columns:1fr}.result{position:static}}
-  @media (max-width:720px){
-    .mcta{display:block;position:fixed;left:16px;right:16px;bottom:16px;z-index:30;transform:translateY(120px);transition:transform .3s}
-    .mcta.show{transform:none}
-    .mcta .btn{width:100%;justify-content:center}
-    .panel{padding:22px}
+  @media (max-width:520px){
+    .card{padding:18px}
+    .placeRow{grid-template-columns:1fr 1fr}
+    .placeRow .x{grid-column:2;justify-self:end}
   }
 </style>
 </head>
@@ -258,422 +222,910 @@
 
 <header>
   <div class="wrap nav">
-    <a href="#" class="logo" aria-label="Lykkelig Hjem">
+    <a href="index.html" class="logo">
       <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#ff5a3c"/><path d="M13 31 32 15l19 16v18a2 2 0 0 1-2 2H15a2 2 0 0 1-2-2z" fill="#fff"/><path d="M32 45s-8.5-5-8.5-10.8A4.8 4.8 0 0 1 32 31.3a4.8 4.8 0 0 1 8.5 2.9C40.5 40 32 45 32 45z" fill="#ffc83d"/></svg>
       Lykkelig Hjem
     </a>
-    <nav class="nav-links">
-      <a href="#prov" data-i18n="navTry">Prøv selv</a>
-      <a href="#slik" data-i18n="navHow">Slik fungerer det</a>
-      <a href="#faktorer" data-i18n="navFactors">Faktorene</a>
-      <a href="#forskning" data-i18n="navResearch">Forskningen</a>
-    </nav>
-    <div class="nav-right">
-      <div class="lang" role="group" aria-label="Språk / Language">
-        <button type="button" data-lang="nb" aria-pressed="true">NO</button>
-        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    <div class="acct">
+      <span class="sync" id="sync"></span>
+      <button class="link" id="editProfile" type="button" hidden>✏️ Endre profil</button>
+      <div class="menu" id="menu" hidden>
+        <button class="menu-btn" id="menuBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Kontomeny">V</button>
+        <div class="menu-list" id="menuList" role="menu">
+          <div class="who" id="who" style="padding:10px 14px 6px"></div>
+          <button type="button" id="mProfile" role="menuitem">✏️ Endre profil</button>
+          <a href="personvern.html" role="menuitem">🔒 Personvern</a>
+          <button type="button" id="mLogout" role="menuitem">Logg ut</button>
+          <button type="button" id="mDelete" class="danger" role="menuitem">Slett konto og alle data</button>
+        </div>
       </div>
-      <a href="#venteliste" class="btn small" data-i18n="navCta">Bli med</a>
     </div>
   </div>
 </header>
 
-<main>
-  <!-- HERO -->
-  <div class="hero">
-    <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
-    <div class="wrap hero-grid">
-      <div>
-        <div class="pill" style="margin-bottom:22px"><span class="dot"></span><span data-i18n="heroPill">Bygget på lykkeforskning</span></div>
-        <h1 data-i18n-html="heroTitle">Fordi lykke ikke måles i <span class="hl">kvadratmeter</span>.</h1>
-        <p class="lead" data-i18n="heroLead">Lykkelig Hjem gir boligen du vurderer en lykkescore – basert på det som faktisk gjør oss lykkelige der vi bor.</p>
-        <div class="cta-row">
-          <a href="app.html" class="btn" data-i18n="heroCta">Prøv her →</a>
-          <a href="#slik" class="btn ghost" data-i18n="heroCta2">Se hvordan</a>
-        </div>
-        <div class="chips">
-          <span data-i18n="chip1">Gratis</span>
-          <span data-i18n="chip2">Tar 2 minutter</span>
-          <span data-i18n="chip3">Basert på forskning</span>
-        </div>
-      </div>
-
-      <div class="phone-zone" aria-label="Eksempel på appen">
-        <div class="float f1"><span class="e">🚆</span><div><span data-i18n="fl1">12 min til jobb</span><small data-i18n="fl1s">Kort pendlevei</small></div></div>
-        <div class="float f2"><span class="e">🌲</span><div><span data-i18n="fl2">Skog 300 m unna</span><small data-i18n="fl2s">Natur i nærheten</small></div></div>
-        <div class="float f3"><span class="e">🫂</span><div><span data-i18n="fl3">Nær vennene dine</span><small data-i18n="fl3s">3 av 3 innen 15 min</small></div></div>
-        <div class="float f4"><span class="e">☀️</span><div><span data-i18n="fl4">Sol hele kvelden</span><small data-i18n="fl4s">Vestvendt balkong</small></div></div>
-        <div class="float f5"><span class="e">⛳</span><div><span data-i18n="fl5">Golfbane 8 min unna</span><small data-i18n="fl5s">Fritid i nærheten</small></div></div>
-        <div class="float f6"><span class="e">🏡</span><div><span data-i18n="fl6">Barnefamilier i gata</span><small data-i18n="fl6s">Godt naboskap</small></div></div>
-        <div class="float f7"><span class="e">💸</span><div><span data-i18n="fl7">Romslig budsjett</span><small data-i18n="fl7s">Økonomisk luft</small></div></div>
-        <div class="phone">
-          <div class="screen">
-            <div class="island"></div>
-            <div class="status"><span>9:41</span><span class="sicons"><i style="width:3px;height:5px"></i><i style="width:3px;height:7px"></i><i style="width:3px;height:9px"></i><i style="width:20px;height:9px;border-radius:3px;margin-left:4px"></i></span></div>
-            <div class="apptop"><span class="back">←</span><span class="heart">♥</span></div>
-            <div class="addr"><span data-i18n="phAddrL">Boligen du vurderer</span><b>Solsiden 14</b></div>
-            <div class="score"><div class="ring"><div><span><strong>82</strong><small data-i18n="phScore">Lykkescore</small></span></div></div></div>
-            <div class="verdict"><span data-i18n="phVerdict">Passer livet ditt godt 🎉</span></div>
-            <div class="rows">
-              <div class="row"><span>🚆</span><i><b style="width:88%;background:var(--mint)"></b></i><span data-i18n="fCommute">Pendling</span></div>
-              <div class="row"><span>🫂</span><i><b style="width:92%;background:var(--mint)"></b></i><span data-i18n="fFriendsS">Venner</span></div>
-              <div class="row"><span>🌲</span><i><b style="width:95%;background:var(--mint)"></b></i><span data-i18n="fNature">Natur</span></div>
-              <div class="row"><span>☀️</span><i><b style="width:70%;background:var(--sun)"></b></i><span data-i18n="fLightS">Lys</span></div>
-              <div class="row"><span>🏡</span><i><b style="width:58%;background:var(--coral)"></b></i><span data-i18n="fNeighboursS">Naboer</span></div>
-            </div>
-            <div class="appbtn" data-i18n="phBtn">Sammenlign boliger</div>
-            <div class="homebar"></div>
-          </div>
-        </div>
-      </div>
-    </div>
+<main class="wrap">
+  <div class="stepper" aria-label="Fremdrift">
+    <span id="st1"><b>1</b>Ditt liv</span>
+    <span id="st2"><b>2</b>Boligen</span>
+    <span id="st3"><b>3</b>Lykkescore</span>
   </div>
 
-  <!-- PROBLEM -->
-  <section>
-    <div class="wrap">
-      <div class="head">
-        <span class="kicker" data-i18n="probKicker">Problemet</span>
-        <h2 data-i18n="probTitle">Annonsen viser ikke det som gjør deg lykkelig</h2>
-        <p data-i18n="probLead">Vi sammenligner boliger på pris, størrelse og standard. Men forskningen viser at helt andre ting avgjør hvor godt du trives – hver eneste dag.</p>
+  <!-- 0. INNLOGGING -->
+  <section class="screen" id="sAuth">
+    <div class="center">
+      <h1>Velkommen til Lykkelig Hjem 🏡</h1>
+      <p class="muted">Lag en gratis konto, så husker vi livet ditt og alle boligene du sjekker – på mobil og PC.</p>
+    </div>
+    <div class="card auth">
+      <ul class="perks">
+        <li>Fyll ut profilen bare én gang</li>
+        <li>Alle boligene dine lagres og kan sammenlignes</li>
+        <li>Ingen passord – vi sender deg en innloggingslenke</li>
+      </ul>
+      <div class="field">
+        <label class="lbl" for="email" style="font-size:.95rem">E-post</label>
+        <input type="text" id="email" inputmode="email" autocomplete="email" placeholder="navn@epost.no">
       </div>
-      <div class="vs">
-        <div class="vs-card vs-old">
-          <h3 data-i18n="probLeftTitle">Det vi ser på</h3>
-          <ul>
-            <li data-i18n="probL1">Kvadratmeter og antall soverom</li>
-            <li data-i18n="probL2">Pris per kvadratmeter</li>
-            <li data-i18n="probL3">Nytt kjøkken og bad</li>
-          </ul>
+      <button class="btn full" id="sendLink" type="button">Send meg innloggingslenke</button>
+      <div class="sent" id="sent"></div>
+      <div class="err" id="authErr"></div>
+      <div class="or">eller</div>
+      <button class="btn ghost full" id="guest" type="button">Prøv uten konto</button>
+      <p class="small">Uten konto lagres alt bare i denne nettleseren. Ved å lage konto godtar du at vi lagrer profilen og boligene dine som beskrevet i <a href="personvern.html">personvernerklæringen</a>. Du kan slette kontoen når som helst.</p>
+    </div>
+  </section>
+
+  <!-- 1. PROFIL -->
+  <section class="screen" id="sProfile">
+    <div class="center">
+      <h1>Først: litt om livet ditt</h1>
+      <p class="muted">Dette fyller du ut bare én gang. Etterpå holder det å skrive inn adressen og prisen på boligene du vurderer.</p>
+    </div>
+    <div class="card">
+      <div class="sec">
+        <span class="lbl">🚆 Hvor drar du jevnlig?</span>
+        <p class="hint">Jobb, skole, studier, barnehage … Legg til alle stedene du pendler til, hvordan du reiser og hvor mange dager i uka.</p>
+        <div id="places"></div>
+        <button type="button" class="add" id="addPlace">+ Legg til et sted</button>
+      </div>
+
+      <div class="sec">
+        <span class="lbl">🫂 Hvem vil du bo nær?</span>
+        <p class="hint">Venner og familie – og hvor ofte dere ses. Velg adressen fra listen som dukker opp.</p>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px"><span style="font-weight:700;font-size:.9rem">Når du besøker dem, reiser du med:</span><div class="chips" id="visitMode">
+          <button type="button" class="chip" data-v="car" aria-pressed="true">🚗 Bil</button>
+          <button type="button" class="chip" data-v="transit" aria-pressed="false">🚌 Kollektivt</button>
+          <button type="button" class="chip" data-v="bike" aria-pressed="false">🚲 Sykkel</button>
+          <button type="button" class="chip" data-v="foot" aria-pressed="false">🚶 Gå</button></div></div>
+        <div id="people"></div>
+        <button type="button" class="add" id="addPerson">+ Legg til en person</button>
+      </div>
+
+      <div class="sec">
+        <span class="lbl">⛳ Hva liker du å gjøre på fritiden?</span>
+        <p class="hint">Søk, eller bla i listen. Finner du ikke aktiviteten, kan du legge den til selv.</p>
+        <div class="selected" id="hobSelected"></div>
+        <div class="hob-search"><input type="search" id="hobSearch" placeholder="Søk etter aktivitet, f.eks. padel, klatring, kino …" autocomplete="off" aria-label="Søk etter aktivitet"></div>
+        <div class="cats" id="hobCats"></div>
+        <div class="custom" id="hobCustom"></div>
+      </div>
+
+      <div class="sec">
+        <span class="lbl">💸 Hva er budsjettet ditt? <span class="muted" style="font-weight:600;font-size:.85rem">(valgfritt)</span></span>
+        <p class="hint">Hva er det meste du kan tenke deg å betale for en bolig? Brukes bare til å vurdere økonomisk luft.</p>
+        <div class="unit" style="max-width:280px"><input type="text" inputmode="numeric" id="budget" placeholder="F.eks. 4 500 000"><span>kr</span></div>
+      </div>
+
+      <button class="btn full" id="saveProfile" type="button" style="margin-top:22px">Lagre og gå videre →</button>
+      <div class="err" id="profileErr"></div>
+    </div>
+  </section>
+
+  <!-- 2. BOLIG -->
+  <section class="screen" id="sHome">
+    <div class="center">
+      <h1>Hvilken bolig vurderer du?</h1>
+      <p class="muted">Skriv inn adressen og prisen. Vi sjekker pendling, familie, natur, fritid og nabolag for deg.</p>
+    </div>
+    <div class="card">
+      <div class="homeGrid">
+        <div class="field addrF">
+          <label for="homeAddr">Adresse</label>
+          <input type="text" id="homeAddr" placeholder="Adressen til boligen" autocomplete="off">
+          <div class="ac"></div>
         </div>
-        <div class="vs-arrow" aria-hidden="true">→</div>
-        <div class="vs-card vs-new">
-          <h3 data-i18n="probRightTitle">Det som faktisk betyr noe ✨</h3>
-          <ul>
-            <li data-i18n="probR1">Hvor lang tid du bruker på å pendle</li>
-            <li data-i18n="probR2">Hvor nær du bor vennene og familien din</li>
-            <li data-i18n="probR3">Natur, lys og et nabolag du blir en del av</li>
-          </ul>
+        <div class="field">
+          <label for="price">Totalpris</label>
+          <div class="unit"><input type="text" inputmode="numeric" id="price" placeholder="4 200 000"><span>kr</span></div>
+        </div>
+        <div class="field">
+          <label for="fees">Felleskost./mnd</label>
+          <div class="unit"><input type="text" inputmode="numeric" id="fees" placeholder="3 500"><span>kr</span></div>
+        </div>
+      </div>
+      <button class="btn full" id="check" type="button" disabled style="margin-top:14px">Sjekk boligen →</button>
+      <div class="err" id="homeErr"></div>
+      <div class="profile-sum" id="profileSum"></div>
+    </div>
+    <div id="cmpBox" style="margin-top:26px" hidden>
+      <h2>Boliger du har sjekket</h2>
+      <div class="cmp-wrap"><table class="cmp" id="cmp"></table></div>
+    </div>
+  </section>
+
+  <!-- LOADING -->
+  <section class="screen" id="sLoading">
+    <div class="card loading">
+      <div class="house">🏡</div>
+      <h2>Sjekker boligen …</h2>
+      <p class="muted">Dette tar vanligvis 5–15 sekunder.</p>
+      <ul class="checks">
+        <li id="c1">Finner adressen på kartet</li>
+        <li id="c2">Regner ut reisetid til hverdagen din</li>
+        <li id="c3">Ser etter natur, fritid og nabolag</li>
+        <li id="c4">Setter sammen lykkescoren</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3. RESULTAT -->
+  <section class="screen" id="sResult">
+    <div class="hero" id="hero">
+      <div class="gauge" id="gauge"><div class="in"><span><strong id="rScore">0</strong><small>Lykkescore</small></span></div><div class="grade" id="grade">A</div></div>
+      <div>
+        <h2 id="rVerdict"></h2>
+        <div class="addr" id="rAddr"></div>
+        <div class="tags" id="rTags"></div>
+        <div class="warn" id="rWarn" hidden></div>
+        <div class="res-actions">
+          <button class="btn" id="another" type="button">+ Sjekk en annen bolig</button>
+          <button class="btn ghost" id="toCompare" type="button">Sammenlign boliger</button>
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- DEMO -->
-  <section id="prov" style="background:var(--soft)">
-    <div class="wrap">
-      <div class="head">
-        <span class="kicker" data-i18n="demoKicker">Prøv selv</span>
-        <h2 data-i18n="demoTitle">Hvor lykkelig blir du i drømmeboligen?</h2>
-        <p data-i18n="demoLead">Dra i spakene og se hvordan scoren endrer seg. Tenk på en bolig du vurderer – eller der du bor nå.</p>
-      </div>
-      <div class="demo">
-        <div class="panel">
-          <div class="ctrl">
-            <div class="ctrl-top"><label for="dCommute" data-i18n="dCommute">🚆 Pendletid til jobb/studier (én vei)</label><output id="oCommute"></output></div>
-            <input type="range" id="dCommute" min="0" max="90" step="5" value="35">
-          </div>
-          <div class="ctrl">
-            <div class="ctrl-top"><label for="dFriends" data-i18n="dFriends">🫂 Reisetid til venner og familie</label><output id="oFriends"></output></div>
-            <input type="range" id="dFriends" min="0" max="120" step="5" value="25">
-          </div>
-          <div class="ctrl">
-            <div class="ctrl-top"><label for="dNature" data-i18n="dNature">🌲 Gangtid til skog, sjø eller park</label><output id="oNature"></output></div>
-            <input type="range" id="dNature" min="0" max="30" step="1" value="8">
-          </div>
-          <div class="ctrl">
-            <div class="ctrl-top"><label for="dLeisure" data-i18n="dLeisure">⛳ Reisetid til fritidsaktiviteten din</label><output id="oLeisure"></output></div>
-            <input type="range" id="dLeisure" min="0" max="60" step="5" value="15">
-          </div>
-          <div class="ctrl">
-            <div class="ctrl-top"><span style="font-weight:700" data-i18n="dLight">☀️ Sol og lys i boligen</span></div>
-            <div class="stars" data-key="light"></div>
-          </div>
-          <div class="ctrl">
-            <div class="ctrl-top"><span style="font-weight:700" data-i18n="dNeigh">🏡 Naboskap og fellesskap</span></div>
-            <div class="stars" data-key="neigh"></div>
-          </div>
-          <div class="ctrl">
-            <div class="ctrl-top"><span style="font-weight:700" data-i18n="dMoney">💸 Hvor komfortabel er du med boutgiftene?</span></div>
-            <div class="stars" data-key="money"></div>
-          </div>
-        </div>
-        <div class="result">
-          <div class="res-card" aria-live="polite">
-            <div class="ring" id="rRing"><div><span><strong id="rScore">0</strong><small data-i18n="phScore">Lykkescore</small></span></div></div>
-            <div class="res-verdict" id="rVerdict"></div>
-            <p class="res-sub" id="rTip"></p>
-          </div>
-          <div class="tuesday">
-            <div class="big" id="tHours">0 t</div>
-            <p id="tText"></p>
-          </div>
-          <p class="demo-note" data-i18n="demoNote">Forenklet demo for å vise ideen – ikke den endelige modellen.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+    <h2 style="margin:26px 0 12px">En vanlig uke her</h2>
+    <div class="week" id="week"></div>
 
-  <!-- HOW -->
-  <section id="slik">
-    <div class="wrap">
-      <div class="head">
-        <span class="kicker" data-i18n="howKicker">Slik fungerer det</span>
-        <h2 data-i18n="howTitle">Fra visning til trygt valg på 2 minutter</h2>
-      </div>
-      <div class="steps">
-        <div class="step st1"><div class="num">01</div><h3 data-i18n="s1t">Fortell om livet ditt</h3><p data-i18n="s1d">Hvor du jobber, hvor de viktigste menneskene dine bor, og hva du liker å gjøre på fritiden.</p></div>
-        <div class="step st2"><div class="num">02</div><h3 data-i18n="s2t">Legg inn boligen</h3><p data-i18n="s2d">Skriv inn adressen – eller skann QR-koden på visningen – og svar på tre raske spørsmål.</p></div>
-        <div class="step st3"><div class="num">03</div><h3 data-i18n="s3t">Få din lykkescore</h3><p data-i18n="s3d">Se hvordan boligen passer livet ditt, og sammenlign flere boliger side om side.</p></div>
-      </div>
+    <div class="bw">
+      <div class="best"><h3>💚 Det beste med boligen</h3><ul id="bestList"></ul></div>
+      <div class="worst"><h3>⚠️ Dette trekker ned</h3><ul id="worstList"></ul></div>
     </div>
-  </section>
 
-  <!-- FACTORS -->
-  <section id="faktorer" style="background:var(--soft)">
-    <div class="wrap">
-      <div class="head">
-        <span class="kicker" data-i18n="facKicker">Hva scoren bygger på</span>
-        <h2 data-i18n="facTitle">Sju ting som gjør et hjem lykkelig</h2>
-      </div>
-      <div class="factors">
-        <div class="factor fc1"><span class="e">🚆</span><h3 data-i18n="fCommuteL">Pendletid</h3><p data-i18n="fCommuteD">Lang pendling er en av hverdagens største lykketyver.</p></div>
-        <div class="factor fc2"><span class="e">🫂</span><h3 data-i18n="fFriends">Venner og familie</h3><p data-i18n="fFriendsD">Gode relasjoner er den sterkeste kilden til lykke vi kjenner.</p></div>
-        <div class="factor fc3"><span class="e">🌲</span><h3 data-i18n="fNature">Natur</h3><p data-i18n="fNatureD">Tid i naturen henger sammen med bedre helse og trivsel.</p></div>
-        <div class="factor fc4"><span class="e">⛳</span><h3 data-i18n="fLeisure">Fritid</h3><p data-i18n="fLeisureD">Kort vei til det du liker, betyr at du faktisk gjør det.</p></div>
-        <div class="factor fc5"><span class="e">☀️</span><h3 data-i18n="fLight">Sol og lys</h3><p data-i18n="fLightD">Dagslys påvirker humør og energi – særlig i norske vintre.</p></div>
-        <div class="factor fc6"><span class="e">🏡</span><h3 data-i18n="fNeighbours">Naboskap</h3><p data-i18n="fNeighboursD">Små hverdagsmøter med naboer gir mer glede enn vi tror.</p></div>
-        <div class="factor fc7"><span class="e">💸</span><h3 data-i18n="fMoney">Økonomisk luft</h3><p data-i18n="fMoneyD">En bolig du har råd til, gir rom for et liv utenfor husveggene.</p></div>
-        <div class="factor big"><h3 data-i18n="bigT">= Din lykkescore</h3><p data-i18n="bigD">Alt samlet i ett tall, tilpasset akkurat ditt liv.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- RESEARCH -->
-  <section id="forskning" class="dark">
-    <div class="wrap">
-      <p class="quote" data-i18n-html="quote">Du kjøper ikke visningen på søndag.<br><span>Du kjøper en helt vanlig tirsdag.</span></p>
-      <div class="head">
-        <span class="kicker" data-i18n="resKicker">Forskningen</span>
-        <h2 data-i18n="resTitle">Bygget på lykkeforskning</h2>
-      </div>
-      <div class="research">
-        <div class="finding"><span class="tagline" data-i18n="t1">Pendlerparadokset</span><p data-i18n="r1">Folk med lang pendlevei rapporterer lavere livstilfredshet – og blir ikke kompensert av større bolig eller høyere lønn.</p><div class="src">Stutzer &amp; Frey (2008), Scandinavian Journal of Economics</div></div>
-        <div class="finding"><span class="tagline" data-i18n="t2">Vi gjetter feil</span><p data-i18n="r2">Studenter trodde boligens fysiske egenskaper ville avgjøre hvor fornøyde de ble. I virkeligheten var det de sosiale forholdene som betydde noe.</p><div class="src">Dunn, Wilson &amp; Gilbert (2003), Personality and Social Psychology Bulletin</div></div>
-        <div class="finding"><span class="tagline" data-i18n="t3">120 minutter natur</span><p data-i18n="r3">Personer som tilbrakte minst 120 minutter i naturen i uka, rapporterte oftere god helse og høy trivsel.</p><div class="src">White mfl. (2019), Scientific Reports</div></div>
-        <div class="finding"><span class="tagline" data-i18n="t4">Hedonisk tilvenning</span><p data-i18n="r4">Vi venner oss fort til et ekstra soverom eller et nytt kjøkken – men mye vanskeligere til en lang og slitsom hverdag.</p><div class="src" data-i18n="r4src">Sentralt begrep i lykkeforskningen</div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ -->
-  <section id="faq">
-    <div class="wrap">
-      <div class="head">
-        <span class="kicker" data-i18n="faqKicker">Spørsmål og svar</span>
-        <h2 data-i18n="faqTitle">Lurer du på noe?</h2>
-      </div>
-      <div class="faq">
-        <details><summary data-i18n="q1">Hva koster det?</summary><p data-i18n="a1">Lykkelig Hjem er gratis å bruke.</p></details>
-        <details><summary data-i18n="q2">Hvordan regnes lykkescoren ut?</summary><p data-i18n="a2">Scoren vekter sju faktorer som forskningen knytter til trivsel der vi bor – pendling, nærhet til venner og familie, natur, fritid, lys, naboskap og økonomisk luft – opp mot livet ditt. Kildene finner du under «Forskningen».</p></details>
-        <details><summary data-i18n="q3">Hva skjer med opplysningene mine?</summary><p data-i18n="a3">Vi spør aldri om lønn eller formue, og adressene du legger inn brukes bare til å regne ut scoren din. På ventelisten lagrer vi kun e-posten din.</p></details>
-        <details><summary data-i18n="q4">Erstatter dette megleren eller takstmannen?</summary><p data-i18n="a4">Nei. Megleren og takstrapporten forteller deg om boligen. Lykkelig Hjem hjelper deg å tenke gjennom hvordan livet ditt blir der.</p></details>
-        <details><summary data-i18n="q5">Hvem står bak?</summary><p data-i18n="a5">Lykkelig Hjem er startet av Victor Nilsen, student ved Handelshøyskolen BI, som en del av emnet The Science of Happiness.</p></details>
-      </div>
-    </div>
-  </section>
-
-  <!-- WAITLIST -->
-  <section id="venteliste" style="padding-top:0">
-    <div class="wrap">
-      <div class="wl">
-        <div>
-          <h2 data-i18n="wlTitle">Bli blant de første 🏡</h2>
-          <p data-i18n="wlLead">Appen er under utvikling. Meld deg på ventelisten, så får du tilgang til første versjon – og kan være med å forme den.</p>
-        </div>
-        <!-- Bytt ut DIN_FORMSPREE_ID med ID-en fra formspree.io -->
-        <form id="wl" action="https://formspree.io/f/DIN_FORMSPREE_ID" method="POST">
-          <div class="fr">
-            <label for="email" data-i18n="wlEmail">E-post</label>
-            <input id="email" name="email" type="email" required autocomplete="email" placeholder="navn@epost.no">
-          </div>
-          <div class="fr">
-            <label for="status" data-i18n="wlStatus">Hvor er du i boligjakten?</label>
-            <select id="status" name="status">
-              <option value="leter-na" data-i18n="o1">Jeg leter etter bolig nå</option>
-              <option value="innen-ett-ar" data-i18n="o2">Jeg skal kjøpe innen et år</option>
-              <option value="kanskje-senere" data-i18n="o3">Kanskje senere</option>
-              <option value="bransje" data-i18n="o4">Jeg jobber i boligbransjen</option>
-            </select>
-          </div>
-          <input type="hidden" name="lang" id="langField" value="nb">
-          <button class="btn" type="submit" data-i18n="wlBtn">Meld meg på</button>
-          <p class="consent" data-i18n="wlConsent">Vi bruker e-posten din bare til å gi deg beskjed om Lykkelig Hjem. Du kan melde deg av når som helst.</p>
-          <div class="msg" id="msg" role="status" aria-live="polite"></div>
-        </form>
-      </div>
-    </div>
+    <div id="map" role="img" aria-label="Kart over boligen og stedene som betyr noe for deg"></div>
+    <h2 style="margin:6px 0 12px">Alle faktorene</h2>
+    <div class="factors" id="factors"></div>
+    <p class="note">Prototype. Reisetider og avstander hentes fra åpne kartdata. Der det står «ca.» er tiden anslått ut fra avstand. Vektingen av faktorene er et forenklet anslag basert på forskningen – ikke en endelig modell.</p>
   </section>
 </main>
 
-<footer>
-  <div class="wrap foot">
-    <a href="#" class="logo"><svg viewBox="0 0 64 64" aria-hidden="true" style="width:30px;height:30px"><rect width="64" height="64" rx="16" fill="#ff5a3c"/><path d="M13 31 32 15l19 16v18a2 2 0 0 1-2 2H15a2 2 0 0 1-2-2z" fill="#fff"/><path d="M32 45s-8.5-5-8.5-10.8A4.8 4.8 0 0 1 32 31.3a4.8 4.8 0 0 1 8.5 2.9C40.5 40 32 45 32 45z" fill="#ffc83d"/></svg>Lykkelig Hjem</a>
-    <div data-i18n="footAbout">Et studentprosjekt av Victor Nilsen · Handelshøyskolen BI · The Science of Happiness</div>
-  </div>
-</footer>
+<footer>Lykkelig Hjem · prototype v6 · Kartdata © OpenStreetMap-bidragsytere, Kartverket og Entur</footer>
 
-<div class="mcta" id="mcta"><a href="app.html" class="btn" data-i18n="heroCta">Prøv her →</a></div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
-const EN = {
-  navTry:"Try it", navHow:"How it works",
-  demoKicker:"Try it", demoTitle:"How happy will you be in your dream home?",
-  demoLead:"Drag the sliders and watch the score change. Think of a home you're considering – or where you live now.",
-  dCommute:"🚆 Commute to work/studies (one way)", dFriends:"🫂 Travel time to friends and family", dNature:"🌲 Walk to forest, sea or park",
-  dLeisure:"⛳ Travel time to your favourite activity", dLight:"☀️ Sun and light in the home", dNeigh:"🏡 Neighbourhood and community",
-  dMoney:"💸 How comfortable are you with the housing costs?",
-  demoNote:"Simplified demo to show the idea – not the final model.",
-  faqKicker:"Questions & answers", faqTitle:"Wondering about something?",
-  q1:"What does it cost?", a1:"Lykkelig Hjem is free to use.",
-  q2:"How is the happiness score calculated?", a2:"The score weighs seven factors that research links to well-being where we live – commute, closeness to friends and family, nature, leisure, light, neighbourhood and financial breathing room – against your life. You'll find the sources under \u201cResearch\u201d.",
-  q3:"What happens to my information?", a3:"We never ask about your salary or wealth, and the addresses you enter are only used to calculate your score. For the waitlist we only store your email.",
-  q4:"Does this replace the estate agent or the surveyor?", a4:"No. The agent and the survey report tell you about the home. Lykkelig Hjem helps you think through what your life will be like there.",
-  q5:"Who is behind it?", a5:"Lykkelig Hjem was started by Victor Nilsen, a student at BI Norwegian Business School, as part of the course The Science of Happiness.", navFactors:"Factors", navResearch:"Research", navCta:"Join",
-  heroPill:"Built on happiness research",
-  heroTitle:"Because happiness isn't measured in <span class=\"hl\">square metres</span>.",
-  heroLead:"Lykkelig Hjem gives the home you're considering a happiness score – based on what actually makes us happy where we live.",
-  heroCta:"Try it here →", heroCta2:"See how",
-  chip1:"Free", chip2:"Takes 2 minutes", chip3:"Research-based",
-  fl1:"12 min to work", fl1s:"Short commute", fl2:"Forest 300 m away", fl2s:"Nature nearby", fl3:"Close to your friends", fl3s:"3 of 3 within 15 min", fl4:"Sun all evening", fl4s:"West-facing balcony", fl5:"Golf course 8 min away", fl5s:"Leisure nearby", fl6:"Families on the street", fl6s:"Great neighbourhood", fl7:"Comfortable budget", fl7s:"Financial breathing room",
-  phAddrL:"The home you're considering", phScore:"Happiness", phVerdict:"A great fit for your life 🎉", phBtn:"Compare homes",
-  fCommute:"Commute", fFriendsS:"Friends", fNature:"Nature", fLightS:"Light", fNeighboursS:"Neighbours",
-  probKicker:"The problem", probTitle:"The listing doesn't show what makes you happy",
-  probLead:"We compare homes on price, size and finish. But research shows that completely different things decide how well you thrive – every single day.",
-  probLeftTitle:"What we look at", probL1:"Square metres and number of bedrooms", probL2:"Price per square metre", probL3:"A new kitchen and bathroom",
-  probRightTitle:"What actually matters ✨", probR1:"How much time you spend commuting", probR2:"How close you live to friends and family", probR3:"Nature, light and a neighbourhood you become part of",
-  howKicker:"How it works", howTitle:"From viewing to a confident choice in 2 minutes",
-  s1t:"Tell us about your life", s1d:"Where you work, where the most important people in your life live, and what you love doing in your free time.",
-  s2t:"Add the home", s2d:"Enter the address – or scan the QR code at the viewing – and answer three quick questions.",
-  s3t:"Get your happiness score", s3d:"See how the home fits your life, and compare several homes side by side.",
-  facKicker:"What the score is based on", facTitle:"Seven things that make a home happy",
-  fCommuteL:"Commute", fFriends:"Friends & family", fLeisure:"Leisure", fLight:"Sun & light", fNeighbours:"Neighbourhood", fMoney:"Financial breathing room",
-  fCommuteD:"Long commutes are one of everyday life's biggest happiness thieves.",
-  fFriendsD:"Close relationships are the strongest source of happiness we know of.",
-  fNatureD:"Time in nature is linked to better health and well-being.",
-  fLeisureD:"Living close to what you enjoy means you actually do it.",
-  fLightD:"Daylight affects mood and energy – especially in Norwegian winters.",
-  fNeighboursD:"Small everyday encounters with neighbours bring more joy than we expect.",
-  fMoneyD:"A home you can afford leaves room for a life beyond its walls.",
-  bigT:"= Your happiness score", bigD:"Everything in one number, tailored to your life.",
-  quote:"You're not buying the Sunday viewing.<br><span>You're buying an ordinary Tuesday.</span>",
-  resKicker:"The research", resTitle:"Built on happiness research",
-  t1:"The commuting paradox", t2:"We guess wrong", t3:"120 minutes of nature", t4:"Hedonic adaptation",
-  r1:"People with long commutes report lower life satisfaction – and are not compensated by a bigger home or higher pay.",
-  r2:"Students expected the physical features of their housing to decide how satisfied they would be. In reality, the social aspects were what mattered.",
-  r3:"People who spent at least 120 minutes a week in nature were more likely to report good health and high well-being.",
-  r4:"We quickly get used to an extra bedroom or a new kitchen – but far less to a long, draining daily routine.",
-  r4src:"A core concept in happiness research",
-  wlTitle:"Be among the first 🏡", wlLead:"The app is in development. Join the waitlist to get access to the first version – and help shape it.",
-  wlEmail:"Email", wlStatus:"Where are you in your home search?",
-  o1:"I'm looking for a home now", o2:"I'm buying within a year", o3:"Maybe later", o4:"I work in real estate",
-  wlBtn:"Sign me up", wlConsent:"We only use your email to let you know about Lykkelig Hjem. You can unsubscribe at any time.",
-  footAbout:"A student project by Victor Nilsen · BI Norwegian Business School · The Science of Happiness",
-  ok:"Thanks! You're on the list 🎉", err:"Something went wrong. Please try again in a moment.",
-  title:"Lykkelig Hjem – because happiness isn't measured in square metres"
+/* =====================================================================
+   AKTIVITETER – stor liste. c = OSM-betingelser [[nøkkel, verdi-regex], …]
+   R = maks søkeradius i meter
+   ===================================================================== */
+const CATS = [
+ ["Trening og sport",[
+  ["gym","🏋️","Treningssenter",[[["leisure","fitness_centre"]],[["leisure","sports_centre"],["sport","fitness"]]],8000],
+  ["crossfit","💪","Crossfit",[[["sport","crossfit"]]],15000],
+  ["yoga","🧘","Yoga / pilates",[[["sport","yoga|pilates"]]],12000],
+  ["outdoorgym","🤸","Utendørs treningspark",[[["leisure","fitness_station"]]],6000],
+  ["fotball","⚽","Fotball",[[["leisure","pitch"],["sport","soccer"]]],6000],
+  ["handball","🤾","Håndball",[[["sport","handball"]]],12000],
+  ["basket","🏀","Basketball",[[["sport","basketball"]]],10000],
+  ["volley","🏐","Volleyball / sandvolleyball",[[["sport","volleyball|beachvolleyball"]]],15000],
+  ["tennis","🎾","Tennis",[[["sport","tennis"]]],12000],
+  ["padel","🏓","Padel",[[["sport","padel"]]],20000],
+  ["squash","🟢","Squash",[[["sport","squash"]]],25000],
+  ["badminton","🏸","Badminton",[[["sport","badminton"]]],20000],
+  ["bordtennis","🏓","Bordtennis",[[["sport","table_tennis"]]],15000],
+  ["golf","⛳","Golf",[[["leisure","golf_course"]]],40000],
+  ["frisbeegolf","🥏","Frisbeegolf",[[["sport","disc_golf"]],[["leisure","disc_golf_course"]]],20000],
+  ["minigolf","🏌️","Minigolf",[[["leisure","miniature_golf"]]],25000],
+  ["friidrett","🏃","Løping / friidrettsbane",[[["leisure","track"]],[["sport","athletics|running"]]],10000],
+  ["klatring","🧗","Klatring / buldring",[[["sport","climbing"]]],30000],
+  ["kampsport","🥋","Kampsport / boksing",[[["sport","martial_arts|karate|judo|taekwondo|boxing|kickboxing|mma|jiu-jitsu|aikido|kung_fu"]]],20000],
+  ["svomming","🏊","Svømmehall",[[["leisure","swimming_pool"],["access","yes|public|customers"]],[["leisure","sports_centre"],["sport","swimming"]],[["leisure","water_park"]]],15000],
+  ["bowling","🎳","Bowling",[[["leisure","bowling_alley"]],[["sport","10pin|9pin"]]],30000],
+  ["skoyter","⛸️","Skøyter / ishall",[[["leisure","ice_rink"]]],30000],
+  ["ishockey","🏒","Ishockey",[[["sport","ice_hockey"]]],40000],
+  ["ridning","🐴","Ridning",[[["leisure","horse_riding"]],[["sport","equestrian"]]],25000],
+  ["skyting","🎯","Skyting / bueskyting",[[["sport","shooting|archery"]]],30000],
+  ["skate","🛹","Skatepark",[[["sport","skateboard"]]],15000],
+  ["bmx","🚲","Sykkelpark / BMX / terrengsykkel",[[["sport","bmx|cycling|mtb"]]],20000],
+  ["dans","💃","Dans",[[["leisure","dance"]],[["sport","dance"]],[["amenity","dancing_school"]]],15000],
+  ["motorsport","🏎️","Gokart / motorsport",[[["sport","karting|motor|motocross"]]],50000]
+ ]],
+ ["Friluft og natur",[
+  ["tur","🥾","Turstier",[[["highway","path"]],[["highway","track"]]],3000],
+  ["utsikt","🏔️","Utsiktspunkt",[[["tourism","viewpoint"]]],10000],
+  ["park","🌳","Park",[[["leisure","park"]]],3000],
+  ["fiske","🎣","Fiske",[[["leisure","fishing"]]],15000],
+  ["strand","🏖️","Strand / badeplass",[[["natural","beach"]],[["leisure","bathing_place"]]],10000],
+  ["batliv","⛵","Båtliv / båthavn",[[["leisure","marina"]],[["leisure","slipway"]]],10000],
+  ["padling","🛶","Kajakk / padling",[[["sport","canoe|kayak"]]],20000],
+  ["seiling","⛵","Seiling",[[["sport","sailing"]]],25000],
+  ["camping","⛺","Camping / telt",[[["tourism","camp_site"]]],25000],
+  ["hund","🐕","Hundepark / hundeluftegård",[[["leisure","dog_park"]]],8000],
+  ["kolonihage","🌱","Kolonihage / parsell",[[["landuse","allotments"]]],10000],
+  ["dyrepark","🦁","Dyrepark",[[["tourism","zoo"]]],60000]
+ ]],
+ ["Vinter",[
+  ["alpint","⛷️","Alpint / slalåm",[[["landuse","winter_sports"]],[["piste:type","downhill"]]],60000],
+  ["langrenn","🎿","Langrenn / skiløyper",[[["piste:type","nordic"]]],20000],
+  ["aking","🛷","Akebakke",[[["piste:type","sled"]]],10000]
+ ]],
+ ["Kultur, mat og byliv",[
+  ["kafe","☕","Kafé",[[["amenity","cafe"]]],3000],
+  ["restaurant","🍽️","Restaurant",[[["amenity","restaurant"]]],3000],
+  ["bar","🍻","Bar / pub",[[["amenity","bar|pub"]]],4000],
+  ["nattklubb","🪩","Utesteder / nattklubb",[[["amenity","nightclub"]]],10000],
+  ["kino","🎬","Kino",[[["amenity","cinema"]]],20000],
+  ["teater","🎭","Teater",[[["amenity","theatre"]]],25000],
+  ["konsert","🎵","Konserter / kulturhus",[[["amenity","arts_centre|concert_hall|events_venue|music_venue"]]],25000],
+  ["museum","🏛️","Museum",[[["tourism","museum"]]],25000],
+  ["galleri","🖼️","Galleri / kunst",[[["tourism","gallery"]],[["shop","art"]]],20000],
+  ["bibliotek","📚","Bibliotek",[[["amenity","library"]]],10000],
+  ["bokhandel","📖","Bokhandel",[[["shop","books"]]],10000],
+  ["shopping","🛍️","Shopping / kjøpesenter",[[["shop","mall|department_store"]]],20000],
+  ["marked","🧺","Marked / bondens marked",[[["amenity","marketplace"]]],20000],
+  ["spill","🎮","Spill / gaming",[[["leisure","amusement_arcade"]],[["shop","games|video_games"]]],20000],
+  ["escape","🔐","Escape room",[[["leisure","escape_game"]]],30000],
+  ["spa","🧖","Spa / badstue",[[["leisure","sauna"]],[["amenity","public_bath"]],[["shop","beauty"],["beauty","spa"]]],20000]
+ ]],
+ ["Familie og fellesskap",[
+  ["lekeplass","🛝","Lekeplass",[[["leisure","playground"]]],2000],
+  ["badeland","🌊","Badeland",[[["leisure","water_park"]]],60000],
+  ["fornoyelse","🎢","Fornøyelsespark",[[["tourism","theme_park"]]],80000],
+  ["kirke","⛪","Kirke / trossamfunn",[[["amenity","place_of_worship"]]],8000],
+  ["forening","🤝","Grendehus / foreningsliv",[[["amenity","community_centre|social_centre"]]],8000],
+  ["frivillig","❤️","Frivillighet",[[["amenity","social_facility"]],[["office","ngo|association"]]],10000]
+ ]]
+];
+
+/* Geoapify-kategorier per aktivitet: [kategorier, valgfritt navnesøk] */
+const GEO = {
+  gym:["sport.fitness"], crossfit:["sport.fitness,sport","crossfit"], yoga:["sport,activity","yoga"], outdoorgym:["sport.fitness.fitness_station"],
+  fotball:["sport.pitch,sport.stadium"], handball:["sport.sports_hall,sport.sports_centre"], basket:["sport.pitch,sport.sports_hall"], volley:["sport.pitch,sport","volley"],
+  tennis:["sport,activity","tennis"], padel:["sport,activity,commercial","padel"], squash:["sport,activity","squash",["sport.sports_centre,sport.fitness","squash"]], badminton:["sport.sports_hall,sport.sports_centre"],
+  bordtennis:["sport,activity","bordtennis"], golf:["sport.golf_course"], frisbeegolf:["sport,leisure,activity","frisbee"], minigolf:["entertainment.miniature_golf"],
+  friidrett:["sport.track,sport.stadium"], klatring:["entertainment.activity_park.climbing,sport,activity","klatre"], kampsport:["sport.dojo"],
+  svomming:["sport.swimming_pool,entertainment.water_park"], bowling:["entertainment.bowling_alley"], skoyter:["sport.ice_rink"], ishockey:["sport.ice_rink"],
+  ridning:["sport.horse_riding"], skyting:["sport.shooting"], skate:["sport.skateboard"], bmx:["sport,leisure","bmx"], dans:["activity,education,sport","dans"],
+  motorsport:["sport,entertainment","gokart"],
+  tur:["natural.forest,national_park,leisure.park.nature_reserve,natural.protected_area"], utsikt:["tourism.attraction.viewpoint"], park:["leisure.park"],
+  fiske:["sport.fishing,natural.water,natural.coastal,beach"], strand:["beach,natural.coastal"], batliv:["sport,leisure,service,tourism","båthavn"], padling:["rental.boat,sport,commercial.outdoor_and_sport.water_sports"],
+  seiling:["sport,activity","seil"], camping:["camping"], hund:["leisure.park,leisure","hund"], kolonihage:["leisure,activity","parsell"], dyrepark:["entertainment.zoo,entertainment.aquarium"],
+  alpint:["ski.lift,commercial.outdoor_and_sport.ski"], langrenn:["leisure,sport,natural","lysløype"], aking:["leisure,sport,natural","ake"],
+  kafe:["catering.cafe"], restaurant:["catering.restaurant"], bar:["catering.bar,catering.pub,catering.taproom"], nattklubb:["adult.nightclub",null,["catering.bar,entertainment","club"]],
+  kino:["entertainment.cinema"], teater:["entertainment.culture.theatre"], konsert:["entertainment.culture.arts_centre,entertainment.culture"], museum:["entertainment.museum"],
+  galleri:["entertainment.culture.gallery"], bibliotek:["education.library"], bokhandel:["commercial.books",null,["commercial","bok"]], shopping:["commercial.shopping_mall,commercial.department_store",null,["commercial","storsenter"]], marked:["commercial.marketplace",null,["commercial,tourism","marked"]],
+  spill:["entertainment","spill"], escape:["entertainment.escape_game"], spa:["leisure.spa"],
+  lekeplass:["leisure.playground"], badeland:["entertainment.water_park"], fornoyelse:["entertainment.theme_park"], kirke:["religion.place_of_worship"],
+  forening:["activity","grendehus"], frivillig:["service.social_facility"]
 };
-const NB = {ok:"Takk! Du står på listen 🎉", err:"Noe gikk galt. Prøv igjen om litt."};
-
-document.querySelectorAll("[data-i18n]").forEach(el=>{el.dataset.nb=el.textContent});
-document.querySelectorAll("[data-i18n-html]").forEach(el=>{el.dataset.nb=el.innerHTML});
-const nbTitle=document.title; let current="nb";
-
-function setLang(lang){
-  current=lang; document.documentElement.lang=lang;
-  document.querySelectorAll("[data-i18n]").forEach(el=>{const k=el.dataset.i18n; el.textContent=(lang==="en"&&EN[k])?EN[k]:el.dataset.nb;});
-  document.querySelectorAll("[data-i18n-html]").forEach(el=>{const k=el.dataset.i18nHtml; el.innerHTML=(lang==="en"&&EN[k])?EN[k]:el.dataset.nb;});
-  document.title=lang==="en"?EN.title:nbTitle;
-  document.getElementById("email").placeholder=lang==="en"?"name@email.com":"navn@epost.no";
-  document.getElementById("langField").value=lang;
-  document.querySelectorAll(".lang button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===lang));
-  try{localStorage.setItem("lh-lang",lang)}catch(e){}
-  if(window.updateDemo) updateDemo();
+const GEOAPIFY_KEY = "9c7905b7b9c34d069b1905b617c4cb37";
+const geoReady = () => GEOAPIFY_KEY && !GEOAPIFY_KEY.startsWith("LIM_INN");
+let gpStarts=[];
+async function gpSlot(){ // maks 4 forespørsler per sekund (gratisplanen tillater 5)
+  for(;;){ const now=Date.now(); gpStarts=gpStarts.filter(t=>now-t<1000);
+    if(gpStarts.length<4){ gpStarts.push(now); return; }
+    await new Promise(r=>setTimeout(r,1000-(now-gpStarts[0])+20)); }
 }
-document.querySelectorAll(".lang button").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
-let saved=null; try{saved=localStorage.getItem("lh-lang")}catch(e){}
-const q=new URLSearchParams(location.search).get("lang");
-setLang(q==="en"||q==="nb"?q:(saved==="en"?"en":"nb"));
+async function gp(cats, p, radius, limit=1, name){
+  const u=new URL("https://api.geoapify.com/v2/places");
+  u.searchParams.set("categories",cats); u.searchParams.set("filter",`circle:${p.lon},${p.lat},${radius}`);
+  u.searchParams.set("bias",`proximity:${p.lon},${p.lat}`); u.searchParams.set("limit",limit); u.searchParams.set("lang","no");
+  if(name) u.searchParams.set("name",name);
+  u.searchParams.set("apiKey",GEOAPIFY_KEY);
+  await gpSlot();
+  const r=await fetch(u,{signal:withTimeout(10000)});
+  if(!r.ok){ mapErrors.push("geoapify: HTTP "+r.status); throw new Error("geo "+r.status); }
+  const j=await r.json();
+  return (j.features||[]).map(f=>{ const q=f.properties; return {t:{name:q.name}, lat:q.lat, lon:q.lon, d:q.distance!=null?q.distance:km(p,q)*1000}; }).sort((a,b)=>a.d-b.d);
+}
+async function placeDataGeo(p, hobbies){
+  const safe = pr => pr.catch(()=>undefined);
+  const nature = safe(gp("natural.forest,natural.water,natural.coastal,beach,leisure.park,national_park,leisure.park.nature_reserve,natural.heath_moor,natural.protected_area",p,3000,1).then(r=>r.length?Math.max(50,Math.round(r[0].d)):null));
+  const nbP = (async()=>{
+    const [school,kinder,shop,stop,play,meet] = await Promise.all([
+      gp("education.school",p,2500,3), gp("childcare.kindergarten",p,2000,3), gp("commercial.supermarket,commercial.convenience",p,3000,3),
+      gp("public_transport.bus,public_transport.train,public_transport.tram,railway.train",p,1500,3), gp("leisure.playground",p,1500,5),
+      gp("catering.cafe,catering.restaurant,education.library",p,1500,20)
+    ]);
+    return {school,kinder,shop,stop,play,meet,health:[]};
+  })();
+  const nb = safe(nbP);
+  const defs=hobbies.map(hobDef).filter(Boolean);
+  const lei = (async()=>{
+    if(!defs.length) return [];
+    const out=[];
+    for(let i=0;i<defs.length;i+=4){
+      const chunk=defs.slice(i,i+4);
+      const res=await Promise.all(chunk.map(async d=>{
+        const g=d.custom?["sport,leisure,entertainment,activity,commercial,catering,tourism",d.n]:(GEO[d.id]||["sport,leisure,entertainment",d.n]);
+        const R=Math.max(d.R,3000); let r=null;
+        try{ r=await gp(g[0],p,R,1,g[1]||undefined); }catch(e){}
+        if((!r||!r.length) && g[2]){ try{ r=await gp(g[2][0],p,R,1,g[2][1]||undefined); }catch(e){} }
+        if(r===null) return {id:d.id,e:d.e,n:d.n,place:null,dist:null,failed:true};
+        const b=r[0];
+        return {id:d.id,e:d.e,n:d.n,place:b?{lat:b.lat,lon:b.lon,name:b.t.name}:null,dist:b?b.d:null,R};
+      }));
+      out.push(...res);
+    }
+    if(out.every(o=>o.failed)) throw new Error("lei");
+    return out;
+  })().catch(()=>undefined);
+  return {nature:await nature, nb:await nb, lei:await lei};
+}
 
-// ---------- DEMO ----------
-const TXT={
-  nb:{min:m=>m===0?"0 min":m+" min", v:["Her kan du bli skikkelig lykkelig 🎉","Et godt sted å leve 😊","Greit – men noe trekker ned 🤔","Tenk deg godt om før du byr 😬"],
-      tips:{commute:"Pendlingen er det som trekker mest ned. Forskningen viser at den koster mer enn folk tror.",friends:"Avstanden til venner og familie trekker mest ned – relasjoner er den sterkeste kilden til lykke.",nature:"Lang vei til natur trekker ned. Tid ute henger tett sammen med trivsel.",leisure:"Lang vei til fritidsaktiviteten gjør at du sannsynligvis gjør den sjeldnere.",light:"Lite lys trekker ned – særlig merkbart i mørketida.",neigh:"Naboskapet trekker ned. Små hverdagsmøter betyr mer enn vi tror.",money:"Boutgiftene trekker ned. Økonomisk stress følger deg hjem hver dag."},
-      perfect:"Alt ser bra ut – denne boligen passer livet ditt.",
-      hours:h=>h+" timer",
-      tue:(h,w)=>`brukt på pendling hvert år. Det tilsvarer <b>${w} arbeidsuker</b> – hver eneste år du bor der.`,
-      tue0:"brukt på pendling i året. Det er tid du får tilbake til det som gjør deg glad."},
-  en:{min:m=>m===0?"0 min":m+" min", v:["You could be really happy here 🎉","A good place to live 😊","Okay – but something drags it down 🤔","Think twice before you bid 😬"],
-      tips:{commute:"Your commute drags the score down the most. Research shows it costs more than people expect.",friends:"Distance to friends and family drags it down most – relationships are the strongest source of happiness.",nature:"A long way to nature drags it down. Time outdoors is closely linked to well-being.",leisure:"A long way to your favourite activity means you'll probably do it less.",light:"Little light drags it down – especially noticeable in the dark season.",neigh:"The neighbourhood drags it down. Small everyday encounters matter more than we think.",money:"Housing costs drag it down. Financial stress follows you home every day."},
-      perfect:"Everything looks good – this home fits your life.",
-      hours:h=>h+" hours",
-      tue:(h,w)=>`spent commuting every year. That's <b>${w} working weeks</b> – every year you live there.`,
-      tue0:"spent commuting per year. That's time you get back for what makes you happy."}
+const HOB = {}; CATS.forEach(([cat,list])=>list.forEach(([id,e,n,c,R])=>HOB[id]={id,e,n,c,R,cat}));
+function hobDef(id){
+  if(HOB[id]) return HOB[id];
+  if(id.startsWith("x:")) return {id, e:"⭐", n:id.slice(2), custom:true, R:25000};
+  return null;
+}
+const rxEsc = s => s.replace(/[.*+?^${}()|[\]\\"]/g,"\\$&");
+function hobMatcher(d){
+  if(d.custom){ const re=new RegExp(rxEsc(d.n),"i"); return t=>re.test(t.name||""); }
+  const conds=d.c.map(cond=>cond.map(([k,v])=>[k,new RegExp("^("+v+")$")]));
+  return t=>conds.some(cond=>cond.every(([k,re])=>re.test(t[k]||"")));
+}
+function hobQuery(d, L){
+  const tiers=[Math.round(d.R/8), Math.round(d.R/3), d.R];
+  const sel = r => d.custom
+    ? `nwr["name"~"${rxEsc(d.n)}",i](around:${r},${L});`
+    : d.c.map(cond=>"nwr"+cond.map(([k,v])=>`["${k}"~"^(${v})$"]`).join("")+`(around:${r},${L});`).join("");
+  return tiers.map(r=>`(${sel(r)});out center tags 6;`).join("");
+}
+
+/* =====================================================================
+   OPPSETT
+   ===================================================================== */
+const PLACE_TYPES = [["jobb","💼 Jobb"],["skole","🎓 Skole / studier"],["barnehage","🧸 Barnehage"],["annet","📍 Annet"]];
+const MODES = [["transit","🚌 Kollektivt"],["car","🚗 Bil"],["bike","🚲 Sykkel"],["foot","🚶 Gå"]];
+const FREQ  = [["2","Flere ganger i uka"],["1","Ukentlig"],["0.5","Annenhver uke"],["0.25","Månedlig"],["0.08","Sjeldnere"]];
+const MAX_PEOPLE=10, MAX_PLACES=5;
+const W = {commute:.24, friends:.22, nature:.1, leisure:.1, light:.07, neigh:.12, money:.15};
+const $ = id => document.getElementById(id);
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)) }catch(e){ return null } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)) }catch(e){} }
 };
-const state={light:4,neigh:3,money:3};
-document.querySelectorAll(".stars").forEach(box=>{
-  const k=box.dataset.key;
-  for(let i=1;i<=5;i++){
-    const b=document.createElement("button"); b.type="button"; b.textContent=i;
-    b.setAttribute("aria-label",k+" "+i); b.setAttribute("aria-pressed",i===state[k]);
-    b.addEventListener("click",()=>{state[k]=i;box.querySelectorAll("button").forEach((x,j)=>x.setAttribute("aria-pressed",j+1===i));updateDemo();});
-    box.appendChild(b);
+let profile = migrate(store.get("lh-profile"));
+let homes = store.get("lh-homes") || [];
+let current = null, map = null, user = null;
+
+function migrate(p){
+  if(!p) return null;
+  if(!p.places && p.work) p.places=[{type:"jobb",place:p.work,mode:p.mode||"transit",days:5}];
+  p.people=(p.people||[]).map(x=>x.place?x:{name:x.name,place:{label:x.label,sub:x.sub,lat:x.lat,lon:x.lon},freq:"1"});
+  if(!p.visitMode) p.visitMode="car";
+  p.hobbies=(p.hobbies||[]).map(h=>({kafe:"kafe",gym:"gym",fotball:"fotball",racket:"padel",svom:"svomming",kultur:"kino",ski:"alpint",golf:"golf"}[h]||h)).filter(h=>hobDef(h));
+  return p;
+}
+const num = s => { const n=parseInt(String(s||"").replace(/\D/g,""),10); return isNaN(n)?null:n; };
+const kr = n => n==null?"":n.toLocaleString("nb-NO")+" kr";
+function fmtInput(el){ el.addEventListener("input",()=>{ const n=num(el.value); el.value=n==null?"":n.toLocaleString("nb-NO"); }); }
+fmtInput($("budget")); fmtInput($("price")); fmtInput($("fees"));
+function esc(s){ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function opts(list,sel){ return list.map(([v,l])=>`<option value="${v}"${v==sel?" selected":""}>${l}</option>`).join(""); }
+
+/* ================= NAVIGASJON ================= */
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on", s.id===id));
+  const step = {sProfile:1,sHome:2,sLoading:2,sResult:3}[id];
+  document.querySelector(".stepper").style.display = id==="sAuth" ? "none" : "";
+  [1,2,3].forEach(i=>{ const el=$("st"+i); el.className = i===step?"on":(i<step?"done":""); });
+  $("editProfile").hidden = id==="sProfile" || id==="sAuth" || !profile || !!user;
+  $("menu").hidden = !user;
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ================= ADRESSESØK (Kartverket) ================= */
+async function geocode(text, n=6){
+  const url="https://ws.geonorge.no/adresser/v1/sok?fuzzy=true&utkoordsys=4326&treffPerSide="+n+"&sok="+encodeURIComponent(text);
+  const r=await fetch(url); if(!r.ok) throw new Error("geo");
+  const d=await r.json();
+  return (d.adresser||[]).map(a=>({label:a.adressetekst, sub:[a.postnummer,a.poststed].filter(Boolean).join(" "), lat:a.representasjonspunkt.lat, lon:a.representasjonspunkt.lon}));
+}
+function autocomplete(input, onPick){
+  const box=input.parentElement.querySelector(".ac"); let t;
+  input.addEventListener("input",()=>{
+    input.classList.remove("ok","bad"); input._place=null; onPick&&onPick(null);
+    clearTimeout(t); const v=input.value.trim();
+    if(v.length<3){ box.style.display="none"; return; }
+    t=setTimeout(async()=>{
+      try{
+        const res=await geocode(v);
+        box.innerHTML=res.length?"":'<button type="button" disabled>Fant ingen adresser</button>';
+        res.forEach(p=>{
+          const b=document.createElement("button"); b.type="button";
+          b.innerHTML=`${esc(p.label)}<small>${esc(p.sub)}</small>`;
+          b.addEventListener("mousedown",e=>e.preventDefault());
+          b.addEventListener("click",()=>{ input.value=p.label+(p.sub?", "+p.sub:""); input._place=p; input.classList.add("ok"); box.style.display="none"; onPick&&onPick(p); });
+          box.appendChild(b);
+        });
+        box.style.display="block";
+      }catch(e){ box.innerHTML='<button type="button" disabled>Adressesøket svarer ikke akkurat nå</button>'; box.style.display="block"; }
+    },220);
+  });
+  input.addEventListener("blur",()=>setTimeout(()=>box.style.display="none",150));
+}
+function setPlace(input,p){ if(!p) return; input.value=p.label+(p.sub?", "+p.sub:""); input._place=p; input.classList.add("ok"); }
+
+/* ================= PROFIL: STEDER ================= */
+function addPlace(pre){
+  if($("places").children.length>=MAX_PLACES) return;
+  const row=document.createElement("div"); row.className="row placeRow";
+  row.innerHTML=`<select class="ptype" aria-label="Type sted">${opts(PLACE_TYPES,pre?.type||($("places").children.length?"skole":"jobb"))}</select>
+    <div class="field addrF"><input type="text" class="paddr" placeholder="Adresse" autocomplete="off" aria-label="Adresse"><div class="ac"></div></div>
+    <select class="pmode" aria-label="Reisemåte">${opts(MODES,pre?.mode||"car")}</select>
+    <select class="pdays" aria-label="Dager per uke">${[1,2,3,4,5,6,7].map(d=>`<option value="${d}"${d==(pre?.days||5)?" selected":""}>${d} dag${d>1?"er":""}</option>`).join("")}</select>
+    <button type="button" class="x" aria-label="Fjern">✕</button>`;
+  const a=row.querySelector(".paddr"); autocomplete(a); if(pre) setPlace(a,pre.place);
+  row.querySelector(".x").addEventListener("click",()=>{ row.remove(); $("addPlace").hidden=false; });
+  $("places").appendChild(row); $("addPlace").hidden=$("places").children.length>=MAX_PLACES;
+}
+$("addPlace").addEventListener("click",()=>addPlace());
+
+/* ================= PROFIL: PERSONER ================= */
+function addPerson(pre){
+  if($("people").children.length>=MAX_PEOPLE) return;
+  const row=document.createElement("div"); row.className="row personRow";
+  row.innerHTML=`<input type="text" class="pname" placeholder="Hvem? (f.eks. Mamma)" aria-label="Navn">
+    <div class="field addrF"><input type="text" class="paddr" placeholder="Adressen deres" autocomplete="off" aria-label="Adresse"><div class="ac"></div></div>
+    <select class="pfreq" aria-label="Hvor ofte ses dere">${opts(FREQ,pre?.freq||"1")}</select>
+    <button type="button" class="x" aria-label="Fjern">✕</button>`;
+  const a=row.querySelector(".paddr"); autocomplete(a);
+  if(pre){ row.querySelector(".pname").value=pre.name||""; setPlace(a,pre.place); }
+  row.querySelector(".x").addEventListener("click",()=>{ row.remove(); $("addPerson").hidden=false; });
+  $("people").appendChild(row); $("addPerson").hidden=$("people").children.length>=MAX_PEOPLE;
+}
+$("addPerson").addEventListener("click",()=>addPerson());
+$("visitMode").addEventListener("click",e=>{ const b=e.target.closest(".chip"); if(!b) return; $("visitMode").querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x===b)); });
+
+/* ================= PROFIL: AKTIVITETER ================= */
+let selHob=new Set();
+function renderHobbies(){
+  const q=$("hobSearch").value.trim().toLowerCase();
+  $("hobSelected").innerHTML=[...selHob].map(id=>{ const d=hobDef(id); return d?`<button type="button" class="chip sel" data-id="${esc(id)}" title="Fjern">${d.e} ${esc(d.n)} ✕</button>`:""; }).join("");
+  let html="", hits=0;
+  CATS.forEach(([cat,list])=>{
+    const items=list.filter(([id,e,n])=>!q || n.toLowerCase().includes(q) || id.includes(q) || cat.toLowerCase().includes(q));
+    if(!items.length) return; hits+=items.length;
+    html+=`<div class="cat"><h4>${cat}</h4><div class="chips">${items.map(([id,e,n])=>`<button type="button" class="chip" data-id="${id}" aria-pressed="${selHob.has(id)}">${e} ${n}</button>`).join("")}</div></div>`;
+  });
+  $("hobCats").innerHTML = html || `<p class="muted" style="margin:0">Ingen treff i listen.</p>`;
+  $("hobCustom").innerHTML = q && q.length>=3 && !CATS.some(([c,l])=>l.some(([id,e,n])=>n.toLowerCase()===q))
+    ? `<button type="button" class="add" id="addCustom">+ Legg til «${esc($("hobSearch").value.trim())}» som egen aktivitet</button>` : "";
+  const ac=$("addCustom"); if(ac) ac.addEventListener("click",()=>{ selHob.add("x:"+$("hobSearch").value.trim()); $("hobSearch").value=""; renderHobbies(); });
+}
+$("hobSearch").addEventListener("input",renderHobbies);
+$("hobSearch").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); const b=$("addCustom")||$("hobCats").querySelector(".chip"); if(b) b.click(); }});
+[$("hobCats"),$("hobSelected")].forEach(el=>el.addEventListener("click",e=>{
+  const b=e.target.closest(".chip"); if(!b) return; const id=b.dataset.id;
+  selHob.has(id)?selHob.delete(id):selHob.add(id); renderHobbies();
+}));
+
+function fillProfileForm(){
+  $("places").innerHTML=""; $("people").innerHTML=""; selHob=new Set(); $("budget").value=""; $("hobSearch").value="";
+  if(profile){
+    profile.places.forEach(p=>addPlace(p));
+    profile.people.forEach(p=>addPerson(p));
+    profile.hobbies.forEach(h=>selHob.add(h));
+    if(profile.budget) $("budget").value=profile.budget.toLocaleString("nb-NO");
+    $("visitMode").querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x.dataset.v===(profile.visitMode||"car")));
   }
+  if(!$("places").children.length) addPlace();
+  if(!$("people").children.length) addPerson();
+  renderHobbies();
+}
+$("saveProfile").addEventListener("click",()=>{
+  const err=$("profileErr"); err.style.display="none";
+  const bad=[];
+  const places=[...$("places").children].map(r=>{ const a=r.querySelector(".paddr");
+    if(a.value.trim() && !a._place){ bad.push(a); return null; }
+    return a._place?{type:r.querySelector(".ptype").value, place:a._place, mode:r.querySelector(".pmode").value, days:+r.querySelector(".pdays").value}:null; }).filter(Boolean);
+  const people=[...$("people").children].map(r=>{ const a=r.querySelector(".paddr");
+    if(a.value.trim() && !a._place){ bad.push(a); return null; }
+    return a._place?{name:r.querySelector(".pname").value.trim()||"Person", place:a._place, freq:r.querySelector(".pfreq").value}:null; }).filter(Boolean);
+  if(bad.length){ bad.forEach(a=>a.classList.add("bad")); err.textContent="Noen adresser er ikke valgt fra listen (markert i rødt). Skriv litt av adressen og trykk på riktig forslag."; err.style.display="block"; bad[0].focus(); return; }
+  if(!places.length){ err.textContent="Legg inn minst ett sted du drar jevnlig – for eksempel jobb eller skole."; err.style.display="block"; return; }
+  profile={places, people, hobbies:[...selHob], budget:num($("budget").value), visitMode:$("visitMode").querySelector('[aria-pressed="true"]').dataset.v};
+  store.set("lh-profile",profile); pushProfile();
+  renderProfileSum(); renderCompare(); show("sHome"); setTimeout(()=>$("homeAddr").focus(),300);
 });
-const $=id=>document.getElementById(id);
-const clamp=x=>Math.max(0,Math.min(100,x));
-function fill(r){r.style.setProperty("--fill",((r.value-r.min)/(r.max-r.min)*100)+"%");}
-window.updateDemo=function(){
-  const L=TXT[current]||TXT.nb;
-  const c=+$("dCommute").value,f=+$("dFriends").value,n=+$("dNature").value,l=+$("dLeisure").value;
-  ["dCommute","dFriends","dNature","dLeisure"].forEach(id=>fill($(id)));
-  $("oCommute").textContent=L.min(c);$("oFriends").textContent=L.min(f);$("oNature").textContent=L.min(n);$("oLeisure").textContent=L.min(l);
-  const s={commute:clamp(100-Math.max(0,c-10)*1.4),friends:clamp(100-Math.max(0,f-10)*0.9),nature:clamp(100-Math.max(0,n-5)*3.2),
-           leisure:clamp(100-Math.max(0,l-10)*1.6),light:(state.light-1)*25,neigh:(state.neigh-1)*25,money:(state.money-1)*25};
-  const w={commute:.25,friends:.2,nature:.1,leisure:.08,light:.1,neigh:.15,money:.12};
-  let score=0; for(const k in w) score+=s[k]*w[k]; score=Math.round(score);
-  $("rScore").textContent=score;
-  const col=score>=75?"var(--mint)":score>=55?"var(--sun)":"var(--coral)";
-  $("rRing").style.background=`conic-gradient(${col} ${score}%, rgba(255,255,255,.12) 0)`;
-  $("rVerdict").textContent=L.v[score>=75?0:score>=60?1:score>=45?2:3];
-  let worst=null,wv=101; for(const k in s){ if(s[k]<wv){wv=s[k];worst=k;} }
-  $("rTip").textContent= wv>=70 ? L.perfect : L.tips[worst];
-  const hours=Math.round(c*2*230/60), weeks=Math.round(hours/37.5*10)/10;
-  $("tHours").textContent=L.hours(hours.toLocaleString(current==="en"?"en-GB":"nb-NO"));
-  $("tText").innerHTML= c===0 ? L.tue0 : L.tue(hours, weeks.toLocaleString(current==="en"?"en-GB":"nb-NO"));
+$("editProfile").addEventListener("click",()=>{ fillProfileForm(); show("sProfile"); });
+
+function renderProfileSum(){
+  const m=Object.fromEntries(MODES), t=Object.fromEntries(PLACE_TYPES);
+  $("profileSum").innerHTML =
+    profile.places.map(p=>`<span>${t[p.type].split(" ")[0]} ${esc(p.place.label)} · ${m[p.mode].split(" ")[0]}</span>`).join("")+
+    profile.people.map(p=>`<span>🫂 ${esc(p.name)}</span>`).join("")+
+    profile.hobbies.map(id=>{const d=hobDef(id);return d?`<span>${d.e} ${esc(d.n)}</span>`:""}).join("")+
+    (profile.budget?`<span>💸 Budsjett ${kr(profile.budget)}</span>`:"");
+}
+
+/* ================= BOLIG ================= */
+let homePlace=null;
+autocomplete($("homeAddr"), p=>{ homePlace=p; $("check").disabled=!p; });
+$("check").addEventListener("click",()=>analyze(homePlace,{price:num($("price").value),fees:num($("fees").value)}));
+[$("homeAddr"),$("price"),$("fees")].forEach(el=>el.addEventListener("keydown",e=>{ if(e.key==="Enter" && homePlace) $("check").click(); }));
+function resetHomeForm(){ $("homeAddr").value=""; $("price").value=""; $("fees").value=""; homePlace=null; $("check").disabled=true; $("homeAddr").classList.remove("ok"); }
+$("another").addEventListener("click",()=>{ resetHomeForm(); renderCompare(); show("sHome"); setTimeout(()=>$("homeAddr").focus(),300); });
+$("toCompare").addEventListener("click",()=>{ renderCompare(); show("sHome"); setTimeout(()=>$("cmpBox").scrollIntoView({behavior:"smooth"}),350); });
+
+/* ================= REISETID ================= */
+function km(a,b){ const R=6371,t=x=>x*Math.PI/180; const dLa=t(b.lat-a.lat), dLo=t(b.lon-a.lon);
+  const h=Math.sin(dLa/2)**2+Math.cos(t(a.lat))*Math.cos(t(b.lat))*Math.sin(dLo/2)**2; return 2*R*Math.asin(Math.sqrt(h)); }
+// Anslag når ruteplanleggerne ikke svarer. Bilfarten øker med avstand (bygate -> motorvei).
+function estMinutes(a,b,mode){
+  const d=km(a,b);
+  if(mode==="car"){ const road=d*1.25, v=Math.min(78, 28+road*1.9); return Math.max(3,Math.round(road/v*60+3)); }
+  if(mode==="bike") return Math.max(2,Math.round(d*1.25/17*60));
+  if(mode==="foot") return Math.max(2,Math.round(d*1.2/5*60));
+  const road=d*1.3, v=Math.min(55, 16+road*1.4); return Math.round(road/v*60+9);
+}
+function withTimeout(ms){ const c=new AbortController(); setTimeout(()=>c.abort(),ms); return c.signal; }
+function nextWeekday8(){ const d=new Date(); d.setDate(d.getDate()+1); while([0,6].includes(d.getDay())) d.setDate(d.getDate()+1); d.setHours(8,0,0,0); return d.toISOString(); }
+const ROUTERS = {
+  car:  ["https://routing.openstreetmap.de/routed-car/route/v1/driving/","https://router.project-osrm.org/route/v1/driving/"],
+  bike: ["https://routing.openstreetmap.de/routed-bike/route/v1/driving/"],
+  foot: ["https://routing.openstreetmap.de/routed-foot/route/v1/driving/"]
 };
-["dCommute","dFriends","dNature","dLeisure"].forEach(id=>$(id).addEventListener("input",updateDemo));
-updateDemo();
+async function travel(a,b,mode){
+  if(km(a,b)<0.15) return {min:1,est:false};
+  if(mode==="transit"){
+    try{
+      const q=`{trip(from:{coordinates:{latitude:${a.lat},longitude:${a.lon}}},to:{coordinates:{latitude:${b.lat},longitude:${b.lon}}},dateTime:"${nextWeekday8()}",arriveBy:true,numTripPatterns:3){tripPatterns{duration}}}`;
+      const r=await fetch("https://api.entur.io/journey-planner/v3/graphql",{method:"POST",signal:withTimeout(9000),headers:{"Content-Type":"application/json","ET-Client-Name":"lykkelighjem-prototype"},body:JSON.stringify({query:q})});
+      const d=await r.json(); const t=(d.data?.trip?.tripPatterns||[]).map(p=>p.duration);
+      if(t.length) return {min:Math.round(Math.min(...t)/60), est:false};
+    }catch(e){}
+  }else{
+    for(const base of ROUTERS[mode]){
+      try{
+        const r=await fetch(`${base}${a.lon},${a.lat};${b.lon},${b.lat}?overview=false`,{signal:withTimeout(7000)});
+        const d=await r.json();
+        if(d.routes?.length) return {min:Math.max(1,Math.round(d.routes[0].duration/60)+(mode==="car"?2:0)), est:false};
+      }catch(e){}
+    }
+  }
+  return {min:estMinutes(a,b,mode), est:true};
+}
 
-// ---------- REVEAL + MOBIL-CTA ----------
-const io=("IntersectionObserver" in window)?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}}),{threshold:.12}):null;
-document.querySelectorAll(".head,.vs-card,.step,.factor,.finding,.panel,.result,.faq details,.wl,.quote").forEach(el=>{
-  if(io){el.classList.add("reveal");io.observe(el);}
-});
-const mcta=$("mcta"), wlSec=$("venteliste");
-window.addEventListener("scroll",()=>{
-  const r=wlSec.getBoundingClientRect();
-  mcta.classList.toggle("show", window.scrollY>600 && r.top>window.innerHeight);
-},{passive:true});
+/* ================= KARTDATA: ÉN SAMLET FORESPØRSEL ================= */
+const OVERPASS=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter","https://maps.mail.ru/osm/tools/overpass/api/interpreter"];
+const NATURE_R=[150,300,600,1000,1500,2000];
+let mapErrors=[];
+async function overpass(q){
+  for(const url of OVERPASS){
+    const host=new URL(url).hostname;
+    try{
+      const r=await fetch(url,{method:"POST",signal:withTimeout(15000),body:"data="+encodeURIComponent(q),headers:{"Content-Type":"application/x-www-form-urlencoded"}});
+      if(r.ok){ const j=await r.json(); if(!j.remark || !/runtime error|timed out/i.test(j.remark)) return j.elements||[]; mapErrors.push(host+": "+j.remark.slice(0,80)); }
+      else mapErrors.push(host+": HTTP "+r.status);
+    }catch(e){ mapErrors.push(host+": "+(e.name==="AbortError"?"tidsavbrudd":e.message)); }
+  }
+  console.warn("Kartdata feilet:",mapErrors);
+  throw new Error("overpass");
+}
+const tagList=(els,p)=>els.filter(e=>e.type!=="count"&&e.tags).map(e=>{ const c=e.center||e; return {t:e.tags, lat:c.lat, lon:c.lon, d:km(p,c)*1000}; }).filter(e=>e.lat);
+async function natureData(p){
+  const L=`${p.lat},${p.lon}`;
+  const nat=['way["landuse"~"^(forest|meadow)$"]','way["natural"~"^(wood|beach|water|heath|scrub|coastline)$"]','way["leisure"~"^(park|nature_reserve)$"]'];
+  let q=`[out:json][timeout:20];`;
+  NATURE_R.forEach(R=>{ q+=`(${nat.map(f=>`${f}(around:${R},${L});`).join("")});out count;`; });
+  const counts=(await overpass(q)).filter(e=>e.type==="count").map(e=>+(e.tags?.total||0));
+  for(let i=0;i<NATURE_R.length;i++){ if(counts[i]>0) return NATURE_R[i]; }
+  return null;
+}
+async function neighData(p){
+  const L=`${p.lat},${p.lon}`;
+  const q=`[out:json][timeout:20];(nwr["amenity"~"^(school|kindergarten|cafe|restaurant|community_centre|library|pharmacy|doctors)$"](around:900,${L});nwr["leisure"="playground"](around:900,${L});nwr["shop"~"^(supermarket|convenience)$"](around:1500,${L});nwr["highway"="bus_stop"](around:600,${L});nwr["railway"~"^(station|halt|tram_stop)$"](around:1500,${L}););out center tags 200;`;
+  const tagged=tagList(await overpass(q),p);
+  const near=(test,max)=>tagged.filter(e=>test(e.t)&&e.d<=max).sort((a,b)=>a.d-b.d);
+  return {
+    school: near(t=>t.amenity==="school",900),
+    kinder: near(t=>t.amenity==="kindergarten",900),
+    shop:   near(t=>/^(supermarket|convenience)$/.test(t.shop||""),1500),
+    stop:   near(t=>t.highway==="bus_stop"||/^(station|halt|tram_stop)$/.test(t.railway||""),1500),
+    play:   near(t=>t.leisure==="playground",900),
+    meet:   near(t=>/^(cafe|restaurant|community_centre|library)$/.test(t.amenity||""),900),
+    health: near(t=>/^(pharmacy|doctors)$/.test(t.amenity||""),900)
+  };
+}
+async function leisureData(p, hobbies){
+  const defs=hobbies.map(hobDef).filter(Boolean); if(!defs.length) return [];
+  const L=`${p.lat},${p.lon}`;
+  // Del opp i små forespørsler så én treg aktivitet ikke stopper resten
+  const out=[];
+  for(let i=0;i<defs.length;i+=4){
+    const chunk=defs.slice(i,i+4);
+    let tagged=[]; try{ tagged=tagList(await overpass(`[out:json][timeout:20];`+chunk.map(d=>hobQuery(d,L)).join("")),p); }catch(e){ chunk.forEach(d=>out.push({id:d.id,e:d.e,n:d.n,place:null,dist:null,failed:true})); continue; }
+    chunk.forEach(d=>{ const m=hobMatcher(d); const best=tagged.filter(e=>m(e.t)).sort((a,b)=>a.d-b.d)[0];
+      out.push({id:d.id, e:d.e, n:d.n, place:best?{lat:best.lat,lon:best.lon,name:best.t.name}:null, dist:best?best.d:null}); });
+  }
+  if(out.length && out.every(o=>o.failed)) throw new Error("leisure");
+  return out;
+}
+async function placeData(p, hobbies){
+  if(geoReady()) return placeDataGeo(p, hobbies);
+  // To forespørsler samtidig (Overpass tillater to per bruker), deretter fritid
+  const [nature, nb] = await Promise.all([ natureData(p).catch(()=>undefined), neighData(p).catch(()=>undefined) ]);
+  const lei = await leisureData(p, hobbies).catch(()=>undefined);
+  return {nature, nb, lei};
+}
 
-const form=document.getElementById("wl"), msg=document.getElementById("msg");
-form.addEventListener("submit",async e=>{
-  e.preventDefault(); const m=current==="en"?EN:NB;
-  try{
-    const r=await fetch(form.action,{method:"POST",body:new FormData(form),headers:{Accept:"application/json"}});
-    if(!r.ok) throw 0; form.reset(); msg.className="msg"; msg.textContent=m.ok;
-  }catch(_){ msg.className="msg err"; msg.textContent=m.err; }
-  msg.style.display="block";
+/* ================= SCORE ================= */
+function interp(x, pts){ if(x<=pts[0][0]) return pts[0][1]; for(let i=1;i<pts.length;i++){ const [x1,y1]=pts[i]; if(x<=x1){ const [x0,y0]=pts[i-1]; return y0+(y1-y0)*(x-x0)/(x1-x0); } } return pts[pts.length-1][1]; }
+const CURVE = {
+  commute:[[10,100],[20,85],[30,65],[45,40],[60,20],[90,0]],
+  friends:[[10,100],[20,82],[30,62],[45,35],[60,15],[90,0]],
+  leisure:[[5,100],[10,90],[20,65],[30,40],[45,15],[60,0]],
+  nature: [[150,100],[300,92],[600,75],[1000,55],[1500,35],[2000,20]]
+};
+const clamp=x=>Math.max(0,Math.min(100,Math.round(x)));
+function computeScores(c){
+  const s={};
+  // Pendling: snitt vektet etter dager i uka
+  const dsum=c.trips.reduce((a,t)=>a+t.days,0)||1;
+  s.commute=clamp(c.trips.reduce((a,t)=>a+interp(t.min,CURVE.commute)*t.days,0)/dsum);
+  // Venner og familie: vektet etter hvor ofte dere ses
+  if(c.people.length){ const fs=c.people.reduce((a,p)=>a+p.freq,0)||1; s.friends=clamp(c.people.reduce((a,p)=>a+interp(p.min,CURVE.friends)*p.freq,0)/fs); }
+  if(c.nature!==undefined) s.nature=clamp(c.nature==null?8:interp(c.nature,CURVE.nature));
+  const okLei=(c.lei||[]).filter(l=>!l.failed);
+  if(okLei.length) s.leisure=clamp(okLei.reduce((a,l)=>a+(l.min==null?5:interp(l.min,CURVE.leisure)),0)/okLei.length);
+  s.light={S:92,V:85,O:70,N:40,"?":60}[c.light||"?"];
+  if(c.nb){ const n=c.nb, has=a=>a.length>0;
+    const d0=a=>has(a)?a[0].d:Infinity, within=(a,m)=>a.filter(x=>x.d<=m).length;
+    s.neigh=clamp(15 + (d0(n.shop)<600?18:d0(n.shop)<1500?10:d0(n.shop)<3000?4:0) + (d0(n.stop)<400?15:d0(n.stop)<1000?8:0)
+      + (d0(n.school)<1000?12:d0(n.school)<2500?6:0) + (d0(n.kinder)<800?12:d0(n.kinder)<2000?6:0)
+      + Math.min(within(n.play,900),3)*5 + Math.min(within(n.meet,1000),4)*3 + (has(n.health)?5:0)); }
+  if(c.price && profile.budget){ s.money=clamp(interp(c.price/profile.budget,[[0.75,100],[0.85,90],[0.95,72],[1.0,60],[1.05,40],[1.15,15],[1.25,0]])); }
+  else if(c.money) s.money=(c.money-1)*25;
+  let tot=0,wt=0; for(const k in s){ tot+=s[k]*W[k]; wt+=W[k]; }
+  let total=Math.round(tot/wt);
+  // Strengere: svak pendling eller lang vei til familie gjør at boligen ikke kan få toppscore
+  const caps=[];
+  if(s.commute<30){ total=Math.min(total,62); caps.push("pendlingen"); }
+  if(s.friends!==undefined && s.friends<30){ total=Math.min(total,62); caps.push("avstanden til de viktigste menneskene dine"); }
+  if(s.money!==undefined && s.money<20){ total=Math.min(total,55); caps.push("prisen i forhold til budsjettet"); }
+  return {s,total,caps};
+}
+const gradeOf=t=>t>=85?["A","var(--mint)"]:t>=72?["B","#7ed6a8"]:t>=58?["C","var(--sun)"]:t>=45?["D","#ff9f6e"]:["E","var(--red)"];
+const col=v=>v>=75?"var(--mint)":v>=50?"var(--sun)":"var(--red)";
+const INFO = {
+  commute:{t:"🚆 Pendling", why:"Pendlerparadokset: lang pendling gir lavere livstilfredshet hver dag, og veies sjelden opp av større bolig eller høyere lønn (Stutzer & Frey, 2008)."},
+  friends:{t:"🫂 Venner og familie", why:"Nære relasjoner er den sterkeste kilden til lykke vi kjenner. Lang vei betyr at dere ses sjeldnere."},
+  nature:{t:"🌲 Natur", why:"Minst 120 minutter i naturen i uka henger sammen med bedre helse og trivsel (White mfl., 2019). Det er lettere når naturen er rett utenfor døra."},
+  leisure:{t:"⛳ Fritid", why:"Jo kortere vei til det du liker å gjøre, jo oftere blir det faktisk gjort."},
+  light:{t:"☀️ Sol og lys", why:"Dagslys påvirker humør og energi – særlig i mørketida."},
+  neigh:{t:"🏡 Nabolag", why:"Små hverdagsmøter i butikken, på lekeplassen og på bussen gir mer glede enn vi tror (svake bånd). Nærhet til hverdagstjenester gir også mer tid."},
+  money:{t:"💸 Økonomisk luft", why:"Økonomisk stress følger deg hjem hver dag. En bolig godt innenfor budsjettet gir rom for opplevelser og folk."}
+};
+const mm=m=>m<60?`${m} min`:`${Math.floor(m/60)} t ${m%60} min`;
+const md=d=>d<1000?`${Math.round(d/10)*10} m`:`${(d/1000).toFixed(1).replace(".",",")} km`;
+
+/* ================= ANALYSE ================= */
+async function analyze(place, extra={}){
+  show("sLoading"); ["c1","c2","c3","c4"].forEach(id=>$(id).classList.remove("done"));
+  setTimeout(()=>$("c1").classList.add("done"),250);
+  const tripsP=Promise.all(profile.places.map(async pl=>({...(await travel(place,pl.place,pl.mode)),type:pl.type,label:pl.place.label,place:pl.place,mode:pl.mode,days:pl.days})));
+  const peopleMode=profile.visitMode||"car";
+  const peopleP=Promise.all(profile.people.map(async pp=>({...(await travel(place,pp.place,peopleMode)),name:pp.name,place:pp.place,freq:+pp.freq})));
+  const [trips,people]=await Promise.all([tripsP,peopleP]); $("c2").classList.add("done");
+  mapErrors=[];
+  const pd=await placeData(place, profile.hobbies);
+  $("c3").classList.add("done");
+  const lmode=peopleMode==="transit"?"transit":peopleMode;
+  const lei=pd.lei?pd.lei.map(l=>({...l, min:l.place?estMinutes(place,l.place,l.dist<1500?"foot":lmode):null, walk:l.place&&l.dist<1500})):undefined;
+  await new Promise(r=>setTimeout(r,350)); $("c4").classList.add("done");
+  const existing=homes.find(h=>Math.abs(h.place.lat-place.lat)<1e-6&&Math.abs(h.place.lon-place.lon)<1e-6);
+  current={place, trips, people, nature:pd.nature, nb:pd.nb, lei, visitMode:peopleMode,
+    price:extra.price??existing?.price??null, fees:extra.fees??existing?.fees??null,
+    light:existing?.light||"?", money:existing?.money||null, id:existing?.id||Date.now(), dbId:existing?.dbId};
+  renderResult();
+}
+
+/* ================= RESULTAT ================= */
+function animateNumber(el,to){ const t0=performance.now(), dur=900; const step=t=>{ const k=Math.min(1,(t-t0)/dur), v=Math.round(to*(1-Math.pow(1-k,3))); el.textContent=v; if(k<1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
+
+function renderResult(){
+  const c=current, {s,total,caps}=computeScores(c);
+  const [g,gc]=gradeOf(total);
+  animateNumber($("rScore"),total);
+  $("gauge").style.background=`conic-gradient(${gc} ${total}%, rgba(255,255,255,.1) 0)`;
+  $("grade").textContent=g; $("grade").style.background=gc; $("hero").style.setProperty("--hc",gc);
+  $("rVerdict").textContent= total>=85?"Her kan du bli skikkelig lykkelig 🎉": total>=72?"Et godt sted å leve 😊": total>=58?"Greit – men noe trekker ned 🤔": total>=45?"Tenk deg godt om 😬":"Denne passer dårlig med livet ditt 😕";
+  $("rAddr").textContent=c.place.label+(c.place.sub?", "+c.place.sub:"");
+  const tags=[];
+  if(c.price) tags.push("💰 "+kr(c.price)); if(c.fees) tags.push("🧾 "+kr(c.fees)+"/mnd");
+  if(c.price&&profile.budget) tags.push(`${Math.round(c.price/profile.budget*100)} % av budsjettet`);
+  $("rTags").innerHTML=tags.map(t=>`<span>${esc(t)}</span>`).join("");
+  $("rWarn").hidden=!caps.length;
+  if(caps.length) $("rWarn").textContent=`Scoren er holdt nede fordi ${caps.join(" og ")} er et tydelig minus. Uansett hvor fin boligen er, merker du det hver uke.`;
+
+  // En vanlig uke
+  const weekTravel=c.trips.reduce((a,t)=>a+t.min*2*t.days,0)+c.people.reduce((a,p)=>a+p.min*2*Math.min(p.freq,2),0);
+  const yearH=Math.round(c.trips.reduce((a,t)=>a+t.min*2*t.days,0)*46/60);
+  const nearestFam=c.people.length?c.people.reduce((a,p)=>p.min<a.min?p:a):null;
+  const dDec=daylight(c.place.lat,-23.44);
+  $("week").innerHTML=`
+    <div class="wk wk1"><div class="big">${mm(Math.round(weekTravel))}</div><div class="lab">på reise i uka – til hverdag og familie</div></div>
+    <div class="wk wk2"><div class="big">${yearH.toLocaleString("nb-NO")} t</div><div class="lab">pendling i året (${(yearH/37.5).toLocaleString("nb-NO",{maximumFractionDigits:1})} arbeidsuker)</div></div>
+    <div class="wk wk3"><div class="big">${c.nature===undefined?"–":c.nature==null?"> 2 km":"< "+md(c.nature)}</div><div class="lab">til nærmeste skog, park eller vann</div></div>
+    <div class="wk wk4"><div class="big">${nearestFam?mm(nearestFam.min):"–"}</div><div class="lab">${nearestFam?"til "+esc(nearestFam.name):"legg til personer i profilen"}</div></div>`;
+
+  // Det beste / det som trekker ned
+  const ranked=Object.keys(s).map(k=>[k,s[k]]).sort((a,b)=>b[1]-a[1]);
+  const li=([k,v])=>`<li><span>${INFO[k].t}</span><b style="color:${col(v)}">${v}</b></li>`;
+  $("bestList").innerHTML=ranked.filter(r=>r[1]>=60).slice(0,3).map(li).join("")||`<li><span>Ingen faktorer skiller seg positivt ut</span></li>`;
+  $("worstList").innerHTML=ranked.slice().reverse().filter(r=>r[1]<60).slice(0,3).map(li).join("")||`<li><span>Ingenting trekker tydelig ned 🎉</span></li>`;
+
+  // Faktorkort
+  const est=e=>e?'<span class="est">ca.</span>':"";
+  const tName=Object.fromEntries(PLACE_TYPES), mName=Object.fromEntries(MODES), fName=Object.fromEntries(FREQ);
+  const item=(l,r)=>`<div class="item"><span>${l}</span><b>${r}</b></div>`;
+  const nbItem=(lab,arr)=>item(lab, arr.length?`${md(arr[0].d)}${arr[0].t.name?" · "+esc(arr[0].t.name):""}`:"ikke i nærheten");
+  const val={
+    commute:c.trips.map(t=>item(`${tName[t.type].split(" ")[0]} ${esc(t.label)} <span class="muted">(${mName[t.mode].split(" ")[0]} · ${t.days}d/uke)</span>`, mm(t.min)+est(t.est))).join(""),
+    friends:(c.people.length?`<div class="muted" style="font-size:.82rem;margin-bottom:4px">Reisetid med ${(mName[c.visitMode||"car"]||"").toLowerCase().replace(/^\S+ /,"")}</div>`:"")+c.people.map(p=>item(`${esc(p.name)} <span class="muted">(${fName[String(p.freq)]||""})</span>`, mm(p.min)+est(p.est))).join(""),
+    nature:c.nature===undefined?"":item("Nærmeste skog, park eller vann", c.nature==null?"over 2 km":"innen "+md(c.nature)),
+    leisure:(c.lei||[]).map(l=>item(`${l.e} ${esc(l.n)}${l.place?.name?' <span class="muted">· '+esc(l.place.name)+'</span>':""}`, l.failed?"kunne ikke hentes":l.min==null?`ikke funnet innen ${Math.round((l.R||20000)/1000)} km`:(l.walk?"🚶 ":"")+mm(l.min)+est(true))).join(""),
+    light:item("Dagslys i desember", dDec.toFixed(1).replace(".",",")+" t")+item("Dagslys i juni", daylight(c.place.lat,23.44).toFixed(1).replace(".",",")+" t"),
+    neigh:c.nb?[nbItem("🛒 Dagligvare",c.nb.shop),nbItem("🚏 Kollektivstopp",c.nb.stop),nbItem("🏫 Skole",c.nb.school),nbItem("🧸 Barnehage",c.nb.kinder),nbItem("🛝 Lekeplass",c.nb.play),item("☕ Kafeer og møteplasser innen 1 km", c.nb.meet.filter(x=>x.d<=1000).length)].join(""):"",
+    money:c.price?item("Totalpris",kr(c.price))+(profile.budget?item("Ditt budsjett",kr(profile.budget)):"")+(c.fees?item("Felleskostnader",kr(c.fees)+"/mnd"):""):""
+  };
+  const order=["commute","friends","money","nature","leisure","neigh","light"];
+  $("factors").innerHTML=order.map(k=>{
+    if(k==="friends"&&!c.people.length) return "";
+    if(k==="leisure"&&!profile.hobbies.length) return "";
+    const v=s[k], has=v!==undefined;
+    let extra="";
+    if(k==="light") extra=`<p class="f-why" style="margin-top:10px;font-weight:700;color:var(--ink)">Hvilken vei vender stua?</p><div class="chips" data-k="light">${[["S","Sør"],["V","Vest"],["O","Øst"],["N","Nord"],["?","Vet ikke"]].map(([v2,l])=>`<button type="button" class="chip" data-v="${v2}" aria-pressed="${(c.light||"?")===v2}">${l}</button>`).join("")}</div>`;
+    if(k==="money"&&!(c.price&&profile.budget)) extra=`<p class="f-why" style="margin-top:10px;font-weight:700;color:var(--ink)">${c.price?"Legg inn budsjett i profilen for en sikrere vurdering – eller":""} Hvor komfortabel er du med prisen?</p><div class="chips" data-k="money">${[1,2,3,4,5].map(n=>`<button type="button" class="chip" data-v="${n}" aria-pressed="${c.money===n}">${n}</button>`).join("")}</div>`;
+    const empty=k==="money"?"Legg inn pris og budsjett – eller vurder selv under.":k==="nature"||k==="neigh"||k==="leisure"?`Kartdata svarte ikke akkurat nå. <button type="button" class="chip retry" style="margin-left:6px">🔄 Prøv igjen</button>${mapErrors.length?`<div style="font-size:.72rem;color:var(--muted);margin-top:6px">Feil: ${esc([...new Set(mapErrors)].join(" · "))}</div>`:""}`:"";
+    return `<div class="f"><div class="mini" style="background:conic-gradient(${has?col(v):"#eef0f6"} ${has?v:0}%, #eef0f6 0)"><div>${has?v:"–"}</div></div>
+      <div><h3>${INFO[k].t}</h3>${val[k]?`<div class="f-val">${val[k]}</div>`:`<div class="f-val muted">${empty}</div>`}<p class="f-why">${INFO[k].why}</p>${extra}</div></div>`;
+  }).join("");
+  $("factors").querySelectorAll(".retry").forEach(b=>b.addEventListener("click",()=>analyze(current.place,{price:current.price,fees:current.fees})));
+  $("factors").querySelectorAll(".chips").forEach(g=>g.addEventListener("click",e=>{
+    const b=e.target.closest(".chip"); if(!b) return;
+    if(g.dataset.k==="light") current.light=b.dataset.v; else current.money=+b.dataset.v;
+    saveCurrent(); renderResult();
+  }));
+  saveCurrent(); show("sResult"); drawMap();
+}
+function daylight(lat,decl){ const r=Math.PI/180, x=-Math.tan(lat*r)*Math.tan(decl*r); if(x<=-1) return 24; if(x>=1) return 0; return 2*Math.acos(x)/r/15; }
+
+function saveCurrent(){
+  const {s,total}=computeScores(current);
+  const rec={id:current.id,dbId:current.dbId,place:current.place,total,s,light:current.light,money:current.money,price:current.price,fees:current.fees,
+    commute:Math.round(current.trips.reduce((a,t)=>a+t.min*t.days,0)/(current.trips.reduce((a,t)=>a+t.days,0)||1))};
+  homes=homes.filter(h=>h.id!==current.id); homes.unshift(rec); homes=homes.slice(0,30); store.set("lh-homes",homes);
+  pushHome(rec);
+}
+
+function drawMap(){
+  if(!window.L){ $("map").style.display="none"; return; }
+  setTimeout(()=>{
+    if(map){ map.remove(); map=null; }
+    map=L.map("map",{scrollWheelZoom:false});
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(map);
+    const pin=(e,bg)=>L.divIcon({className:"",html:`<div style="background:${bg};width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:18px;border:3px solid #fff;box-shadow:0 6px 14px rgba(0,0,0,.25)">${e}</div>`,iconSize:[38,38],iconAnchor:[19,19]});
+    const pts=[]; const add=(p,e,bg,t)=>{ L.marker([p.lat,p.lon],{icon:pin(e,bg)}).addTo(map).bindPopup(esc(t)); pts.push([p.lat,p.lon]); };
+    add(current.place,"🏠","#ff5a3c","Boligen");
+    current.trips.forEach(t=>add(t.place,{jobb:"💼",skole:"🎓",barnehage:"🧸",annet:"📍"}[t.type],"#0f1b3d",t.label+": "+mm(t.min)));
+    current.people.forEach(p=>add(p.place,"🫂","#3d7bff",p.name+": "+mm(p.min)));
+    (current.lei||[]).forEach(l=>{ if(l.place&&l.dist<25000) add(l.place,l.e,"#19b48a",l.n+(l.place.name?" – "+l.place.name:"")); });
+    map.fitBounds(pts,{padding:[40,40],maxZoom:14});
+  },60);
+}
+
+/* ================= SAMMENLIGN ================= */
+function renderCompare(){
+  if(!homes.length){ $("cmpBox").hidden=true; return; }
+  $("cmpBox").hidden=false;
+  const best=Math.max(...homes.map(h=>h.total));
+  const cell=v=>v===undefined?"–":`<span style="color:${col(v)};font-weight:800">${v}</span>`;
+  $("cmp").innerHTML=`<tr><th>Bolig</th><th>Score</th><th>Pris</th><th>Pendling</th><th>Familie</th><th>Natur</th><th>Fritid</th><th>Nabolag</th><th>Økonomi</th><th></th></tr>`+
+    homes.map(h=>{ const top=h.total===best&&homes.length>1; return `<tr class="${top?"top":""}">
+      <td><a href="#" data-open="${h.id}" style="font-weight:700">${esc(h.place.label)}</a></td>
+      <td class="s">${gradeOf(h.total)[0]} · ${h.total}${top?" 🏆":""}</td>
+      <td>${h.price?kr(h.price):"–"}</td><td>${h.commute} min</td>
+      <td>${cell(h.s.friends)}</td><td>${cell(h.s.nature)}</td><td>${cell(h.s.leisure)}</td><td>${cell(h.s.neigh)}</td><td>${cell(h.s.money)}</td>
+      <td><button class="del" data-del="${h.id}" aria-label="Fjern">✕</button></td></tr>`; }).join("");
+}
+$("cmp").addEventListener("click",e=>{
+  const d=e.target.closest("[data-del]"); if(d){ const h=homes.find(x=>x.id==d.dataset.del); if(h) removeHome(h); homes=homes.filter(x=>x.id!=d.dataset.del); store.set("lh-homes",homes); renderCompare(); return; }
+  const o=e.target.closest("[data-open]"); if(o){ e.preventDefault(); const h=homes.find(x=>x.id==o.dataset.open); if(h) analyze(h.place,{price:h.price,fees:h.fees}); }
 });
+
+/* ================= KONTO (Supabase) ================= */
+const SB_URL="https://esfkumavfvcgcvefcpxq.supabase.co";
+const SB_KEY="sb_publishable_MW9KoNtuulEMPkCMptq-Kw_Oif61hG1";
+const sb = window.supabase ? window.supabase.createClient(SB_URL, SB_KEY) : null;
+
+function syncMsg(t){ $("sync").textContent=t||""; }
+async function pushProfile(){
+  if(!sb||!user) return; syncMsg("Lagrer …");
+  const {error}=await sb.from("profiles").upsert({user_id:user.id,data:profile,updated_at:new Date().toISOString()});
+  syncMsg(error?"⚠️ Kunne ikke lagre":"✓ Lagret");
+}
+async function pushHome(rec){
+  if(!sb||!user) return;
+  const data={...rec}; delete data.dbId; delete data._saving;
+  if(rec.dbId){ await sb.from("homes").update({data}).eq("id",rec.dbId); }
+  else{
+    if(rec._saving) return; rec._saving=true;
+    const {data:row,error}=await sb.from("homes").insert({data}).select("id").single();
+    rec._saving=false;
+    if(!error&&row){ rec.dbId=row.id; if(current&&current.id===rec.id) current.dbId=row.id; homes.forEach(h=>{ if(h.id===rec.id) h.dbId=row.id; }); store.set("lh-homes",homes); }
+  }
+  syncMsg("✓ Lagret");
+}
+async function removeHome(h){ if(sb&&user&&h.dbId) await sb.from("homes").delete().eq("id",h.dbId); }
+async function loadRemote(){
+  syncMsg("Henter …");
+  const [{data:p},{data:rows}]=await Promise.all([
+    sb.from("profiles").select("data").maybeSingle(),
+    sb.from("homes").select("id,data,created_at").order("created_at",{ascending:false})
+  ]);
+  const localProfile=store.get("lh-profile"), localHomes=store.get("lh-homes")||[];
+  if(!p && localProfile){ profile=migrate(localProfile); await pushProfile(); } else { profile=migrate(p?p.data:null); }
+  homes=(rows||[]).map(r=>({...r.data,dbId:r.id}));
+  const unsynced=localHomes.filter(h=>!h.dbId && !homes.some(x=>x.place.lat===h.place.lat&&x.place.lon===h.place.lon));
+  for(const h of unsynced){ homes.push(h); await pushHome(h); }
+  store.set("lh-profile",profile); store.set("lh-homes",homes); syncMsg("");
+}
+async function enter(){
+  if(user){ $("who").textContent=user.email; $("menuBtn").textContent=(user.email||"?")[0].toUpperCase();
+    try{ await loadRemote(); }catch(e){ syncMsg("⚠️ Frakoblet"); } }
+  if(profile&&profile.places?.length){ renderProfileSum(); renderCompare(); show("sHome"); }
+  else { fillProfileForm(); show("sProfile"); }
+  const preset=new URLSearchParams(location.search).get("adresse");
+  if(preset&&profile){ $("homeAddr").value=preset; $("homeAddr").dispatchEvent(new Event("input")); }
+}
+$("sendLink").addEventListener("click", async ()=>{
+  const email=$("email").value.trim(), err=$("authErr"), sent=$("sent");
+  err.style.display="none"; sent.style.display="none";
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ err.textContent="Skriv inn en gyldig e-postadresse."; err.style.display="block"; return; }
+  if(!sb){ err.textContent="Innlogging er ikke tilgjengelig akkurat nå. Prøv uten konto."; err.style.display="block"; return; }
+  $("sendLink").disabled=true;
+  const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});
+  $("sendLink").disabled=false;
+  if(error){ err.textContent="Noe gikk galt: "+error.message; err.style.display="block"; return; }
+  sent.textContent=`📬 Sjekk innboksen til ${email} og trykk på lenken for å logge inn. Du kan lukke denne fanen.`; sent.style.display="block";
+});
+$("email").addEventListener("keydown",e=>{ if(e.key==="Enter") $("sendLink").click(); });
+$("guest").addEventListener("click",()=>{ try{sessionStorage.setItem("lh-guest","1")}catch(e){} enter(); });
+$("menuBtn").addEventListener("click",e=>{ e.stopPropagation(); const o=$("menuList").classList.toggle("open"); $("menuBtn").setAttribute("aria-expanded",o); });
+document.addEventListener("click",()=>{ $("menuList").classList.remove("open"); $("menuBtn").setAttribute("aria-expanded","false"); });
+$("mProfile").addEventListener("click",()=>{ fillProfileForm(); show("sProfile"); });
+function wipeLocal(){ try{ localStorage.removeItem("lh-profile"); localStorage.removeItem("lh-homes"); sessionStorage.removeItem("lh-guest"); }catch(e){} profile=null; homes=[]; current=null; }
+$("mLogout").addEventListener("click",async()=>{ await sb.auth.signOut(); wipeLocal(); user=null; show("sAuth"); });
+$("mDelete").addEventListener("click",async()=>{
+  if(!confirm("Vil du slette kontoen din og alle boligene og profilen du har lagret? Dette kan ikke angres.")) return;
+  const {error}=await sb.rpc("delete_my_account");
+  if(error){ alert("Kunne ikke slette kontoen: "+error.message); return; }
+  await sb.auth.signOut(); wipeLocal(); user=null; show("sAuth"); alert("Kontoen og alle data er slettet.");
+});
+
+/* ================= START ================= */
+(async()=>{
+  if(sb){
+    const {data:{session}}=await sb.auth.getSession(); user=session?.user||null;
+    sb.auth.onAuthStateChange((ev,sess)=>{ if(ev==="SIGNED_IN"&&sess?.user&&(!user||user.id!==sess.user.id)){ user=sess.user; enter(); } });
+  }
+  let wasGuest=false; try{ wasGuest=sessionStorage.getItem("lh-guest")==="1"; }catch(e){}
+  if(user||wasGuest) enter(); else show("sAuth");
+})();
 </script>
 </body>
 </html>
