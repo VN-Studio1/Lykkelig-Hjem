@@ -399,7 +399,7 @@
   </section>
 </main>
 
-<footer>Lykkelig Hjem · prototype v4 · Kartdata © OpenStreetMap-bidragsytere, Kartverket og Entur</footer>
+<footer>Lykkelig Hjem · prototype v5 · Kartdata © OpenStreetMap-bidragsytere, Kartverket og Entur</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -486,6 +486,80 @@ const CATS = [
   ["frivillig","❤️","Frivillighet",[[["amenity","social_facility"]],[["office","ngo|association"]]],10000]
  ]]
 ];
+
+/* Geoapify-kategorier per aktivitet: [kategorier, valgfritt navnesøk] */
+const GEO = {
+  gym:["sport.fitness"], crossfit:["sport.fitness,sport","crossfit"], yoga:["sport,activity","yoga"], outdoorgym:["sport.fitness.fitness_station"],
+  fotball:["sport.pitch,sport.stadium"], handball:["sport.sports_hall,sport.sports_centre"], basket:["sport.pitch,sport.sports_hall"], volley:["sport.pitch,sport","volley"],
+  tennis:["sport,activity","tennis"], padel:["sport,activity,commercial","padel"], squash:["sport,activity","squash"], badminton:["sport.sports_hall,sport.sports_centre"],
+  bordtennis:["sport,activity","bordtennis"], golf:["sport.golf_course"], frisbeegolf:["sport,leisure,activity","frisbee"], minigolf:["entertainment.miniature_golf"],
+  friidrett:["sport.track,sport.stadium"], klatring:["entertainment.activity_park.climbing,sport,activity","klatre"], kampsport:["sport.dojo"],
+  svomming:["sport.swimming_pool,entertainment.water_park"], bowling:["entertainment.bowling_alley"], skoyter:["sport.ice_rink"], ishockey:["sport.ice_rink"],
+  ridning:["sport.horse_riding"], skyting:["sport.shooting"], skate:["sport.skateboard"], bmx:["sport,leisure","bmx"], dans:["activity,education,sport","dans"],
+  motorsport:["sport,entertainment","gokart"],
+  tur:["natural.forest,national_park,leisure.park.nature_reserve,natural.protected_area"], utsikt:["tourism.attraction.viewpoint"], park:["leisure.park"],
+  fiske:["sport.fishing"], strand:["beach,natural.coastal"], batliv:["sport,leisure,service,tourism","båthavn"], padling:["rental.boat,sport,commercial.outdoor_and_sport.water_sports"],
+  seiling:["sport,activity","seil"], camping:["camping"], hund:["leisure.park,leisure","hund"], kolonihage:["leisure,activity","parsell"], dyrepark:["entertainment.zoo,entertainment.aquarium"],
+  alpint:["ski.lift,commercial.outdoor_and_sport.ski"], langrenn:["leisure,sport,natural","lysløype"], aking:["leisure,sport,natural","ake"],
+  kafe:["catering.cafe"], restaurant:["catering.restaurant"], bar:["catering.bar,catering.pub,catering.taproom"], nattklubb:["catering.bar,entertainment","club"],
+  kino:["entertainment.cinema"], teater:["entertainment.culture.theatre"], konsert:["entertainment.culture.arts_centre,entertainment.culture"], museum:["entertainment.museum"],
+  galleri:["entertainment.culture.gallery"], bibliotek:["education.library"], bokhandel:["commercial","bok"], shopping:["commercial","senter"], marked:["commercial,tourism","marked"],
+  spill:["entertainment","spill"], escape:["entertainment.escape_game"], spa:["leisure.spa"],
+  lekeplass:["leisure.playground"], badeland:["entertainment.water_park"], fornoyelse:["entertainment.theme_park"], kirke:["religion.place_of_worship"],
+  forening:["activity","grendehus"], frivillig:["service.social_facility"]
+};
+const GEOAPIFY_KEY = "9c7905b7b9c34d069b1905b617c4cb37";
+const geoReady = () => GEOAPIFY_KEY && !GEOAPIFY_KEY.startsWith("LIM_INN");
+let gpStarts=[];
+async function gpSlot(){ // maks 4 forespørsler per sekund (gratisplanen tillater 5)
+  for(;;){ const now=Date.now(); gpStarts=gpStarts.filter(t=>now-t<1000);
+    if(gpStarts.length<4){ gpStarts.push(now); return; }
+    await new Promise(r=>setTimeout(r,1000-(now-gpStarts[0])+20)); }
+}
+async function gp(cats, p, radius, limit=1, name){
+  const u=new URL("https://api.geoapify.com/v2/places");
+  u.searchParams.set("categories",cats); u.searchParams.set("filter",`circle:${p.lon},${p.lat},${radius}`);
+  u.searchParams.set("bias",`proximity:${p.lon},${p.lat}`); u.searchParams.set("limit",limit); u.searchParams.set("lang","no");
+  if(name) u.searchParams.set("name",name);
+  u.searchParams.set("apiKey",GEOAPIFY_KEY);
+  await gpSlot();
+  const r=await fetch(u,{signal:withTimeout(10000)});
+  if(!r.ok){ mapErrors.push("geoapify: HTTP "+r.status); throw new Error("geo "+r.status); }
+  const j=await r.json();
+  return (j.features||[]).map(f=>{ const q=f.properties; return {t:{name:q.name}, lat:q.lat, lon:q.lon, d:q.distance!=null?q.distance:km(p,q)*1000}; }).sort((a,b)=>a.d-b.d);
+}
+async function placeDataGeo(p, hobbies){
+  const safe = pr => pr.catch(()=>undefined);
+  const nature = safe(gp("natural.forest,natural.water,natural.coastal,beach,leisure.park,national_park,leisure.park.nature_reserve,natural.heath_moor,natural.protected_area",p,3000,1).then(r=>r.length?Math.max(50,Math.round(r[0].d)):null));
+  const nbP = (async()=>{
+    const [school,kinder,shop,stop,play,meet] = await Promise.all([
+      gp("education.school",p,900,3), gp("childcare.kindergarten",p,900,3), gp("commercial.supermarket",p,1500,3),
+      gp("public_transport.bus,public_transport.train,public_transport.tram,railway.train",p,1500,3), gp("leisure.playground",p,900,5),
+      gp("catering.cafe,catering.restaurant,education.library",p,900,20)
+    ]);
+    return {school,kinder,shop,stop,play,meet,health:[]};
+  })();
+  const nb = safe(nbP);
+  const defs=hobbies.map(hobDef).filter(Boolean);
+  const lei = (async()=>{
+    if(!defs.length) return [];
+    const out=[];
+    for(let i=0;i<defs.length;i+=4){
+      const chunk=defs.slice(i,i+4);
+      const res=await Promise.all(chunk.map(async d=>{
+        const g=d.custom?["sport,leisure,entertainment,activity,commercial,catering,tourism",d.n]:(GEO[d.id]||["sport,leisure,entertainment",d.n]);
+        try{ const r=await gp(g[0],p,Math.max(d.R,3000),1,g[1]); const b=r[0];
+          return {id:d.id,e:d.e,n:d.n,place:b?{lat:b.lat,lon:b.lon,name:b.t.name}:null,dist:b?b.d:null}; }
+        catch(e){ return {id:d.id,e:d.e,n:d.n,place:null,dist:null,failed:true}; }
+      }));
+      out.push(...res);
+    }
+    if(out.every(o=>o.failed)) throw new Error("lei");
+    return out;
+  })().catch(()=>undefined);
+  return {nature:await nature, nb:await nb, lei:await lei};
+}
+
 const HOB = {}; CATS.forEach(([cat,list])=>list.forEach(([id,e,n,c,R])=>HOB[id]={id,e,n,c,R,cat}));
 function hobDef(id){
   if(HOB[id]) return HOB[id];
@@ -778,6 +852,7 @@ async function leisureData(p, hobbies){
   return out;
 }
 async function placeData(p, hobbies){
+  if(geoReady()) return placeDataGeo(p, hobbies);
   // To forespørsler samtidig (Overpass tillater to per bruker), deretter fritid
   const [nature, nb] = await Promise.all([ natureData(p).catch(()=>undefined), neighData(p).catch(()=>undefined) ]);
   const lei = await leisureData(p, hobbies).catch(()=>undefined);
