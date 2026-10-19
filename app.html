@@ -14,8 +14,8 @@
 <style>
   :root{
     --ink:#0f1b3d; --muted:#55607a; --soft:#f6f7fb; --line:#e6e8f0;
-    --coral:#ff5a3c; --coral-dark:#e8452a; --sun:#ffc83d; --mint:#19b48a; --sky:#3d7bff;
-    --peach:#fff1ea; --mintbg:#e6f8f1; --skybg:#eaf1ff; --lemon:#fff8dc; --lilac:#f1ecff; --pink:#ffe9ef;
+    --coral:#ff5a3c; --coral-dark:#e8452a; --sun:#ffc83d; --mint:#19b48a; --sky:#3d7bff; --red:#e5484d;
+    --peach:#fff1ea; --mintbg:#e6f8f1; --skybg:#eaf1ff; --lemon:#fff8dc; --lilac:#f1ecff; --pink:#ffe9ef; --redbg:#ffecec;
     --r:22px;
   }
   *{box-sizing:border-box}
@@ -25,7 +25,9 @@
   h1{font-size:clamp(1.8rem,4.5vw,2.6rem)} h2{font-size:1.5rem} h3{font-size:1.05rem}
   p{margin:0 0 1em}
   .muted{color:var(--muted)}
-  .wrap{max-width:980px;margin:0 auto;padding:0 18px}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 18px}
+  select{font:600 .92rem "Plus Jakarta Sans",sans-serif;color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:12px 10px;background:#fff;cursor:pointer}
+  select:focus{outline:none;border-color:var(--coral)}
 
   header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1000}
   .nav{display:flex;justify-content:space-between;align-items:center;height:64px}
@@ -45,100 +47,147 @@
   .screen{display:none;animation:fade .35s ease}
   .screen.on{display:block}
   @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-  .center{text-align:center;max-width:620px;margin:0 auto 26px}
+  .center{text-align:center;max-width:640px;margin:0 auto 26px}
+  .sec{padding:22px 0;border-bottom:1px dashed var(--line)}
+  .sec:first-child{padding-top:0}
+  .sec:last-of-type{border-bottom:0}
 
-  .field{margin-bottom:22px;position:relative}
-  .field > label,.lbl{display:block;font-weight:800;margin-bottom:8px}
-  .hint{font-size:.85rem;color:var(--muted);margin:-4px 0 10px}
-  input[type=text],input[type=number]{width:100%;padding:14px 16px;border:2px solid var(--line);border-radius:14px;font:500 1rem "Plus Jakarta Sans",sans-serif;color:var(--ink);background:#fff}
+  .field{margin-bottom:12px;position:relative}
+  .lbl{display:block;font-weight:800;font-size:1.05rem;margin-bottom:4px}
+  .hint{font-size:.86rem;color:var(--muted);margin:0 0 12px}
+  input[type=text],input[type=number],input[type=search]{width:100%;padding:13px 15px;border:2px solid var(--line);border-radius:14px;font:500 1rem "Plus Jakarta Sans",sans-serif;color:var(--ink);background:#fff}
   input:focus{outline:none;border-color:var(--coral)}
   input.ok{border-color:var(--mint);background:#fbfffd}
+  input.bad{border-color:var(--coral)}
   .ac{position:absolute;left:0;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 40px rgba(15,27,61,.14);z-index:50;overflow:hidden;display:none}
   .ac button{display:block;width:100%;text-align:left;border:0;background:#fff;padding:12px 16px;font:600 .95rem "Plus Jakarta Sans",sans-serif;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line)}
   .ac button small{display:block;color:var(--muted);font-weight:500}
   .ac button:hover,.ac button:focus{background:var(--peach);outline:none}
-  .person{display:grid;grid-template-columns:190px 1fr auto;gap:10px;margin-bottom:10px;align-items:start}
-  .person .field{margin:0}
-  .x{border:0;background:var(--soft);width:44px;height:50px;border-radius:12px;cursor:pointer;font-size:1.1rem;color:var(--muted)}
+
+  .row{display:grid;gap:8px;margin-bottom:10px;align-items:start}
+  .row .field{margin:0}
+  .placeRow{grid-template-columns:185px 1fr 145px 120px 44px}
+  .personRow{grid-template-columns:170px 1fr 150px 44px}
+  .x{border:0;background:var(--soft);width:44px;height:50px;border-radius:12px;cursor:pointer;font-size:1.05rem;color:var(--muted)}
+  .x:hover{background:var(--redbg);color:var(--red)}
+  .add{background:none;border:2px dashed var(--line);border-radius:14px;width:100%;padding:11px;font:700 .9rem "Plus Jakarta Sans",sans-serif;color:var(--muted);cursor:pointer}
+  .add:hover{border-color:var(--coral);color:var(--coral)}
+
   .chips{display:flex;flex-wrap:wrap;gap:8px}
-  .chip{border:2px solid var(--line);background:#fff;border-radius:999px;padding:9px 15px;font:700 .9rem "Plus Jakarta Sans",sans-serif;color:var(--ink);cursor:pointer;transition:.15s}
+  .chip{border:2px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font:700 .88rem "Plus Jakarta Sans",sans-serif;color:var(--ink);cursor:pointer;transition:.12s}
+  .chip:hover{border-color:var(--ink)}
   .chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+  .chip.sel{background:var(--coral);border-color:var(--coral);color:#fff}
+  .hob-search{position:relative;margin-bottom:12px}
+  .hob-search input{padding-left:44px}
+  .hob-search::before{content:"🔎";position:absolute;left:15px;top:13px;font-size:1rem}
+  .selected{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;min-height:8px}
+  .cats{max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:16px;padding:14px;background:var(--soft)}
+  .cat{margin-bottom:14px}
+  .cat:last-child{margin-bottom:0}
+  .cat h4{margin:0 0 8px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .custom{margin-top:10px}
+
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:var(--coral);color:#fff;font:800 1rem "Plus Jakarta Sans",sans-serif;padding:16px 26px;border-radius:999px;border:0;cursor:pointer;box-shadow:0 10px 24px rgba(255,90,60,.28);text-decoration:none;transition:.15s}
   .btn:hover{background:var(--coral-dark);transform:translateY(-1px)}
   .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
   .btn.full{width:100%}
   .btn.ghost{background:#fff;color:var(--ink);border:2px solid var(--ink);box-shadow:none}
-  .add{background:none;border:2px dashed var(--line);border-radius:14px;width:100%;padding:12px;font:700 .9rem "Plus Jakarta Sans",sans-serif;color:var(--muted);cursor:pointer}
   .err{color:#b4321b;font-weight:700;font-size:.9rem;margin-top:10px;display:none}
 
-  /* Home search */
-  .big-search{display:flex;gap:10px}
-  .big-search .field{flex:1;margin:0}
-  .big-search input{font-size:1.1rem;padding:18px 20px}
-  .profile-sum{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;font-size:.85rem}
+  .homeGrid{display:grid;grid-template-columns:1fr 200px 170px;gap:10px;align-items:start}
+  .homeGrid .field{margin:0}
+  .homeGrid label{display:block;font-size:.8rem;font-weight:800;color:var(--muted);margin:0 0 6px}
+  .unit{position:relative}
+  .unit input{padding-right:42px}
+  .unit span{position:absolute;right:14px;top:14px;color:var(--muted);font-weight:700;font-size:.9rem}
+  .profile-sum{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;font-size:.84rem}
   .profile-sum span{background:var(--soft);border-radius:999px;padding:6px 12px;font-weight:600}
 
   /* Loading */
   .loading{text-align:center;padding:50px 20px}
-  .spinner{width:56px;height:56px;border-radius:50%;border:6px solid var(--peach);border-top-color:var(--coral);animation:spin 1s linear infinite;margin:0 auto 22px}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .checks{list-style:none;padding:0;margin:20px auto 0;max-width:340px;text-align:left;display:grid;gap:10px}
+  .house{font-size:3.4rem;animation:bounce 1s ease-in-out infinite;display:inline-block;margin-bottom:10px}
+  @keyframes bounce{50%{transform:translateY(-10px) rotate(-4deg)}}
+  .checks{list-style:none;padding:0;margin:20px auto 0;max-width:360px;text-align:left;display:grid;gap:10px}
   .checks li{display:flex;gap:10px;align-items:center;font-weight:600;color:var(--muted)}
   .checks li::before{content:"";width:20px;height:20px;border-radius:50%;border:3px solid var(--line);flex:0 0 20px}
   .checks li.done{color:var(--ink)}
   .checks li.done::before{background:var(--mint);border-color:var(--mint)}
 
   /* Result */
-  .res-top{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;background:var(--ink);color:#fff;border-radius:var(--r);padding:30px;margin-bottom:18px}
-  .ring{width:160px;height:160px;border-radius:50%;display:grid;place-items:center;transition:background .4s}
-  .ring div{width:128px;height:128px;border-radius:50%;background:var(--ink);display:grid;place-items:center;text-align:center;line-height:1}
-  .ring strong{font-size:3rem;font-weight:800;letter-spacing:-.04em}
-  .ring small{display:block;font-size:.65rem;color:#b7c0d8;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-top:6px}
-  .res-top h2{color:#fff;margin-bottom:.25em}
-  .res-top .addr{color:#b7c0d8;font-weight:600;margin-bottom:10px}
-  .res-top .tip{color:#dbe1f2;margin:0}
-  .res-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .hero{position:relative;overflow:hidden;background:var(--ink);color:#fff;border-radius:28px;padding:34px;display:grid;grid-template-columns:auto 1fr;gap:34px;align-items:center;margin-bottom:16px}
+  .hero::before{content:"";position:absolute;width:420px;height:420px;border-radius:50%;filter:blur(70px);opacity:.35;right:-120px;top:-160px;background:var(--hc,var(--mint))}
+  .hero > *{position:relative}
+  .gauge{width:190px;height:190px;border-radius:50%;display:grid;place-items:center;position:relative}
+  .gauge .in{width:150px;height:150px;border-radius:50%;background:var(--ink);display:grid;place-items:center;text-align:center;line-height:1}
+  .gauge strong{font-size:3.6rem;font-weight:800;letter-spacing:-.05em}
+  .gauge small{display:block;font-size:.66rem;color:#b7c0d8;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-top:6px}
+  .grade{position:absolute;right:-6px;top:-6px;width:56px;height:56px;border-radius:18px;display:grid;place-items:center;font-size:1.7rem;font-weight:800;color:var(--ink);transform:rotate(8deg);box-shadow:0 10px 24px rgba(0,0,0,.25)}
+  .hero h2{color:#fff;font-size:clamp(1.5rem,3.4vw,2.1rem);margin-bottom:.25em}
+  .hero .addr{color:#b7c0d8;font-weight:600;margin-bottom:12px}
+  .hero .tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .hero .tags span{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:5px 12px;font-size:.82rem;font-weight:700}
+  .hero .warn{background:rgba(229,72,77,.18);border:1px solid rgba(229,72,77,.45);color:#ffd7d8;border-radius:14px;padding:10px 14px;font-weight:600;font-size:.9rem;margin-bottom:14px}
+  .res-actions{display:flex;gap:10px;flex-wrap:wrap}
   .res-actions .btn{padding:11px 18px;font-size:.9rem;box-shadow:none}
   .res-actions .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}
-  #map{height:300px;border-radius:var(--r);border:1px solid var(--line);margin-bottom:18px;z-index:1}
-  .factors{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-  .f{border-radius:var(--r);padding:22px;background:#fff;border:1px solid var(--line)}
-  .f-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
-  .f-head h3{margin:0;display:flex;gap:8px;align-items:center}
-  .f-score{font-weight:800;font-size:1.05rem}
-  .bar{height:8px;border-radius:99px;background:#eef0f6;overflow:hidden;margin-bottom:12px}
-  .bar b{display:block;height:100%;border-radius:99px;transition:width .6s}
-  .f-val{font-weight:700;margin-bottom:6px}
-  .f-why{font-size:.86rem;color:var(--muted);margin:0}
-  .f .chips{margin-top:12px}
+
+  .week{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+  .wk{border-radius:20px;padding:18px}
+  .wk .big{font-size:1.75rem;font-weight:800;letter-spacing:-.03em;line-height:1.05}
+  .wk .lab{font-size:.82rem;font-weight:700;color:var(--muted);margin-top:4px}
+  .wk1{background:var(--skybg)} .wk2{background:var(--peach)} .wk3{background:var(--mintbg)} .wk4{background:var(--lemon)}
+
+  .bw{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+  .bw > div{border-radius:20px;padding:20px}
+  .best{background:var(--mintbg)} .worst{background:var(--redbg)}
+  .bw h3{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .bw ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+  .bw li{display:flex;justify-content:space-between;gap:10px;font-weight:700;background:rgba(255,255,255,.65);border-radius:12px;padding:10px 12px}
+
+  #map{height:320px;border-radius:var(--r);border:1px solid var(--line);margin-bottom:16px;z-index:1}
+  .factors{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .f{border-radius:var(--r);padding:20px;background:#fff;border:1px solid var(--line);display:grid;grid-template-columns:64px 1fr;gap:16px}
+  .mini{width:64px;height:64px;border-radius:50%;display:grid;place-items:center}
+  .mini div{width:50px;height:50px;border-radius:50%;background:#fff;display:grid;place-items:center;font-weight:800;font-size:1.05rem}
+  .f > div,.factors > *{min-width:0}
+  .f-val .item span{min-width:0;overflow-wrap:anywhere}
+  .f h3{margin:0 0 6px}
+  .f-val{font-weight:600;font-size:.92rem;margin-bottom:8px}
+  .f-val .item{display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px solid var(--soft)}
+  .f-val .item:last-child{border-bottom:0}
+  .f-val .item b{white-space:nowrap}
+  .f-why{font-size:.84rem;color:var(--muted);margin:0}
+  .f .chips{margin-top:10px}
   .f .chip{padding:6px 11px;font-size:.8rem}
-  .est{display:inline-block;font-size:.7rem;font-weight:800;color:#8a5a00;background:var(--lemon);border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:middle}
+  .est{display:inline-block;font-size:.68rem;font-weight:800;color:#8a5a00;background:var(--lemon);border-radius:999px;padding:2px 7px;margin-left:4px;vertical-align:middle}
   .note{font-size:.82rem;color:var(--muted);text-align:center;margin:18px 0 0}
 
   /* Compare */
   .cmp{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;font-size:.92rem}
-  .cmp th,.cmp td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
-  .cmp th{background:var(--soft);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .cmp th,.cmp td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  .cmp th{background:var(--soft);font-size:.76rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
   .cmp td.s{font-weight:800}
   .cmp tr:last-child td{border-bottom:0}
-  .cmp .best{background:var(--mintbg)}
+  .cmp .top{background:var(--mintbg)}
   .cmp-wrap{overflow-x:auto;border-radius:var(--r)}
   .del{border:0;background:none;color:var(--muted);cursor:pointer;font-size:1rem}
 
+  /* Konto */
   .acct{display:flex;align-items:center;gap:14px}
-  .acct .who{font-size:.82rem;color:var(--muted);font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .who{font-size:.82rem;color:var(--muted);font-weight:600;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .menu{position:relative}
   .menu-btn{width:38px;height:38px;border-radius:50%;border:0;background:var(--ink);color:#fff;font:800 .95rem "Plus Jakarta Sans",sans-serif;cursor:pointer}
-  .menu-list{position:absolute;right:0;top:46px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 40px rgba(15,27,61,.16);min-width:220px;padding:6px;display:none;z-index:2000}
+  .menu-list{position:absolute;right:0;top:46px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 40px rgba(15,27,61,.16);min-width:230px;padding:6px;display:none;z-index:2000}
   .menu-list.open{display:block}
   .menu-list button,.menu-list a{display:block;width:100%;text-align:left;border:0;background:none;padding:11px 14px;border-radius:10px;font:600 .92rem "Plus Jakarta Sans",sans-serif;color:var(--ink);cursor:pointer;text-decoration:none}
   .menu-list button:hover,.menu-list a:hover{background:var(--soft)}
   .menu-list .danger{color:#b4321b}
   #sAuth{padding-top:44px}
   .auth{max-width:460px;margin:0 auto}
-  .auth .perks{list-style:none;padding:0;margin:0 0 22px;display:grid;gap:8px}
-  .auth .perks li{display:flex;gap:10px;font-weight:600}
-  .auth .perks li::before{content:"✓";color:var(--mint);font-weight:800}
+  .perks{list-style:none;padding:0;margin:0 0 22px;display:grid;gap:8px}
+  .perks li{display:flex;gap:10px;font-weight:600}
+  .perks li::before{content:"✓";color:var(--mint);font-weight:800}
   .sent{display:none;background:var(--mintbg);color:#0e7a5c;border-radius:14px;padding:16px;font-weight:700;margin-top:14px}
   .or{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:.85rem;margin:18px 0}
   .or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
@@ -146,14 +195,25 @@
   .sync{font-size:.78rem;color:var(--muted);font-weight:600}
   footer{text-align:center;color:var(--muted);font-size:.82rem;padding:40px 0}
 
-  @media (max-width:720px){
-    .card{padding:20px}
-    .person{grid-template-columns:1fr auto}
-    .person .field:first-child{grid-column:1/-1}
-    .big-search{flex-direction:column}
-    .res-top{grid-template-columns:1fr;text-align:center;justify-items:center;padding:24px}
-    .res-actions{justify-content:center}
-    .factors{grid-template-columns:1fr}
+  @media (max-width:820px){
+    .placeRow{grid-template-columns:1fr 1fr 44px}
+    .placeRow .addrF{grid-column:1/-1;grid-row:1}
+    .personRow{grid-template-columns:1fr 1fr 44px}
+    .personRow .addrF{grid-column:1/-1;grid-row:2}
+    .homeGrid{grid-template-columns:1fr 1fr}
+    .homeGrid .addrF{grid-column:1/-1}
+    .homeGrid .btn{grid-column:1/-1}
+    .hero{grid-template-columns:1fr;text-align:center;justify-items:center;padding:26px}
+    .hero .tags,.res-actions{justify-content:center}
+    .week{grid-template-columns:1fr 1fr}
+    .bw,.factors{grid-template-columns:1fr}
+    .f{grid-template-columns:52px 1fr;gap:12px;padding:16px}.mini{width:52px;height:52px}.mini div{width:40px;height:40px;font-size:.9rem}
+    .f-val .item b{white-space:normal;text-align:right}
+  }
+  @media (max-width:520px){
+    .card{padding:18px}
+    .placeRow{grid-template-columns:1fr 1fr}
+    .placeRow .x{grid-column:2;justify-self:end}
   }
 </style>
 </head>
@@ -202,7 +262,7 @@
         <li>Ingen passord – vi sender deg en innloggingslenke</li>
       </ul>
       <div class="field">
-        <label for="email">E-post</label>
+        <label class="lbl" for="email" style="font-size:.95rem">E-post</label>
         <input type="text" id="email" inputmode="email" autocomplete="email" placeholder="navn@epost.no">
       </div>
       <button class="btn full" id="sendLink" type="button">Send meg innloggingslenke</button>
@@ -218,38 +278,39 @@
   <section class="screen" id="sProfile">
     <div class="center">
       <h1>Først: litt om livet ditt</h1>
-      <p class="muted">Dette fyller du ut bare én gang. Etterpå holder det å skrive inn adressen til boligene du vurderer.</p>
+      <p class="muted">Dette fyller du ut bare én gang. Etterpå holder det å skrive inn adressen og prisen på boligene du vurderer.</p>
     </div>
     <div class="card">
-      <div class="field">
-        <label for="work">🚆 Hvor jobber eller studerer du?</label>
-        <input type="text" id="work" placeholder="F.eks. Markens gate 1, Kristiansand" autocomplete="off">
-        <div class="ac"></div>
+      <div class="sec">
+        <span class="lbl">🚆 Hvor drar du jevnlig?</span>
+        <p class="hint">Jobb, skole, studier, barnehage … Legg til alle stedene du pendler til, hvordan du reiser og hvor mange dager i uka.</p>
+        <div id="places"></div>
+        <button type="button" class="add" id="addPlace">+ Legg til et sted</button>
       </div>
 
-      <div class="field">
-        <span class="lbl">Hvordan kommer du deg dit?</span>
-        <div class="chips" id="mode">
-          <button type="button" class="chip" data-v="transit" aria-pressed="true">🚌 Kollektivt</button>
-          <button type="button" class="chip" data-v="car" aria-pressed="false">🚗 Bil</button>
-          <button type="button" class="chip" data-v="bike" aria-pressed="false">🚲 Sykkel</button>
-          <button type="button" class="chip" data-v="foot" aria-pressed="false">🚶 Gå</button>
-        </div>
-      </div>
-
-      <div class="field">
-        <span class="lbl">🫂 Hvor bor de viktigste menneskene i livet ditt?</span>
-        <p class="hint">Venner eller familie du vil bo nær – legg til så mange du vil (opptil 10). Velg adressen fra listen som dukker opp.</p>
+      <div class="sec">
+        <span class="lbl">🫂 Hvem vil du bo nær?</span>
+        <p class="hint">Venner og familie – og hvor ofte dere ses. Velg adressen fra listen som dukker opp.</p>
         <div id="people"></div>
         <button type="button" class="add" id="addPerson">+ Legg til en person</button>
       </div>
 
-      <div class="field">
+      <div class="sec">
         <span class="lbl">⛳ Hva liker du å gjøre på fritiden?</span>
-        <div class="chips" id="hobbies"></div>
+        <p class="hint">Søk, eller bla i listen. Finner du ikke aktiviteten, kan du legge den til selv.</p>
+        <div class="selected" id="hobSelected"></div>
+        <div class="hob-search"><input type="search" id="hobSearch" placeholder="Søk etter aktivitet, f.eks. padel, klatring, kino …" autocomplete="off" aria-label="Søk etter aktivitet"></div>
+        <div class="cats" id="hobCats"></div>
+        <div class="custom" id="hobCustom"></div>
       </div>
 
-      <button class="btn full" id="saveProfile" type="button">Lagre og gå videre →</button>
+      <div class="sec">
+        <span class="lbl">💸 Hva er budsjettet ditt? <span class="muted" style="font-weight:600;font-size:.85rem">(valgfritt)</span></span>
+        <p class="hint">Hva er det meste du kan tenke deg å betale for en bolig? Brukes bare til å vurdere økonomisk luft.</p>
+        <div class="unit" style="max-width:280px"><input type="text" inputmode="numeric" id="budget" placeholder="F.eks. 4 500 000"><span>kr</span></div>
+      </div>
+
+      <button class="btn full" id="saveProfile" type="button" style="margin-top:22px">Lagre og gå videre →</button>
       <div class="err" id="profileErr"></div>
     </div>
   </section>
@@ -258,16 +319,25 @@
   <section class="screen" id="sHome">
     <div class="center">
       <h1>Hvilken bolig vurderer du?</h1>
-      <p class="muted">Skriv inn adressen. Vi sjekker pendling, natur, nabolag og resten for deg.</p>
+      <p class="muted">Skriv inn adressen og prisen. Vi sjekker pendling, familie, natur, fritid og nabolag for deg.</p>
     </div>
     <div class="card">
-      <div class="big-search">
-        <div class="field">
-          <input type="text" id="homeAddr" placeholder="Adressen til boligen" autocomplete="off" aria-label="Adressen til boligen">
+      <div class="homeGrid">
+        <div class="field addrF">
+          <label for="homeAddr">Adresse</label>
+          <input type="text" id="homeAddr" placeholder="Adressen til boligen" autocomplete="off">
           <div class="ac"></div>
         </div>
-        <button class="btn" id="check" type="button" disabled>Sjekk boligen</button>
+        <div class="field">
+          <label for="price">Totalpris</label>
+          <div class="unit"><input type="text" inputmode="numeric" id="price" placeholder="4 200 000"><span>kr</span></div>
+        </div>
+        <div class="field">
+          <label for="fees">Felleskost./mnd</label>
+          <div class="unit"><input type="text" inputmode="numeric" id="fees" placeholder="3 500"><span>kr</span></div>
+        </div>
       </div>
+      <button class="btn full" id="check" type="button" disabled style="margin-top:14px">Sjekk boligen →</button>
       <div class="err" id="homeErr"></div>
       <div class="profile-sum" id="profileSum"></div>
     </div>
@@ -280,34 +350,46 @@
   <!-- LOADING -->
   <section class="screen" id="sLoading">
     <div class="card loading">
-      <div class="spinner"></div>
+      <div class="house">🏡</div>
       <h2>Sjekker boligen …</h2>
+      <p class="muted">Dette tar vanligvis 5–15 sekunder.</p>
       <ul class="checks">
         <li id="c1">Finner adressen på kartet</li>
-        <li id="c2">Regner ut reisetid til jobb og venner</li>
-        <li id="c3">Ser etter natur og fritidstilbud</li>
-        <li id="c4">Sjekker nabolaget</li>
+        <li id="c2">Regner ut reisetid til hverdagen din</li>
+        <li id="c3">Ser etter natur, fritid og nabolag</li>
+        <li id="c4">Setter sammen lykkescoren</li>
       </ul>
     </div>
   </section>
 
   <!-- 3. RESULTAT -->
   <section class="screen" id="sResult">
-    <div class="res-top">
-      <div class="ring" id="rRing"><div><span><strong id="rScore">0</strong><small>Lykkescore</small></span></div></div>
+    <div class="hero" id="hero">
+      <div class="gauge" id="gauge"><div class="in"><span><strong id="rScore">0</strong><small>Lykkescore</small></span></div><div class="grade" id="grade">A</div></div>
       <div>
         <h2 id="rVerdict"></h2>
         <div class="addr" id="rAddr"></div>
-        <p class="tip" id="rTip"></p>
+        <div class="tags" id="rTags"></div>
+        <div class="warn" id="rWarn" hidden></div>
         <div class="res-actions">
           <button class="btn" id="another" type="button">+ Sjekk en annen bolig</button>
-          <button class="btn ghost" id="toCompare" type="button">Sammenlign</button>
+          <button class="btn ghost" id="toCompare" type="button">Sammenlign boliger</button>
         </div>
       </div>
     </div>
+
+    <h2 style="margin:26px 0 12px">En vanlig uke her</h2>
+    <div class="week" id="week"></div>
+
+    <div class="bw">
+      <div class="best"><h3>💚 Det beste med boligen</h3><ul id="bestList"></ul></div>
+      <div class="worst"><h3>⚠️ Dette trekker ned</h3><ul id="worstList"></ul></div>
+    </div>
+
     <div id="map" role="img" aria-label="Kart over boligen og stedene som betyr noe for deg"></div>
+    <h2 style="margin:6px 0 12px">Alle faktorene</h2>
     <div class="factors" id="factors"></div>
-    <p class="note">Prototype. Reisetider og avstander hentes fra åpne kartdata og kan avvike noe. Vektingen av faktorene er et forenklet anslag basert på forskningen – ikke en endelig modell.</p>
+    <p class="note">Prototype. Reisetider og avstander hentes fra åpne kartdata. Der det står «ca.» er tiden anslått ut fra avstand. Vektingen av faktorene er et forenklet anslag basert på forskningen – ikke en endelig modell.</p>
   </section>
 </main>
 
@@ -316,28 +398,138 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
-/* ================= OPPSETT ================= */
-const HOBBIES = [
-  {id:"golf",   label:"⛳ Golf",            q:'nwr["leisure"="golf_course"]'},
-  {id:"gym",    label:"🏋️ Trening",        q:'nwr["leisure"="fitness_centre"]'},
-  {id:"fotball",label:"⚽ Fotball",         q:'nwr["leisure"="pitch"]["sport"="soccer"]'},
-  {id:"racket", label:"🎾 Padel/tennis",    q:'nwr["sport"~"padel|tennis"]'},
-  {id:"svom",   label:"🏊 Svømming",        q:'nwr["leisure"~"swimming_pool|sports_centre"]["sport"="swimming"]'},
-  {id:"kafe",   label:"☕ Kafé og byliv",    q:'nwr["amenity"~"cafe|bar|pub"]'},
-  {id:"kultur", label:"🎭 Kultur",          q:'nwr["amenity"~"theatre|cinema|arts_centre|library"]'},
-  {id:"ski",    label:"⛷️ Ski",             q:'nwr["landuse"="winter_sports"]'}
+/* =====================================================================
+   AKTIVITETER – stor liste. c = OSM-betingelser [[nøkkel, verdi-regex], …]
+   R = maks søkeradius i meter
+   ===================================================================== */
+const CATS = [
+ ["Trening og sport",[
+  ["gym","🏋️","Treningssenter",[[["leisure","fitness_centre"]],[["leisure","sports_centre"],["sport","fitness"]]],8000],
+  ["crossfit","💪","Crossfit",[[["sport","crossfit"]]],15000],
+  ["yoga","🧘","Yoga / pilates",[[["sport","yoga|pilates"]]],12000],
+  ["outdoorgym","🤸","Utendørs treningspark",[[["leisure","fitness_station"]]],6000],
+  ["fotball","⚽","Fotball",[[["leisure","pitch"],["sport","soccer"]]],6000],
+  ["handball","🤾","Håndball",[[["sport","handball"]]],12000],
+  ["basket","🏀","Basketball",[[["sport","basketball"]]],10000],
+  ["volley","🏐","Volleyball / sandvolleyball",[[["sport","volleyball|beachvolleyball"]]],15000],
+  ["tennis","🎾","Tennis",[[["sport","tennis"]]],12000],
+  ["padel","🏓","Padel",[[["sport","padel"]]],20000],
+  ["squash","🟢","Squash",[[["sport","squash"]]],25000],
+  ["badminton","🏸","Badminton",[[["sport","badminton"]]],20000],
+  ["bordtennis","🏓","Bordtennis",[[["sport","table_tennis"]]],15000],
+  ["golf","⛳","Golf",[[["leisure","golf_course"]]],40000],
+  ["frisbeegolf","🥏","Frisbeegolf",[[["sport","disc_golf"]],[["leisure","disc_golf_course"]]],20000],
+  ["minigolf","🏌️","Minigolf",[[["leisure","miniature_golf"]]],25000],
+  ["friidrett","🏃","Løping / friidrettsbane",[[["leisure","track"]],[["sport","athletics|running"]]],10000],
+  ["klatring","🧗","Klatring / buldring",[[["sport","climbing"]]],30000],
+  ["kampsport","🥋","Kampsport / boksing",[[["sport","martial_arts|karate|judo|taekwondo|boxing|kickboxing|mma|jiu-jitsu|aikido|kung_fu"]]],20000],
+  ["svomming","🏊","Svømmehall",[[["leisure","swimming_pool"],["access","yes|public|customers"]],[["leisure","sports_centre"],["sport","swimming"]],[["leisure","water_park"]]],15000],
+  ["bowling","🎳","Bowling",[[["leisure","bowling_alley"]],[["sport","10pin|9pin"]]],30000],
+  ["skoyter","⛸️","Skøyter / ishall",[[["leisure","ice_rink"]]],30000],
+  ["ishockey","🏒","Ishockey",[[["sport","ice_hockey"]]],40000],
+  ["ridning","🐴","Ridning",[[["leisure","horse_riding"]],[["sport","equestrian"]]],25000],
+  ["skyting","🎯","Skyting / bueskyting",[[["sport","shooting|archery"]]],30000],
+  ["skate","🛹","Skatepark",[[["sport","skateboard"]]],15000],
+  ["bmx","🚲","Sykkelpark / BMX / terrengsykkel",[[["sport","bmx|cycling|mtb"]]],20000],
+  ["dans","💃","Dans",[[["leisure","dance"]],[["sport","dance"]],[["amenity","dancing_school"]]],15000],
+  ["motorsport","🏎️","Gokart / motorsport",[[["sport","karting|motor|motocross"]]],50000]
+ ]],
+ ["Friluft og natur",[
+  ["tur","🥾","Turstier",[[["highway","path"]],[["highway","track"]]],3000],
+  ["utsikt","🏔️","Utsiktspunkt",[[["tourism","viewpoint"]]],10000],
+  ["park","🌳","Park",[[["leisure","park"]]],3000],
+  ["fiske","🎣","Fiske",[[["leisure","fishing"]]],15000],
+  ["strand","🏖️","Strand / badeplass",[[["natural","beach"]],[["leisure","bathing_place"]]],10000],
+  ["batliv","⛵","Båtliv / båthavn",[[["leisure","marina"]],[["leisure","slipway"]]],10000],
+  ["padling","🛶","Kajakk / padling",[[["sport","canoe|kayak"]]],20000],
+  ["seiling","⛵","Seiling",[[["sport","sailing"]]],25000],
+  ["camping","⛺","Camping / telt",[[["tourism","camp_site"]]],25000],
+  ["hund","🐕","Hundepark / hundeluftegård",[[["leisure","dog_park"]]],8000],
+  ["kolonihage","🌱","Kolonihage / parsell",[[["landuse","allotments"]]],10000],
+  ["dyrepark","🦁","Dyrepark",[[["tourism","zoo"]]],60000]
+ ]],
+ ["Vinter",[
+  ["alpint","⛷️","Alpint / slalåm",[[["landuse","winter_sports"]],[["piste:type","downhill"]]],60000],
+  ["langrenn","🎿","Langrenn / skiløyper",[[["piste:type","nordic"]]],20000],
+  ["aking","🛷","Akebakke",[[["piste:type","sled"]]],10000]
+ ]],
+ ["Kultur, mat og byliv",[
+  ["kafe","☕","Kafé",[[["amenity","cafe"]]],3000],
+  ["restaurant","🍽️","Restaurant",[[["amenity","restaurant"]]],3000],
+  ["bar","🍻","Bar / pub",[[["amenity","bar|pub"]]],4000],
+  ["nattklubb","🪩","Utesteder / nattklubb",[[["amenity","nightclub"]]],10000],
+  ["kino","🎬","Kino",[[["amenity","cinema"]]],20000],
+  ["teater","🎭","Teater",[[["amenity","theatre"]]],25000],
+  ["konsert","🎵","Konserter / kulturhus",[[["amenity","arts_centre|concert_hall|events_venue|music_venue"]]],25000],
+  ["museum","🏛️","Museum",[[["tourism","museum"]]],25000],
+  ["galleri","🖼️","Galleri / kunst",[[["tourism","gallery"]],[["shop","art"]]],20000],
+  ["bibliotek","📚","Bibliotek",[[["amenity","library"]]],10000],
+  ["bokhandel","📖","Bokhandel",[[["shop","books"]]],10000],
+  ["shopping","🛍️","Shopping / kjøpesenter",[[["shop","mall|department_store"]]],20000],
+  ["marked","🧺","Marked / bondens marked",[[["amenity","marketplace"]]],20000],
+  ["spill","🎮","Spill / gaming",[[["leisure","amusement_arcade"]],[["shop","games|video_games"]]],20000],
+  ["escape","🔐","Escape room",[[["leisure","escape_game"]]],30000],
+  ["spa","🧖","Spa / badstue",[[["leisure","sauna"]],[["amenity","public_bath"]],[["shop","beauty"],["beauty","spa"]]],20000]
+ ]],
+ ["Familie og fellesskap",[
+  ["lekeplass","🛝","Lekeplass",[[["leisure","playground"]]],2000],
+  ["badeland","🌊","Badeland",[[["leisure","water_park"]]],60000],
+  ["fornoyelse","🎢","Fornøyelsespark",[[["tourism","theme_park"]]],80000],
+  ["kirke","⛪","Kirke / trossamfunn",[[["amenity","place_of_worship"]]],8000],
+  ["forening","🤝","Grendehus / foreningsliv",[[["amenity","community_centre|social_centre"]]],8000],
+  ["frivillig","❤️","Frivillighet",[[["amenity","social_facility"]],[["office","ngo|association"]]],10000]
+ ]]
 ];
-const MAX_PEOPLE = 10;
-const W = {commute:.25, friends:.2, nature:.1, leisure:.08, light:.1, neigh:.15, money:.12};
-const SPEED = {car:40, bike:16, foot:5, transit:20}; // km/t, brukt i reserveberegning
+const HOB = {}; CATS.forEach(([cat,list])=>list.forEach(([id,e,n,c,R])=>HOB[id]={id,e,n,c,R,cat}));
+function hobDef(id){
+  if(HOB[id]) return HOB[id];
+  if(id.startsWith("x:")) return {id, e:"⭐", n:id.slice(2), custom:true, R:25000};
+  return null;
+}
+const rxEsc = s => s.replace(/[.*+?^${}()|[\]\\"]/g,"\\$&");
+function hobMatcher(d){
+  if(d.custom){ const re=new RegExp(rxEsc(d.n),"i"); return t=>re.test(t.name||""); }
+  const conds=d.c.map(cond=>cond.map(([k,v])=>[k,new RegExp("^("+v+")$")]));
+  return t=>conds.some(cond=>cond.every(([k,re])=>re.test(t[k]||"")));
+}
+function hobQuery(d, L){
+  const tiers=[Math.round(d.R/8), Math.round(d.R/3), d.R];
+  const sel = r => d.custom
+    ? `nwr["name"~"${rxEsc(d.n)}",i](around:${r},${L});`
+    : d.c.map(cond=>"nwr"+cond.map(([k,v])=>`["${k}"~"^(${v})$"]`).join("")+`(around:${r},${L});`).join("");
+  return tiers.map(r=>`(${sel(r)});out center tags 6;`).join("");
+}
+
+/* =====================================================================
+   OPPSETT
+   ===================================================================== */
+const PLACE_TYPES = [["jobb","💼 Jobb"],["skole","🎓 Skole / studier"],["barnehage","🧸 Barnehage"],["annet","📍 Annet"]];
+const MODES = [["transit","🚌 Kollektivt"],["car","🚗 Bil"],["bike","🚲 Sykkel"],["foot","🚶 Gå"]];
+const FREQ  = [["2","Flere ganger i uka"],["1","Ukentlig"],["0.5","Annenhver uke"],["0.25","Månedlig"],["0.08","Sjeldnere"]];
+const MAX_PEOPLE=10, MAX_PLACES=5;
+const W = {commute:.24, friends:.22, nature:.1, leisure:.1, light:.07, neigh:.12, money:.15};
 const $ = id => document.getElementById(id);
 const store = {
   get(k){ try{ return JSON.parse(localStorage.getItem(k)) }catch(e){ return null } },
   set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)) }catch(e){} }
 };
-let profile = store.get("lh-profile");
+let profile = migrate(store.get("lh-profile"));
 let homes = store.get("lh-homes") || [];
-let current = null, map = null;
+let current = null, map = null, user = null;
+
+function migrate(p){
+  if(!p) return null;
+  if(!p.places && p.work) p.places=[{type:"jobb",place:p.work,mode:p.mode||"transit",days:5}];
+  p.people=(p.people||[]).map(x=>x.place?x:{name:x.name,place:{label:x.label,sub:x.sub,lat:x.lat,lon:x.lon},freq:"1"});
+  p.hobbies=(p.hobbies||[]).map(h=>({kafe:"kafe",gym:"gym",fotball:"fotball",racket:"padel",svom:"svomming",kultur:"kino",ski:"alpint",golf:"golf"}[h]||h)).filter(h=>hobDef(h));
+  return p;
+}
+const num = s => { const n=parseInt(String(s||"").replace(/\D/g,""),10); return isNaN(n)?null:n; };
+const kr = n => n==null?"":n.toLocaleString("nb-NO")+" kr";
+function fmtInput(el){ el.addEventListener("input",()=>{ const n=num(el.value); el.value=n==null?"":n.toLocaleString("nb-NO"); }); }
+fmtInput($("budget")); fmtInput($("price")); fmtInput($("fees"));
+function esc(s){ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function opts(list,sel){ return list.map(([v,l])=>`<option value="${v}"${v==sel?" selected":""}>${l}</option>`).join(""); }
 
 /* ================= NAVIGASJON ================= */
 function show(id){
@@ -351,277 +543,361 @@ function show(id){
 }
 
 /* ================= ADRESSESØK (Kartverket) ================= */
-async function geocode(text, n=5){
-  const url = "https://ws.geonorge.no/adresser/v1/sok?fuzzy=true&utkoordsys=4326&treffPerSide="+n+"&sok="+encodeURIComponent(text);
-  const r = await fetch(url); if(!r.ok) throw new Error("geo");
-  const d = await r.json();
-  return (d.adresser||[]).map(a=>({
-    label: a.adressetekst, sub: [a.postnummer, a.poststed].filter(Boolean).join(" "),
-    lat: a.representasjonspunkt.lat, lon: a.representasjonspunkt.lon
-  }));
+async function geocode(text, n=6){
+  const url="https://ws.geonorge.no/adresser/v1/sok?fuzzy=true&utkoordsys=4326&treffPerSide="+n+"&sok="+encodeURIComponent(text);
+  const r=await fetch(url); if(!r.ok) throw new Error("geo");
+  const d=await r.json();
+  return (d.adresser||[]).map(a=>({label:a.adressetekst, sub:[a.postnummer,a.poststed].filter(Boolean).join(" "), lat:a.representasjonspunkt.lat, lon:a.representasjonspunkt.lon}));
 }
 function autocomplete(input, onPick){
-  const box = input.parentElement.querySelector(".ac"); let t;
-  input.addEventListener("input", ()=>{
-    input.classList.remove("ok"); input._place=null; onPick(null);
+  const box=input.parentElement.querySelector(".ac"); let t;
+  input.addEventListener("input",()=>{
+    input.classList.remove("ok","bad"); input._place=null; onPick&&onPick(null);
     clearTimeout(t); const v=input.value.trim();
     if(v.length<3){ box.style.display="none"; return; }
     t=setTimeout(async()=>{
       try{
-        const res = await geocode(v);
-        box.innerHTML = res.length ? "" : '<button type="button" disabled>Fant ingen adresser</button>';
+        const res=await geocode(v);
+        box.innerHTML=res.length?"":'<button type="button" disabled>Fant ingen adresser</button>';
         res.forEach(p=>{
           const b=document.createElement("button"); b.type="button";
-          b.innerHTML = `${esc(p.label)}<small>${esc(p.sub)}</small>`;
-          b.addEventListener("click",()=>{ input.value=p.label+(p.sub?", "+p.sub:""); input._place=p; input.classList.add("ok"); input.style.borderColor=""; box.style.display="none"; onPick(p); });
+          b.innerHTML=`${esc(p.label)}<small>${esc(p.sub)}</small>`;
+          b.addEventListener("mousedown",e=>e.preventDefault());
+          b.addEventListener("click",()=>{ input.value=p.label+(p.sub?", "+p.sub:""); input._place=p; input.classList.add("ok"); box.style.display="none"; onPick&&onPick(p); });
           box.appendChild(b);
         });
         box.style.display="block";
       }catch(e){ box.innerHTML='<button type="button" disabled>Adressesøket svarer ikke akkurat nå</button>'; box.style.display="block"; }
-    },250);
+    },220);
   });
-  input.addEventListener("blur",()=>setTimeout(()=>box.style.display="none",200));
+  input.addEventListener("blur",()=>setTimeout(()=>box.style.display="none",150));
 }
-function esc(s){ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function setPlace(input,p){ if(!p) return; input.value=p.label+(p.sub?", "+p.sub:""); input._place=p; input.classList.add("ok"); }
 
-/* ================= PROFIL ================= */
-function chipGroup(el, multi){
-  el.addEventListener("click", e=>{
-    const b=e.target.closest(".chip"); if(!b) return;
-    if(multi) b.setAttribute("aria-pressed", b.getAttribute("aria-pressed")!=="true");
-    else el.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed", x===b));
-  });
+/* ================= PROFIL: STEDER ================= */
+function addPlace(pre){
+  if($("places").children.length>=MAX_PLACES) return;
+  const row=document.createElement("div"); row.className="row placeRow";
+  row.innerHTML=`<select class="ptype" aria-label="Type sted">${opts(PLACE_TYPES,pre?.type||($("places").children.length?"skole":"jobb"))}</select>
+    <div class="field addrF"><input type="text" class="paddr" placeholder="Adresse" autocomplete="off" aria-label="Adresse"><div class="ac"></div></div>
+    <select class="pmode" aria-label="Reisemåte">${opts(MODES,pre?.mode||"car")}</select>
+    <select class="pdays" aria-label="Dager per uke">${[1,2,3,4,5,6,7].map(d=>`<option value="${d}"${d==(pre?.days||5)?" selected":""}>${d} dag${d>1?"er":""}</option>`).join("")}</select>
+    <button type="button" class="x" aria-label="Fjern">✕</button>`;
+  const a=row.querySelector(".paddr"); autocomplete(a); if(pre) setPlace(a,pre.place);
+  row.querySelector(".x").addEventListener("click",()=>{ row.remove(); $("addPlace").hidden=false; });
+  $("places").appendChild(row); $("addPlace").hidden=$("places").children.length>=MAX_PLACES;
 }
-HOBBIES.forEach(h=>{ const b=document.createElement("button"); b.type="button"; b.className="chip"; b.dataset.v=h.id; b.textContent=h.label; b.setAttribute("aria-pressed","false"); $("hobbies").appendChild(b); });
-chipGroup($("mode"), false); chipGroup($("hobbies"), true);
+$("addPlace").addEventListener("click",()=>addPlace());
 
+/* ================= PROFIL: PERSONER ================= */
 function addPerson(pre){
   if($("people").children.length>=MAX_PEOPLE) return;
-  const row=document.createElement("div"); row.className="person";
-  row.innerHTML=`<div class="field"><input type="text" class="pname" placeholder="Hvem? (f.eks. Mamma)" aria-label="Navn"></div>
-    <div class="field"><input type="text" class="paddr" placeholder="Adressen deres" autocomplete="off" aria-label="Adresse"><div class="ac"></div></div>
+  const row=document.createElement("div"); row.className="row personRow";
+  row.innerHTML=`<input type="text" class="pname" placeholder="Hvem? (f.eks. Mamma)" aria-label="Navn">
+    <div class="field addrF"><input type="text" class="paddr" placeholder="Adressen deres" autocomplete="off" aria-label="Adresse"><div class="ac"></div></div>
+    <select class="pfreq" aria-label="Hvor ofte ses dere">${opts(FREQ,pre?.freq||"1")}</select>
     <button type="button" class="x" aria-label="Fjern">✕</button>`;
-  const a=row.querySelector(".paddr"); autocomplete(a, ()=>{});
+  const a=row.querySelector(".paddr"); autocomplete(a);
+  if(pre){ row.querySelector(".pname").value=pre.name||""; setPlace(a,pre.place); }
   row.querySelector(".x").addEventListener("click",()=>{ row.remove(); $("addPerson").hidden=false; });
-  if(pre){ row.querySelector(".pname").value=pre.name||""; a.value=pre.label; a._place=pre; a.classList.add("ok"); }
-  $("people").appendChild(row);
-  $("addPerson").hidden = $("people").children.length>=MAX_PEOPLE;
+  $("people").appendChild(row); $("addPerson").hidden=$("people").children.length>=MAX_PEOPLE;
 }
 $("addPerson").addEventListener("click",()=>addPerson());
-autocomplete($("work"), ()=>{});
+
+/* ================= PROFIL: AKTIVITETER ================= */
+let selHob=new Set();
+function renderHobbies(){
+  const q=$("hobSearch").value.trim().toLowerCase();
+  $("hobSelected").innerHTML=[...selHob].map(id=>{ const d=hobDef(id); return d?`<button type="button" class="chip sel" data-id="${esc(id)}" title="Fjern">${d.e} ${esc(d.n)} ✕</button>`:""; }).join("");
+  let html="", hits=0;
+  CATS.forEach(([cat,list])=>{
+    const items=list.filter(([id,e,n])=>!q || n.toLowerCase().includes(q) || id.includes(q) || cat.toLowerCase().includes(q));
+    if(!items.length) return; hits+=items.length;
+    html+=`<div class="cat"><h4>${cat}</h4><div class="chips">${items.map(([id,e,n])=>`<button type="button" class="chip" data-id="${id}" aria-pressed="${selHob.has(id)}">${e} ${n}</button>`).join("")}</div></div>`;
+  });
+  $("hobCats").innerHTML = html || `<p class="muted" style="margin:0">Ingen treff i listen.</p>`;
+  $("hobCustom").innerHTML = q && q.length>=3 && !CATS.some(([c,l])=>l.some(([id,e,n])=>n.toLowerCase()===q))
+    ? `<button type="button" class="add" id="addCustom">+ Legg til «${esc($("hobSearch").value.trim())}» som egen aktivitet</button>` : "";
+  const ac=$("addCustom"); if(ac) ac.addEventListener("click",()=>{ selHob.add("x:"+$("hobSearch").value.trim()); $("hobSearch").value=""; renderHobbies(); });
+}
+$("hobSearch").addEventListener("input",renderHobbies);
+$("hobSearch").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); const b=$("addCustom")||$("hobCats").querySelector(".chip"); if(b) b.click(); }});
+[$("hobCats"),$("hobSelected")].forEach(el=>el.addEventListener("click",e=>{
+  const b=e.target.closest(".chip"); if(!b) return; const id=b.dataset.id;
+  selHob.has(id)?selHob.delete(id):selHob.add(id); renderHobbies();
+}));
 
 function fillProfileForm(){
-  $("people").innerHTML="";
+  $("places").innerHTML=""; $("people").innerHTML=""; selHob=new Set(); $("budget").value=""; $("hobSearch").value="";
   if(profile){
-    $("work").value=profile.work.label; $("work")._place=profile.work; $("work").classList.add("ok");
-    $("mode").querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed", c.dataset.v===profile.mode));
+    profile.places.forEach(p=>addPlace(p));
     profile.people.forEach(p=>addPerson(p));
-    $("hobbies").querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed", profile.hobbies.includes(c.dataset.v)));
+    profile.hobbies.forEach(h=>selHob.add(h));
+    if(profile.budget) $("budget").value=profile.budget.toLocaleString("nb-NO");
   }
+  if(!$("places").children.length) addPlace();
   if(!$("people").children.length) addPerson();
+  renderHobbies();
 }
 $("saveProfile").addEventListener("click",()=>{
   const err=$("profileErr"); err.style.display="none";
-  const w=$("work")._place;
-  if(!w){ err.textContent="Velg adressen til jobb eller studiested fra listen som dukker opp."; err.style.display="block"; return; }
-  const missing=[...$("people").children].filter(r=>r.querySelector(".paddr").value.trim() && !r.querySelector(".paddr")._place);
-  if(missing.length){
-    const names=missing.map(r=>r.querySelector(".pname").value.trim()||"en av personene").join(", ");
-    missing.forEach(r=>r.querySelector(".paddr").style.borderColor="var(--coral)");
-    err.textContent=`Velg adressen fra listen for ${names}. Skriv litt av adressen og trykk på riktig forslag.`; err.style.display="block";
-    missing[0].querySelector(".paddr").focus(); return;
-  }
-  const people=[...$("people").children].map(r=>{ const p=r.querySelector(".paddr")._place; return p?{...p,name:r.querySelector(".pname").value.trim()||"Person"}:null; }).filter(Boolean);
-  profile={
-    work:w,
-    mode:$("mode").querySelector('[aria-pressed="true"]').dataset.v,
-    people,
-    hobbies:[...$("hobbies").querySelectorAll('[aria-pressed="true"]')].map(b=>b.dataset.v)
-  };
-  store.set("lh-profile",profile);
-  pushProfile();
-  renderProfileSum(); show("sHome"); setTimeout(()=>$("homeAddr").focus(),300);
+  const bad=[];
+  const places=[...$("places").children].map(r=>{ const a=r.querySelector(".paddr");
+    if(a.value.trim() && !a._place){ bad.push(a); return null; }
+    return a._place?{type:r.querySelector(".ptype").value, place:a._place, mode:r.querySelector(".pmode").value, days:+r.querySelector(".pdays").value}:null; }).filter(Boolean);
+  const people=[...$("people").children].map(r=>{ const a=r.querySelector(".paddr");
+    if(a.value.trim() && !a._place){ bad.push(a); return null; }
+    return a._place?{name:r.querySelector(".pname").value.trim()||"Person", place:a._place, freq:r.querySelector(".pfreq").value}:null; }).filter(Boolean);
+  if(bad.length){ bad.forEach(a=>a.classList.add("bad")); err.textContent="Noen adresser er ikke valgt fra listen (markert i rødt). Skriv litt av adressen og trykk på riktig forslag."; err.style.display="block"; bad[0].focus(); return; }
+  if(!places.length){ err.textContent="Legg inn minst ett sted du drar jevnlig – for eksempel jobb eller skole."; err.style.display="block"; return; }
+  profile={places, people, hobbies:[...selHob], budget:num($("budget").value)};
+  store.set("lh-profile",profile); pushProfile();
+  renderProfileSum(); renderCompare(); show("sHome"); setTimeout(()=>$("homeAddr").focus(),300);
 });
 $("editProfile").addEventListener("click",()=>{ fillProfileForm(); show("sProfile"); });
 
 function renderProfileSum(){
-  const modeTxt={transit:"🚌 kollektivt",car:"🚗 bil",bike:"🚲 sykkel",foot:"🚶 til fots"}[profile.mode];
-  const hob=profile.hobbies.map(id=>HOBBIES.find(h=>h.id===id)?.label).filter(Boolean);
-  $("profileSum").innerHTML = `<span>Jobb: ${esc(profile.work.label)} (${modeTxt})</span>`+
+  const m=Object.fromEntries(MODES), t=Object.fromEntries(PLACE_TYPES);
+  $("profileSum").innerHTML =
+    profile.places.map(p=>`<span>${t[p.type].split(" ")[0]} ${esc(p.place.label)} · ${m[p.mode].split(" ")[0]}</span>`).join("")+
     profile.people.map(p=>`<span>🫂 ${esc(p.name)}</span>`).join("")+
-    hob.map(h=>`<span>${esc(h)}</span>`).join("");
+    profile.hobbies.map(id=>{const d=hobDef(id);return d?`<span>${d.e} ${esc(d.n)}</span>`:""}).join("")+
+    (profile.budget?`<span>💸 Budsjett ${kr(profile.budget)}</span>`:"");
 }
 
 /* ================= BOLIG ================= */
 let homePlace=null;
 autocomplete($("homeAddr"), p=>{ homePlace=p; $("check").disabled=!p; });
-$("homeAddr").addEventListener("keydown",e=>{ if(e.key==="Enter" && homePlace) $("check").click(); });
-$("check").addEventListener("click",()=>analyze(homePlace));
-$("another").addEventListener("click",()=>{ $("homeAddr").value=""; homePlace=null; $("check").disabled=true; $("homeAddr").classList.remove("ok"); renderCompare(); show("sHome"); setTimeout(()=>$("homeAddr").focus(),300); });
+$("check").addEventListener("click",()=>analyze(homePlace,{price:num($("price").value),fees:num($("fees").value)}));
+[$("homeAddr"),$("price"),$("fees")].forEach(el=>el.addEventListener("keydown",e=>{ if(e.key==="Enter" && homePlace) $("check").click(); }));
+function resetHomeForm(){ $("homeAddr").value=""; $("price").value=""; $("fees").value=""; homePlace=null; $("check").disabled=true; $("homeAddr").classList.remove("ok"); }
+$("another").addEventListener("click",()=>{ resetHomeForm(); renderCompare(); show("sHome"); setTimeout(()=>$("homeAddr").focus(),300); });
 $("toCompare").addEventListener("click",()=>{ renderCompare(); show("sHome"); setTimeout(()=>$("cmpBox").scrollIntoView({behavior:"smooth"}),350); });
 
-/* ================= BEREGNINGER ================= */
+/* ================= REISETID ================= */
 function km(a,b){ const R=6371,t=x=>x*Math.PI/180; const dLa=t(b.lat-a.lat), dLo=t(b.lon-a.lon);
   const h=Math.sin(dLa/2)**2+Math.cos(t(a.lat))*Math.cos(t(b.lat))*Math.sin(dLo/2)**2; return 2*R*Math.asin(Math.sqrt(h)); }
-function estMinutes(a,b,mode){ const d=km(a,b)*1.35; return Math.round(d/SPEED[mode]*60 + (mode==="transit"?8:mode==="car"?3:0)); }
-
+// Anslag når ruteplanleggerne ikke svarer. Bilfarten øker med avstand (bygate -> motorvei).
+function estMinutes(a,b,mode){
+  const d=km(a,b);
+  if(mode==="car"){ const road=d*1.25, v=Math.min(78, 28+road*1.9); return Math.max(3,Math.round(road/v*60+3)); }
+  if(mode==="bike") return Math.max(2,Math.round(d*1.25/17*60));
+  if(mode==="foot") return Math.max(2,Math.round(d*1.2/5*60));
+  const road=d*1.3, v=Math.min(55, 16+road*1.4); return Math.round(road/v*60+9);
+}
+function withTimeout(ms){ const c=new AbortController(); setTimeout(()=>c.abort(),ms); return c.signal; }
 function nextWeekday8(){ const d=new Date(); d.setDate(d.getDate()+1); while([0,6].includes(d.getDay())) d.setDate(d.getDate()+1); d.setHours(8,0,0,0); return d.toISOString(); }
-
+const ROUTERS = {
+  car:  ["https://routing.openstreetmap.de/routed-car/route/v1/driving/","https://router.project-osrm.org/route/v1/driving/"],
+  bike: ["https://routing.openstreetmap.de/routed-bike/route/v1/driving/"],
+  foot: ["https://routing.openstreetmap.de/routed-foot/route/v1/driving/"]
+};
 async function travel(a,b,mode){
-  try{
-    if(mode==="transit"){
+  if(km(a,b)<0.15) return {min:1,est:false};
+  if(mode==="transit"){
+    try{
       const q=`{trip(from:{coordinates:{latitude:${a.lat},longitude:${a.lon}}},to:{coordinates:{latitude:${b.lat},longitude:${b.lon}}},dateTime:"${nextWeekday8()}",arriveBy:true,numTripPatterns:3){tripPatterns{duration}}}`;
-      const r=await fetch("https://api.entur.io/journey-planner/v3/graphql",{method:"POST",headers:{"Content-Type":"application/json","ET-Client-Name":"lykkelighjem-prototype"},body:JSON.stringify({query:q})});
+      const r=await fetch("https://api.entur.io/journey-planner/v3/graphql",{method:"POST",signal:withTimeout(9000),headers:{"Content-Type":"application/json","ET-Client-Name":"lykkelighjem-prototype"},body:JSON.stringify({query:q})});
       const d=await r.json(); const t=(d.data?.trip?.tripPatterns||[]).map(p=>p.duration);
       if(t.length) return {min:Math.round(Math.min(...t)/60), est:false};
-    }else{
-      const prof={car:"routed-car",bike:"routed-bike",foot:"routed-foot"}[mode];
-      const r=await fetch(`https://routing.openstreetmap.de/${prof}/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=false`);
-      const d=await r.json(); if(d.routes?.length) return {min:Math.round(d.routes[0].duration/60)+(mode==="car"?3:0), est:false};
+    }catch(e){}
+  }else{
+    for(const base of ROUTERS[mode]){
+      try{
+        const r=await fetch(`${base}${a.lon},${a.lat};${b.lon},${b.lat}?overview=false`,{signal:withTimeout(7000)});
+        const d=await r.json();
+        if(d.routes?.length) return {min:Math.max(1,Math.round(d.routes[0].duration/60)+(mode==="car"?2:0)), est:false};
+      }catch(e){}
     }
-  }catch(e){}
+  }
   return {min:estMinutes(a,b,mode), est:true};
 }
 
+/* ================= KARTDATA: ÉN SAMLET FORESPØRSEL ================= */
+const OVERPASS=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter"];
+const NATURE_R=[150,300,600,1000,1500,2000];
 async function overpass(q){
-  const r=await fetch("https://overpass-api.de/api/interpreter",{method:"POST",body:"data="+encodeURIComponent(q),headers:{"Content-Type":"application/x-www-form-urlencoded"}});
-  if(!r.ok) throw new Error("overpass"); return (await r.json()).elements||[];
+  for(const url of OVERPASS){
+    try{
+      const r=await fetch(url,{method:"POST",signal:withTimeout(20000),body:"data="+encodeURIComponent(q),headers:{"Content-Type":"application/x-www-form-urlencoded"}});
+      if(r.ok) return (await r.json()).elements||[];
+    }catch(e){}
+  }
+  throw new Error("overpass");
 }
-async function nature(p){
-  const A=`(around:2000,${p.lat},${p.lon})`;
-  const q=`[out:json][timeout:25];(way["landuse"="forest"]${A};way["natural"~"wood|beach|water|coastline"]${A};way["leisure"~"park|nature_reserve"]${A};)->.w;
-  (rel["landuse"="forest"]${A};rel["natural"~"wood|water"]${A};rel["leisure"~"park|nature_reserve"]${A};)->.r;way(r.r)->.rw;(.w;.rw;)->.all;node(w.all)${A};out skel qt;`;
+async function placeData(p, hobbies){
+  const L=`${p.lat},${p.lon}`;
+  const nat=['way["landuse"~"^(forest|meadow)$"]','way["natural"~"^(wood|beach|water|heath|scrub)$"]','way["leisure"~"^(park|nature_reserve)$"]','way["natural"="coastline"]','rel["landuse"="forest"]','rel["natural"~"^(wood|water)$"]','rel["leisure"~"^(park|nature_reserve)$"]'];
+  let q=`[out:json][timeout:25];`;
+  NATURE_R.forEach(R=>{ q+=`(${nat.map(f=>`${f}(around:${R},${L});`).join("")});out count;`; });
+  q+=`(nwr["amenity"~"^(school|kindergarten|cafe|restaurant|community_centre|library|pharmacy|doctors)$"](around:900,${L});nwr["leisure"="playground"](around:900,${L});nwr["shop"~"^(supermarket|convenience)$"](around:1500,${L});nwr["highway"="bus_stop"](around:600,${L});nwr["railway"~"^(station|halt|tram_stop)$"](around:1500,${L}););out center tags 200;`;
+  const defs=hobbies.map(hobDef).filter(Boolean);
+  defs.forEach(d=>{ q+=hobQuery(d,L); });
   const els=await overpass(q);
-  let best=Infinity; els.forEach(n=>{ const d=km(p,n)*1000; if(d<best) best=d; });
-  return best===Infinity?null:Math.round(best);
-}
-async function leisure(p, hobbies, mode){
-  if(!hobbies.length) return [];
-  const parts=hobbies.map(id=>{ const h=HOBBIES.find(x=>x.id===id); const R=id==="kafe"||id==="kultur"?4000:15000; return `${h.q}(around:${R},${p.lat},${p.lon});`; }).join("");
-  const els=await overpass(`[out:json][timeout:25];(${parts});out center tags qt 400;`);
-  return hobbies.map(id=>{
-    const h=HOBBIES.find(x=>x.id===id); const re=matcher(id);
-    let best=null,bd=Infinity;
-    els.forEach(e=>{ if(!re(e.tags||{})) return; const c=e.center||e; const d=km(p,c); if(d<bd){bd=d;best={lat:c.lat,lon:c.lon,name:e.tags?.name}} });
-    return best ? {id,label:h.label,place:best,min:estMinutes(p,best,mode==="transit"?"transit":mode),km:bd} : {id,label:h.label,place:null,min:null};
-  });
-}
-function matcher(id){
-  return {
-    golf:t=>t.leisure==="golf_course", gym:t=>t.leisure==="fitness_centre",
-    fotball:t=>t.leisure==="pitch"&&t.sport==="soccer", racket:t=>/padel|tennis/.test(t.sport||""),
-    svom:t=>t.sport==="swimming", kafe:t=>/^(cafe|bar|pub)$/.test(t.amenity||""),
-    kultur:t=>/^(theatre|cinema|arts_centre|library)$/.test(t.amenity||""), ski:t=>t.landuse==="winter_sports"
-  }[id];
-}
-async function neighbourhood(p){
-  const A=`(around:700,${p.lat},${p.lon})`;
-  const els=await overpass(`[out:json][timeout:25];(nwr["amenity"~"^(school|kindergarten|cafe|restaurant|community_centre|library)$"]${A};nwr["leisure"~"^(playground|park)$"]${A};nwr["shop"~"^(supermarket|convenience|bakery)$"]${A};);out tags qt 300;`);
-  const c={school:0,kindergarten:0,playground:0,meet:0,shop:0};
-  els.forEach(e=>{ const t=e.tags||{};
-    if(t.amenity==="school") c.school++; else if(t.amenity==="kindergarten") c.kindergarten++;
-    else if(t.leisure==="playground") c.playground++; else if(t.shop) c.shop++;
-    else c.meet++; });
-  return c;
-}
-function daylight(lat, decl){ const r=Math.PI/180; const x=-Math.tan(lat*r)*Math.tan(decl*r); if(x<=-1) return 24; if(x>=1) return 0; return 2*Math.acos(x)/r/15; }
 
+  // Natur: første radius med treff
+  const counts=els.filter(e=>e.type==="count").map(e=>+(e.tags?.total||0));
+  let nature=null; for(let i=0;i<NATURE_R.length;i++){ if(counts[i]>0){ nature=NATURE_R[i]; break; } }
+  const tagged=els.filter(e=>e.type!=="count"&&e.tags).map(e=>{ const c=e.center||e; return {t:e.tags, lat:c.lat, lon:c.lon, d:km(p,c)*1000}; }).filter(e=>e.lat);
+
+  // Nabolag
+  const near=(test,max)=>tagged.filter(e=>test(e.t)&&e.d<=max).sort((a,b)=>a.d-b.d);
+  const nb={
+    school: near(t=>t.amenity==="school",900),
+    kinder: near(t=>t.amenity==="kindergarten",900),
+    shop:   near(t=>/^(supermarket|convenience)$/.test(t.shop||""),1500),
+    stop:   near(t=>t.highway==="bus_stop"||/^(station|halt|tram_stop)$/.test(t.railway||""),1500),
+    play:   near(t=>t.leisure==="playground",900),
+    meet:   near(t=>/^(cafe|restaurant|community_centre|library)$/.test(t.amenity||""),900),
+    health: near(t=>/^(pharmacy|doctors)$/.test(t.amenity||""),900)
+  };
+  // Fritid
+  const lei=defs.map(d=>{ const m=hobMatcher(d); const best=tagged.filter(e=>m(e.t)).sort((a,b)=>a.d-b.d)[0];
+    return {id:d.id, e:d.e, n:d.n, place:best?{lat:best.lat,lon:best.lon,name:best.t.name}:null, dist:best?best.d:null}; });
+  return {nature, nb, lei};
+}
+
+/* ================= SCORE ================= */
+function interp(x, pts){ if(x<=pts[0][0]) return pts[0][1]; for(let i=1;i<pts.length;i++){ const [x1,y1]=pts[i]; if(x<=x1){ const [x0,y0]=pts[i-1]; return y0+(y1-y0)*(x-x0)/(x1-x0); } } return pts[pts.length-1][1]; }
+const CURVE = {
+  commute:[[10,100],[20,85],[30,65],[45,40],[60,20],[90,0]],
+  friends:[[10,100],[20,82],[30,62],[45,35],[60,15],[90,0]],
+  leisure:[[5,100],[10,90],[20,65],[30,40],[45,15],[60,0]],
+  nature: [[150,100],[300,92],[600,75],[1000,55],[1500,35],[2000,20]]
+};
 const clamp=x=>Math.max(0,Math.min(100,Math.round(x)));
-const sMin=(m,free,slope)=>clamp(100-Math.max(0,m-free)*slope);
+function computeScores(c){
+  const s={};
+  // Pendling: snitt vektet etter dager i uka
+  const dsum=c.trips.reduce((a,t)=>a+t.days,0)||1;
+  s.commute=clamp(c.trips.reduce((a,t)=>a+interp(t.min,CURVE.commute)*t.days,0)/dsum);
+  // Venner og familie: vektet etter hvor ofte dere ses
+  if(c.people.length){ const fs=c.people.reduce((a,p)=>a+p.freq,0)||1; s.friends=clamp(c.people.reduce((a,p)=>a+interp(p.min,CURVE.friends)*p.freq,0)/fs); }
+  if(c.nature!==undefined) s.nature=clamp(c.nature==null?8:interp(c.nature,CURVE.nature));
+  if(c.lei&&c.lei.length) s.leisure=clamp(c.lei.reduce((a,l)=>a+(l.min==null?5:interp(l.min,CURVE.leisure)),0)/c.lei.length);
+  s.light={S:92,V:85,O:70,N:40,"?":60}[c.light||"?"];
+  if(c.nb){ const n=c.nb, has=a=>a.length>0;
+    s.neigh=clamp(20 + (has(n.shop)?(n.shop[0].d<600?18:10):0) + (has(n.stop)?(n.stop[0].d<400?15:8):0) + (has(n.school)?10:0) + (has(n.kinder)?10:0) + Math.min(n.play.length,3)*5 + Math.min(n.meet.length,4)*3 + (has(n.health)?5:0)); }
+  if(c.price && profile.budget){ s.money=clamp(interp(c.price/profile.budget,[[0.75,100],[0.85,90],[0.95,72],[1.0,60],[1.05,40],[1.15,15],[1.25,0]])); }
+  else if(c.money) s.money=(c.money-1)*25;
+  let tot=0,wt=0; for(const k in s){ tot+=s[k]*W[k]; wt+=W[k]; }
+  let total=Math.round(tot/wt);
+  // Strengere: svak pendling eller lang vei til familie gjør at boligen ikke kan få toppscore
+  const caps=[];
+  if(s.commute<30){ total=Math.min(total,62); caps.push("pendlingen"); }
+  if(s.friends!==undefined && s.friends<30){ total=Math.min(total,62); caps.push("avstanden til de viktigste menneskene dine"); }
+  if(s.money!==undefined && s.money<20){ total=Math.min(total,55); caps.push("prisen i forhold til budsjettet"); }
+  return {s,total,caps};
+}
+const gradeOf=t=>t>=85?["A","var(--mint)"]:t>=72?["B","#7ed6a8"]:t>=58?["C","var(--sun)"]:t>=45?["D","#ff9f6e"]:["E","var(--red)"];
+const col=v=>v>=75?"var(--mint)":v>=50?"var(--sun)":"var(--red)";
+const INFO = {
+  commute:{t:"🚆 Pendling", why:"Pendlerparadokset: lang pendling gir lavere livstilfredshet hver dag, og veies sjelden opp av større bolig eller høyere lønn (Stutzer & Frey, 2008)."},
+  friends:{t:"🫂 Venner og familie", why:"Nære relasjoner er den sterkeste kilden til lykke vi kjenner. Lang vei betyr at dere ses sjeldnere."},
+  nature:{t:"🌲 Natur", why:"Minst 120 minutter i naturen i uka henger sammen med bedre helse og trivsel (White mfl., 2019). Det er lettere når naturen er rett utenfor døra."},
+  leisure:{t:"⛳ Fritid", why:"Jo kortere vei til det du liker å gjøre, jo oftere blir det faktisk gjort."},
+  light:{t:"☀️ Sol og lys", why:"Dagslys påvirker humør og energi – særlig i mørketida."},
+  neigh:{t:"🏡 Nabolag", why:"Små hverdagsmøter i butikken, på lekeplassen og på bussen gir mer glede enn vi tror (svake bånd). Nærhet til hverdagstjenester gir også mer tid."},
+  money:{t:"💸 Økonomisk luft", why:"Økonomisk stress følger deg hjem hver dag. En bolig godt innenfor budsjettet gir rom for opplevelser og folk."}
+};
+const mm=m=>m<60?`${m} min`:`${Math.floor(m/60)} t ${m%60} min`;
+const md=d=>d<1000?`${Math.round(d/10)*10} m`:`${(d/1000).toFixed(1).replace(".",",")} km`;
 
 /* ================= ANALYSE ================= */
-async function analyze(place){
+async function analyze(place, extra={}){
   show("sLoading"); ["c1","c2","c3","c4"].forEach(id=>$(id).classList.remove("done"));
-  setTimeout(()=>$("c1").classList.add("done"),300);
-  const mode=profile.mode;
-  const [work, people, nat, lei, nb] = await Promise.all([
-    travel(place, profile.work, mode),
-    Promise.all(profile.people.map(async pp=>({...(await travel(place,pp,mode==="foot"?"bike":mode)),name:pp.name,place:pp}))).then(r=>{$("c2").classList.add("done");return r}),
-    nature(place).catch(()=>undefined),
-    leisure(place, profile.hobbies, mode).catch(()=>undefined).then(r=>{$("c3").classList.add("done");return r}),
-    neighbourhood(place).catch(()=>undefined).then(r=>{$("c4").classList.add("done");return r})
-  ]);
-  await new Promise(r=>setTimeout(r,500));
-
-  current = {place, work, people, nat, lei, nb, light:"?", money:null, id:Date.now()};
-  const existing = homes.find(h=>Math.abs(h.place.lat-place.lat)<1e-6 && Math.abs(h.place.lon-place.lon)<1e-6);
-  if(existing){ current.light=existing.light; current.money=existing.money; current.id=existing.id; current.dbId=existing.dbId; }
+  setTimeout(()=>$("c1").classList.add("done"),250);
+  const tripsP=Promise.all(profile.places.map(async pl=>({...(await travel(place,pl.place,pl.mode)),type:pl.type,label:pl.place.label,place:pl.place,mode:pl.mode,days:pl.days})));
+  const peopleMode=(profile.places[0]?.mode==="foot")?"bike":(profile.places[0]?.mode||"car");
+  const peopleP=Promise.all(profile.people.map(async pp=>({...(await travel(place,pp.place,peopleMode)),name:pp.name,place:pp.place,freq:+pp.freq})));
+  const [trips,people]=await Promise.all([tripsP,peopleP]); $("c2").classList.add("done");
+  let pd=null; try{ pd=await placeData(place, profile.hobbies); }catch(e){}
+  $("c3").classList.add("done");
+  const lmode=peopleMode;
+  const lei=pd?pd.lei.map(l=>({...l, min:l.place?estMinutes(place,l.place,l.dist<1500?"foot":lmode):null, walk:l.place&&l.dist<1500})):undefined;
+  await new Promise(r=>setTimeout(r,350)); $("c4").classList.add("done");
+  const existing=homes.find(h=>Math.abs(h.place.lat-place.lat)<1e-6&&Math.abs(h.place.lon-place.lon)<1e-6);
+  current={place, trips, people, nature:pd?pd.nature:undefined, nb:pd?pd.nb:undefined, lei,
+    price:extra.price??existing?.price??null, fees:extra.fees??existing?.fees??null,
+    light:existing?.light||"?", money:existing?.money||null, id:existing?.id||Date.now(), dbId:existing?.dbId};
   renderResult();
 }
 
-function computeScores(c){
-  const s={};
-  s.commute = sMin(c.work.min,10,1.4);
-  if(c.people.length) s.friends = clamp(c.people.reduce((a,p)=>a+sMin(p.min,10,0.9),0)/c.people.length);
-  if(c.nat!==undefined) s.nature = c.nat===null?10:Math.max(15,clamp(100-Math.max(0,c.nat-300)*0.045));
-  if(c.lei && c.lei.length) s.leisure = clamp(c.lei.reduce((a,l)=>a+(l.min==null?15:sMin(l.min,10,1.6)),0)/c.lei.length);
-  s.light = {S:90,V:85,O:70,N:45,"?":60}[c.light];
-  if(c.nb) s.neigh = clamp(30 + Math.min(c.nb.school,2)*7 + Math.min(c.nb.kindergarten,3)*5 + Math.min(c.nb.playground,4)*6 + Math.min(c.nb.meet,6)*4 + Math.min(c.nb.shop,3)*5);
-  if(c.money) s.money=(c.money-1)*25;
-  let tot=0,wt=0; for(const k in s){ tot+=s[k]*W[k]; wt+=W[k]; }
-  return {s, total:Math.round(tot/wt)};
-}
-
-const INFO = {
-  commute:{t:"🚆 Pendling", why:"Pendlerparadokset: lang pendling gir lavere livstilfredshet, og blir sjelden veid opp av større bolig (Stutzer & Frey, 2008)."},
-  friends:{t:"🫂 Venner og familie", why:"Nære relasjoner er den sterkeste kilden til lykke vi kjenner – og avstand avgjør hvor ofte vi ses."},
-  nature:{t:"🌲 Natur", why:"Minst 120 minutter i naturen i uka henger sammen med bedre helse og trivsel (White mfl., 2019)."},
-  leisure:{t:"⛳ Fritid", why:"Jo kortere vei til det du liker å gjøre, jo oftere gjør du det."},
-  light:{t:"☀️ Sol og lys", why:"Dagslys påvirker humør og energi – særlig i mørketida."},
-  neigh:{t:"🏡 Nabolag", why:"Små hverdagsmøter med folk rundt oss gir mer glede enn vi tror. Skoler, lekeplasser og kafeer skaper slike møter."},
-  money:{t:"💸 Økonomisk luft", why:"Økonomisk stress følger deg hjem hver dag. En bolig du har råd til gir rom for resten av livet."}
-};
-const pl=(n,a,b)=>n+' '+(n===1?a:b);
-const col=v=>v>=75?"var(--mint)":v>=50?"var(--sun)":"var(--coral)";
+/* ================= RESULTAT ================= */
+function animateNumber(el,to){ const t0=performance.now(), dur=900; const step=t=>{ const k=Math.min(1,(t-t0)/dur), v=Math.round(to*(1-Math.pow(1-k,3))); el.textContent=v; if(k<1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
 
 function renderResult(){
-  const c=current, {s,total}=computeScores(c);
-  $("rScore").textContent=total;
-  $("rRing").style.background=`conic-gradient(${col(total)} ${total}%, rgba(255,255,255,.12) 0)`;
-  $("rVerdict").textContent= total>=75?"Her kan du bli skikkelig lykkelig 🎉": total>=60?"Et godt sted å leve 😊": total>=45?"Greit – men noe trekker ned 🤔":"Tenk deg godt om før du byr 😬";
+  const c=current, {s,total,caps}=computeScores(c);
+  const [g,gc]=gradeOf(total);
+  animateNumber($("rScore"),total);
+  $("gauge").style.background=`conic-gradient(${gc} ${total}%, rgba(255,255,255,.1) 0)`;
+  $("grade").textContent=g; $("grade").style.background=gc; $("hero").style.setProperty("--hc",gc);
+  $("rVerdict").textContent= total>=85?"Her kan du bli skikkelig lykkelig 🎉": total>=72?"Et godt sted å leve 😊": total>=58?"Greit – men noe trekker ned 🤔": total>=45?"Tenk deg godt om 😬":"Denne passer dårlig med livet ditt 😕";
   $("rAddr").textContent=c.place.label+(c.place.sub?", "+c.place.sub:"");
-  let worst=null,wv=101; for(const k in s){ if(s[k]<wv){wv=s[k];worst=k} }
-  $("rTip").textContent = wv>=70 ? "Alt ser bra ut – denne boligen passer livet ditt godt." : `Det som trekker mest ned er ${INFO[worst].t.slice(3).toLowerCase()}. ${INFO[worst].why}`;
+  const tags=[];
+  if(c.price) tags.push("💰 "+kr(c.price)); if(c.fees) tags.push("🧾 "+kr(c.fees)+"/mnd");
+  if(c.price&&profile.budget) tags.push(`${Math.round(c.price/profile.budget*100)} % av budsjettet`);
+  $("rTags").innerHTML=tags.map(t=>`<span>${esc(t)}</span>`).join("");
+  $("rWarn").hidden=!caps.length;
+  if(caps.length) $("rWarn").textContent=`Scoren er holdt nede fordi ${caps.join(" og ")} er et tydelig minus. Uansett hvor fin boligen er, merker du det hver uke.`;
 
-  const est=b=>b?'<span class="est">estimert</span>':"";
-  const hrs=Math.round(c.work.min*2*230/60);
+  // En vanlig uke
+  const weekTravel=c.trips.reduce((a,t)=>a+t.min*2*t.days,0)+c.people.reduce((a,p)=>a+p.min*2*Math.min(p.freq,2),0);
+  const yearH=Math.round(c.trips.reduce((a,t)=>a+t.min*2*t.days,0)*46/60);
+  const nearestFam=c.people.length?c.people.reduce((a,p)=>p.min<a.min?p:a):null;
+  const dDec=daylight(c.place.lat,-23.44);
+  $("week").innerHTML=`
+    <div class="wk wk1"><div class="big">${mm(Math.round(weekTravel))}</div><div class="lab">på reise i uka – til hverdag og familie</div></div>
+    <div class="wk wk2"><div class="big">${yearH.toLocaleString("nb-NO")} t</div><div class="lab">pendling i året (${(yearH/37.5).toLocaleString("nb-NO",{maximumFractionDigits:1})} arbeidsuker)</div></div>
+    <div class="wk wk3"><div class="big">${c.nature===undefined?"–":c.nature==null?"> 2 km":"< "+md(c.nature)}</div><div class="lab">til nærmeste skog, park eller vann</div></div>
+    <div class="wk wk4"><div class="big">${nearestFam?mm(nearestFam.min):"–"}</div><div class="lab">${nearestFam?"til "+esc(nearestFam.name):"legg til personer i profilen"}</div></div>`;
+
+  // Det beste / det som trekker ned
+  const ranked=Object.keys(s).map(k=>[k,s[k]]).sort((a,b)=>b[1]-a[1]);
+  const li=([k,v])=>`<li><span>${INFO[k].t}</span><b style="color:${col(v)}">${v}</b></li>`;
+  $("bestList").innerHTML=ranked.filter(r=>r[1]>=60).slice(0,3).map(li).join("")||`<li><span>Ingen faktorer skiller seg positivt ut</span></li>`;
+  $("worstList").innerHTML=ranked.slice().reverse().filter(r=>r[1]<60).slice(0,3).map(li).join("")||`<li><span>Ingenting trekker tydelig ned 🎉</span></li>`;
+
+  // Faktorkort
+  const est=e=>e?'<span class="est">ca.</span>':"";
+  const tName=Object.fromEntries(PLACE_TYPES), mName=Object.fromEntries(MODES), fName=Object.fromEntries(FREQ);
+  const item=(l,r)=>`<div class="item"><span>${l}</span><b>${r}</b></div>`;
+  const nbItem=(lab,arr)=>item(lab, arr.length?`${md(arr[0].d)}${arr[0].t.name?" · "+esc(arr[0].t.name):""}`:"ikke funnet");
   const val={
-    commute:`${c.work.min} min hver vei ${est(c.work.est)}<br><span class="muted" style="font-weight:600;font-size:.86rem">≈ ${hrs.toLocaleString("nb-NO")} timer i året – ${(hrs/37.5).toLocaleString("nb-NO",{maximumFractionDigits:1})} arbeidsuker</span>`,
-    friends: c.people.length ? c.people.map(p=>`${esc(p.name)}: ${p.min} min ${est(p.est)}`).join("<br>") : "",
-    nature: c.nat===undefined?"":(c.nat===null?"Ingen skog, park eller sjø innen 2 km":`Nærmeste skog, park eller vann: ca. ${c.nat<1000?c.nat+" m":(c.nat/1000).toFixed(1).replace(".",",")+" km"}`),
-    leisure: (c.lei||[]).map(l=>`${esc(l.label)}: ${l.min==null?"ikke funnet i nærheten":l.min+" min"+(l.place?.name?" ("+esc(l.place.name)+")":"")}`).join("<br>"),
-    light:`Dagslys: ${daylight(c.place.lat,-23.44).toFixed(1).replace(".",",")} t i desember · ${daylight(c.place.lat,23.44).toFixed(1).replace(".",",")} t i juni`,
-    neigh: c.nb?`Innen 700 m: ${pl(c.nb.school,'skole','skoler')}, ${pl(c.nb.kindergarten,'barnehage','barnehager')}, ${pl(c.nb.playground,'lekeplass','lekeplasser')}, ${pl(c.nb.meet,'kafé/møteplass','kafeer/møteplasser')} og ${pl(c.nb.shop,'butikk','butikker')}`:"",
-    money:""
+    commute:c.trips.map(t=>item(`${tName[t.type].split(" ")[0]} ${esc(t.label)} <span class="muted">(${mName[t.mode].split(" ")[0]} · ${t.days}d/uke)</span>`, mm(t.min)+est(t.est))).join(""),
+    friends:c.people.map(p=>item(`${esc(p.name)} <span class="muted">(${fName[String(p.freq)]||""})</span>`, mm(p.min)+est(p.est))).join(""),
+    nature:c.nature===undefined?"":item("Nærmeste skog, park eller vann", c.nature==null?"over 2 km":"innen "+md(c.nature)),
+    leisure:(c.lei||[]).map(l=>item(`${l.e} ${esc(l.n)}${l.place?.name?' <span class="muted">· '+esc(l.place.name)+'</span>':""}`, l.min==null?"ikke funnet":(l.walk?"🚶 ":"")+mm(l.min)+est(true))).join(""),
+    light:item("Dagslys i desember", dDec.toFixed(1).replace(".",",")+" t")+item("Dagslys i juni", daylight(c.place.lat,23.44).toFixed(1).replace(".",",")+" t"),
+    neigh:c.nb?[nbItem("🛒 Dagligvare",c.nb.shop),nbItem("🚏 Kollektivstopp",c.nb.stop),nbItem("🏫 Skole",c.nb.school),nbItem("🧸 Barnehage",c.nb.kinder),nbItem("🛝 Lekeplass",c.nb.play),item("☕ Kafeer og møteplasser innen 900 m", c.nb.meet.length)].join(""):"",
+    money:c.price?item("Totalpris",kr(c.price))+(profile.budget?item("Ditt budsjett",kr(profile.budget)):"")+(c.fees?item("Felleskostnader",kr(c.fees)+"/mnd"):""):""
   };
-  const order=["commute","friends","nature","leisure","light","neigh","money"];
-  $("factors").innerHTML = order.map(k=>{
-    if(k==="friends" && !c.people.length) return "";
-    if(k==="leisure" && !(c.lei&&c.lei.length)) return "";
+  const order=["commute","friends","money","nature","leisure","neigh","light"];
+  $("factors").innerHTML=order.map(k=>{
+    if(k==="friends"&&!c.people.length) return "";
+    if(k==="leisure"&&!(c.lei&&c.lei.length)) return "";
     const v=s[k], has=v!==undefined;
     let extra="";
-    if(k==="light") extra=`<p class="f-why" style="margin-top:10px;font-weight:700;color:var(--ink)">Hvilken vei vender stua? (valgfritt)</p><div class="chips" data-k="light">${[["S","Sør"],["V","Vest"],["O","Øst"],["N","Nord"],["?","Vet ikke"]].map(([v2,l])=>`<button type="button" class="chip" data-v="${v2}" aria-pressed="${c.light===v2}">${l}</button>`).join("")}</div>`;
-    if(k==="money") extra=`<p class="f-why" style="margin-top:6px;font-weight:700;color:var(--ink)">Hvor komfortabel er du med prisen? (valgfritt)</p><div class="chips" data-k="money">${[1,2,3,4,5].map(n=>`<button type="button" class="chip" data-v="${n}" aria-pressed="${c.money===n}">${n}</button>`).join("")}</div>`;
-    return `<div class="f">
-      <div class="f-head"><h3>${INFO[k].t}</h3><span class="f-score" style="color:${has?col(v):"var(--muted)"}">${has?v:"–"}</span></div>
-      <div class="bar"><b style="width:${has?v:0}%;background:${has?col(v):"transparent"}"></b></div>
-      ${val[k]?`<div class="f-val">${val[k]}</div>`:(has?"":`<div class="f-val muted">${k==="money"?"Ikke vurdert ennå – teller ikke med i scoren":"Kunne ikke hentes akkurat nå"}</div>`)}
-      <p class="f-why">${INFO[k].why}</p>${extra}</div>`;
+    if(k==="light") extra=`<p class="f-why" style="margin-top:10px;font-weight:700;color:var(--ink)">Hvilken vei vender stua?</p><div class="chips" data-k="light">${[["S","Sør"],["V","Vest"],["O","Øst"],["N","Nord"],["?","Vet ikke"]].map(([v2,l])=>`<button type="button" class="chip" data-v="${v2}" aria-pressed="${(c.light||"?")===v2}">${l}</button>`).join("")}</div>`;
+    if(k==="money"&&!(c.price&&profile.budget)) extra=`<p class="f-why" style="margin-top:10px;font-weight:700;color:var(--ink)">${c.price?"Legg inn budsjett i profilen for en sikrere vurdering – eller":""} Hvor komfortabel er du med prisen?</p><div class="chips" data-k="money">${[1,2,3,4,5].map(n=>`<button type="button" class="chip" data-v="${n}" aria-pressed="${c.money===n}">${n}</button>`).join("")}</div>`;
+    const empty=k==="money"?"Legg inn pris og budsjett – eller vurder selv under.":k==="nature"||k==="neigh"?"Kartdata svarte ikke akkurat nå. Prøv igjen om litt.":"";
+    return `<div class="f"><div class="mini" style="background:conic-gradient(${has?col(v):"#eef0f6"} ${has?v:0}%, #eef0f6 0)"><div>${has?v:"–"}</div></div>
+      <div><h3>${INFO[k].t}</h3>${val[k]?`<div class="f-val">${val[k]}</div>`:`<div class="f-val muted">${empty}</div>`}<p class="f-why">${INFO[k].why}</p>${extra}</div></div>`;
   }).join("");
   $("factors").querySelectorAll(".chips").forEach(g=>g.addEventListener("click",e=>{
     const b=e.target.closest(".chip"); if(!b) return;
     if(g.dataset.k==="light") current.light=b.dataset.v; else current.money=+b.dataset.v;
     saveCurrent(); renderResult();
   }));
-  saveCurrent();
-  show("sResult");
-  drawMap();
+  saveCurrent(); show("sResult"); drawMap();
 }
+function daylight(lat,decl){ const r=Math.PI/180, x=-Math.tan(lat*r)*Math.tan(decl*r); if(x<=-1) return 24; if(x>=1) return 0; return 2*Math.acos(x)/r/15; }
 
 function saveCurrent(){
   const {s,total}=computeScores(current);
-  const rec={id:current.id,dbId:current.dbId,place:current.place,total,s,light:current.light,money:current.money,commute:current.work.min,nat:current.nat};
-  homes=homes.filter(h=>h.id!==current.id); homes.unshift(rec); homes=homes.slice(0,20); store.set("lh-homes",homes);
+  const rec={id:current.id,dbId:current.dbId,place:current.place,total,s,light:current.light,money:current.money,price:current.price,fees:current.fees,
+    commute:Math.round(current.trips.reduce((a,t)=>a+t.min*t.days,0)/(current.trips.reduce((a,t)=>a+t.days,0)||1))};
+  homes=homes.filter(h=>h.id!==current.id); homes.unshift(rec); homes=homes.slice(0,30); store.set("lh-homes",homes);
   pushHome(rec);
 }
 
@@ -632,12 +908,11 @@ function drawMap(){
     map=L.map("map",{scrollWheelZoom:false});
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(map);
     const pin=(e,bg)=>L.divIcon({className:"",html:`<div style="background:${bg};width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:18px;border:3px solid #fff;box-shadow:0 6px 14px rgba(0,0,0,.25)">${e}</div>`,iconSize:[38,38],iconAnchor:[19,19]});
-    const pts=[];
-    const add=(p,e,bg,t)=>{ L.marker([p.lat,p.lon],{icon:pin(e,bg)}).addTo(map).bindPopup(esc(t)); pts.push([p.lat,p.lon]); };
+    const pts=[]; const add=(p,e,bg,t)=>{ L.marker([p.lat,p.lon],{icon:pin(e,bg)}).addTo(map).bindPopup(esc(t)); pts.push([p.lat,p.lon]); };
     add(current.place,"🏠","#ff5a3c","Boligen");
-    add(profile.work,"💼","#0f1b3d","Jobb/studier: "+current.work.min+" min");
-    current.people.forEach(p=>add(p.place,"🫂","#3d7bff",p.name+": "+p.min+" min"));
-    (current.lei||[]).forEach(l=>{ if(l.place && l.km<20) add(l.place,l.label.split(" ")[0],"#19b48a",l.label+(l.place.name?" – "+l.place.name:"")); });
+    current.trips.forEach(t=>add(t.place,{jobb:"💼",skole:"🎓",barnehage:"🧸",annet:"📍"}[t.type],"#0f1b3d",t.label+": "+mm(t.min)));
+    current.people.forEach(p=>add(p.place,"🫂","#3d7bff",p.name+": "+mm(p.min)));
+    (current.lei||[]).forEach(l=>{ if(l.place&&l.dist<25000) add(l.place,l.e,"#19b48a",l.n+(l.place.name?" – "+l.place.name:"")); });
     map.fitBounds(pts,{padding:[40,40],maxZoom:14});
   },60);
 }
@@ -648,112 +923,97 @@ function renderCompare(){
   $("cmpBox").hidden=false;
   const best=Math.max(...homes.map(h=>h.total));
   const cell=v=>v===undefined?"–":`<span style="color:${col(v)};font-weight:800">${v}</span>`;
-  $("cmp").innerHTML=`<tr><th>Bolig</th><th>Score</th><th>Pendling</th><th>Venner</th><th>Natur</th><th>Fritid</th><th>Nabolag</th><th></th></tr>`+
-    homes.map(h=>`<tr class="${h.total===best&&homes.length>1?"best":""}">
+  $("cmp").innerHTML=`<tr><th>Bolig</th><th>Score</th><th>Pris</th><th>Pendling</th><th>Familie</th><th>Natur</th><th>Fritid</th><th>Nabolag</th><th>Økonomi</th><th></th></tr>`+
+    homes.map(h=>{ const top=h.total===best&&homes.length>1; return `<tr class="${top?"top":""}">
       <td><a href="#" data-open="${h.id}" style="font-weight:700">${esc(h.place.label)}</a></td>
-      <td class="s">${h.total}${h.total===best&&homes.length>1?" 🏆":""}</td>
-      <td>${h.commute} min</td><td>${cell(h.s.friends)}</td><td>${cell(h.s.nature)}</td><td>${cell(h.s.leisure)}</td><td>${cell(h.s.neigh)}</td>
-      <td><button class="del" data-del="${h.id}" aria-label="Fjern">✕</button></td></tr>`).join("");
+      <td class="s">${gradeOf(h.total)[0]} · ${h.total}${top?" 🏆":""}</td>
+      <td>${h.price?kr(h.price):"–"}</td><td>${h.commute} min</td>
+      <td>${cell(h.s.friends)}</td><td>${cell(h.s.nature)}</td><td>${cell(h.s.leisure)}</td><td>${cell(h.s.neigh)}</td><td>${cell(h.s.money)}</td>
+      <td><button class="del" data-del="${h.id}" aria-label="Fjern">✕</button></td></tr>`; }).join("");
 }
 $("cmp").addEventListener("click",e=>{
   const d=e.target.closest("[data-del]"); if(d){ const h=homes.find(x=>x.id==d.dataset.del); if(h) removeHome(h); homes=homes.filter(x=>x.id!=d.dataset.del); store.set("lh-homes",homes); renderCompare(); return; }
-  const o=e.target.closest("[data-open]"); if(o){ e.preventDefault(); const h=homes.find(x=>x.id==o.dataset.open); if(h) analyze(h.place); }
+  const o=e.target.closest("[data-open]"); if(o){ e.preventDefault(); const h=homes.find(x=>x.id==o.dataset.open); if(h) analyze(h.place,{price:h.price,fees:h.fees}); }
 });
 
 /* ================= KONTO (Supabase) ================= */
 const SB_URL="https://esfkumavfvcgcvefcpxq.supabase.co";
 const SB_KEY="sb_publishable_MW9KoNtuulEMPkCMptq-Kw_Oif61hG1";
 const sb = window.supabase ? window.supabase.createClient(SB_URL, SB_KEY) : null;
-let user = null, guest = false;
 
 function syncMsg(t){ $("sync").textContent=t||""; }
 async function pushProfile(){
-  if(!sb||!user) return;
-  syncMsg("Lagrer …");
+  if(!sb||!user) return; syncMsg("Lagrer …");
   const {error}=await sb.from("profiles").upsert({user_id:user.id,data:profile,updated_at:new Date().toISOString()});
   syncMsg(error?"⚠️ Kunne ikke lagre":"✓ Lagret");
 }
 async function pushHome(rec){
   if(!sb||!user) return;
-  const data={...rec}; delete data.dbId;
-  if(rec.dbId){
-    await sb.from("homes").update({data}).eq("id",rec.dbId);
-  }else{
+  const data={...rec}; delete data.dbId; delete data._saving;
+  if(rec.dbId){ await sb.from("homes").update({data}).eq("id",rec.dbId); }
+  else{
+    if(rec._saving) return; rec._saving=true;
     const {data:row,error}=await sb.from("homes").insert({data}).select("id").single();
-    if(!error&&row){ rec.dbId=row.id; if(current&&current.id===rec.id) current.dbId=row.id; store.set("lh-homes",homes); }
+    rec._saving=false;
+    if(!error&&row){ rec.dbId=row.id; if(current&&current.id===rec.id) current.dbId=row.id; homes.forEach(h=>{ if(h.id===rec.id) h.dbId=row.id; }); store.set("lh-homes",homes); }
   }
   syncMsg("✓ Lagret");
 }
 async function removeHome(h){ if(sb&&user&&h.dbId) await sb.from("homes").delete().eq("id",h.dbId); }
-
 async function loadRemote(){
   syncMsg("Henter …");
-  const [{data:p},{data:rows}] = await Promise.all([
+  const [{data:p},{data:rows}]=await Promise.all([
     sb.from("profiles").select("data").maybeSingle(),
     sb.from("homes").select("id,data,created_at").order("created_at",{ascending:false})
   ]);
   const localProfile=store.get("lh-profile"), localHomes=store.get("lh-homes")||[];
-  // Første innlogging: flytt det som ligger lokalt opp i kontoen
-  if(!p && localProfile){ profile=localProfile; await pushProfile(); } else { profile=p?p.data:null; }
+  if(!p && localProfile){ profile=migrate(localProfile); await pushProfile(); } else { profile=migrate(p?p.data:null); }
   homes=(rows||[]).map(r=>({...r.data,dbId:r.id}));
   const unsynced=localHomes.filter(h=>!h.dbId && !homes.some(x=>x.place.lat===h.place.lat&&x.place.lon===h.place.lon));
   for(const h of unsynced){ homes.push(h); await pushHome(h); }
-  store.set("lh-profile",profile); store.set("lh-homes",homes);
-  syncMsg("");
+  store.set("lh-profile",profile); store.set("lh-homes",homes); syncMsg("");
 }
-
 async function enter(){
-  if(user){
-    $("who").textContent=user.email; $("menuBtn").textContent=(user.email||"?")[0].toUpperCase();
-    try{ await loadRemote(); }catch(e){ syncMsg("⚠️ Frakoblet"); }
-  }
-  if(profile){ renderProfileSum(); renderCompare(); show("sHome"); }
+  if(user){ $("who").textContent=user.email; $("menuBtn").textContent=(user.email||"?")[0].toUpperCase();
+    try{ await loadRemote(); }catch(e){ syncMsg("⚠️ Frakoblet"); } }
+  if(profile&&profile.places?.length){ renderProfileSum(); renderCompare(); show("sHome"); }
   else { fillProfileForm(); show("sProfile"); }
   const preset=new URLSearchParams(location.search).get("adresse");
-  if(preset && profile){ $("homeAddr").value=preset; $("homeAddr").dispatchEvent(new Event("input")); }
+  if(preset&&profile){ $("homeAddr").value=preset; $("homeAddr").dispatchEvent(new Event("input")); }
 }
-
-// Innlogging med e-postlenke
 $("sendLink").addEventListener("click", async ()=>{
   const email=$("email").value.trim(), err=$("authErr"), sent=$("sent");
   err.style.display="none"; sent.style.display="none";
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ err.textContent="Skriv inn en gyldig e-postadresse."; err.style.display="block"; return; }
   if(!sb){ err.textContent="Innlogging er ikke tilgjengelig akkurat nå. Prøv uten konto."; err.style.display="block"; return; }
   $("sendLink").disabled=true;
-  const {error}=await sb.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+location.pathname}});
+  const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});
   $("sendLink").disabled=false;
   if(error){ err.textContent="Noe gikk galt: "+error.message; err.style.display="block"; return; }
-  sent.textContent=`📬 Sjekk innboksen til ${email} og trykk på lenken for å logge inn. Du kan lukke denne fanen.`;
-  sent.style.display="block";
+  sent.textContent=`📬 Sjekk innboksen til ${email} og trykk på lenken for å logge inn. Du kan lukke denne fanen.`; sent.style.display="block";
 });
 $("email").addEventListener("keydown",e=>{ if(e.key==="Enter") $("sendLink").click(); });
-$("guest").addEventListener("click",()=>{ guest=true; try{sessionStorage.setItem("lh-guest","1")}catch(e){} enter(); });
-
-// Meny
+$("guest").addEventListener("click",()=>{ try{sessionStorage.setItem("lh-guest","1")}catch(e){} enter(); });
 $("menuBtn").addEventListener("click",e=>{ e.stopPropagation(); const o=$("menuList").classList.toggle("open"); $("menuBtn").setAttribute("aria-expanded",o); });
 document.addEventListener("click",()=>{ $("menuList").classList.remove("open"); $("menuBtn").setAttribute("aria-expanded","false"); });
 $("mProfile").addEventListener("click",()=>{ fillProfileForm(); show("sProfile"); });
 function wipeLocal(){ try{ localStorage.removeItem("lh-profile"); localStorage.removeItem("lh-homes"); sessionStorage.removeItem("lh-guest"); }catch(e){} profile=null; homes=[]; current=null; }
-$("mLogout").addEventListener("click", async ()=>{ await sb.auth.signOut(); wipeLocal(); user=null; show("sAuth"); });
-$("mDelete").addEventListener("click", async ()=>{
+$("mLogout").addEventListener("click",async()=>{ await sb.auth.signOut(); wipeLocal(); user=null; show("sAuth"); });
+$("mDelete").addEventListener("click",async()=>{
   if(!confirm("Vil du slette kontoen din og alle boligene og profilen du har lagret? Dette kan ikke angres.")) return;
   const {error}=await sb.rpc("delete_my_account");
   if(error){ alert("Kunne ikke slette kontoen: "+error.message); return; }
-  await sb.auth.signOut(); wipeLocal(); user=null; show("sAuth");
-  alert("Kontoen og alle data er slettet.");
+  await sb.auth.signOut(); wipeLocal(); user=null; show("sAuth"); alert("Kontoen og alle data er slettet.");
 });
 
 /* ================= START ================= */
-(async ()=>{
+(async()=>{
   if(sb){
-    const {data:{session}} = await sb.auth.getSession();
-    user = session?.user || null;
-    sb.auth.onAuthStateChange((ev, sess)=>{
-      if(ev==="SIGNED_IN" && sess?.user && (!user || user.id!==sess.user.id)){ user=sess.user; enter(); }
-    });
+    const {data:{session}}=await sb.auth.getSession(); user=session?.user||null;
+    sb.auth.onAuthStateChange((ev,sess)=>{ if(ev==="SIGNED_IN"&&sess?.user&&(!user||user.id!==sess.user.id)){ user=sess.user; enter(); } });
   }
   let wasGuest=false; try{ wasGuest=sessionStorage.getItem("lh-guest")==="1"; }catch(e){}
-  if(user || wasGuest) enter(); else show("sAuth");
+  if(user||wasGuest) enter(); else show("sAuth");
 })();
 </script>
 </body>
