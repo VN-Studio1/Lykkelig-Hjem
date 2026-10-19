@@ -291,6 +291,11 @@
       <div class="sec">
         <span class="lbl">🫂 Hvem vil du bo nær?</span>
         <p class="hint">Venner og familie – og hvor ofte dere ses. Velg adressen fra listen som dukker opp.</p>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px"><span style="font-weight:700;font-size:.9rem">Når du besøker dem, reiser du med:</span><div class="chips" id="visitMode">
+          <button type="button" class="chip" data-v="car" aria-pressed="true">🚗 Bil</button>
+          <button type="button" class="chip" data-v="transit" aria-pressed="false">🚌 Kollektivt</button>
+          <button type="button" class="chip" data-v="bike" aria-pressed="false">🚲 Sykkel</button>
+          <button type="button" class="chip" data-v="foot" aria-pressed="false">🚶 Gå</button></div></div>
         <div id="people"></div>
         <button type="button" class="add" id="addPerson">+ Legg til en person</button>
       </div>
@@ -521,6 +526,7 @@ function migrate(p){
   if(!p) return null;
   if(!p.places && p.work) p.places=[{type:"jobb",place:p.work,mode:p.mode||"transit",days:5}];
   p.people=(p.people||[]).map(x=>x.place?x:{name:x.name,place:{label:x.label,sub:x.sub,lat:x.lat,lon:x.lon},freq:"1"});
+  if(!p.visitMode) p.visitMode="car";
   p.hobbies=(p.hobbies||[]).map(h=>({kafe:"kafe",gym:"gym",fotball:"fotball",racket:"padel",svom:"svomming",kultur:"kino",ski:"alpint",golf:"golf"}[h]||h)).filter(h=>hobDef(h));
   return p;
 }
@@ -603,6 +609,7 @@ function addPerson(pre){
   $("people").appendChild(row); $("addPerson").hidden=$("people").children.length>=MAX_PEOPLE;
 }
 $("addPerson").addEventListener("click",()=>addPerson());
+$("visitMode").addEventListener("click",e=>{ const b=e.target.closest(".chip"); if(!b) return; $("visitMode").querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x===b)); });
 
 /* ================= PROFIL: AKTIVITETER ================= */
 let selHob=new Set();
@@ -634,6 +641,7 @@ function fillProfileForm(){
     profile.people.forEach(p=>addPerson(p));
     profile.hobbies.forEach(h=>selHob.add(h));
     if(profile.budget) $("budget").value=profile.budget.toLocaleString("nb-NO");
+    $("visitMode").querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x.dataset.v===(profile.visitMode||"car")));
   }
   if(!$("places").children.length) addPlace();
   if(!$("people").children.length) addPerson();
@@ -650,7 +658,7 @@ $("saveProfile").addEventListener("click",()=>{
     return a._place?{name:r.querySelector(".pname").value.trim()||"Person", place:a._place, freq:r.querySelector(".pfreq").value}:null; }).filter(Boolean);
   if(bad.length){ bad.forEach(a=>a.classList.add("bad")); err.textContent="Noen adresser er ikke valgt fra listen (markert i rødt). Skriv litt av adressen og trykk på riktig forslag."; err.style.display="block"; bad[0].focus(); return; }
   if(!places.length){ err.textContent="Legg inn minst ett sted du drar jevnlig – for eksempel jobb eller skole."; err.style.display="block"; return; }
-  profile={places, people, hobbies:[...selHob], budget:num($("budget").value)};
+  profile={places, people, hobbies:[...selHob], budget:num($("budget").value), visitMode:$("visitMode").querySelector('[aria-pressed="true"]').dataset.v};
   store.set("lh-profile",profile); pushProfile();
   renderProfileSum(); renderCompare(); show("sHome"); setTimeout(()=>$("homeAddr").focus(),300);
 });
@@ -714,35 +722,33 @@ async function travel(a,b,mode){
 }
 
 /* ================= KARTDATA: ÉN SAMLET FORESPØRSEL ================= */
-const OVERPASS=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter"];
+const OVERPASS=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter","https://maps.mail.ru/osm/tools/overpass/api/interpreter"];
 const NATURE_R=[150,300,600,1000,1500,2000];
 async function overpass(q){
   for(const url of OVERPASS){
     try{
-      const r=await fetch(url,{method:"POST",signal:withTimeout(20000),body:"data="+encodeURIComponent(q),headers:{"Content-Type":"application/x-www-form-urlencoded"}});
-      if(r.ok) return (await r.json()).elements||[];
+      const r=await fetch(url,{method:"POST",signal:withTimeout(15000),body:"data="+encodeURIComponent(q),headers:{"Content-Type":"application/x-www-form-urlencoded"}});
+      if(r.ok){ const j=await r.json(); if(!j.remark || !/runtime error|timed out/i.test(j.remark)) return j.elements||[]; }
     }catch(e){}
   }
   throw new Error("overpass");
 }
-async function placeData(p, hobbies){
+const tagList=(els,p)=>els.filter(e=>e.type!=="count"&&e.tags).map(e=>{ const c=e.center||e; return {t:e.tags, lat:c.lat, lon:c.lon, d:km(p,c)*1000}; }).filter(e=>e.lat);
+async function natureData(p){
   const L=`${p.lat},${p.lon}`;
-  const nat=['way["landuse"~"^(forest|meadow)$"]','way["natural"~"^(wood|beach|water|heath|scrub)$"]','way["leisure"~"^(park|nature_reserve)$"]','way["natural"="coastline"]','rel["landuse"="forest"]','rel["natural"~"^(wood|water)$"]','rel["leisure"~"^(park|nature_reserve)$"]'];
-  let q=`[out:json][timeout:25];`;
+  const nat=['way["landuse"~"^(forest|meadow)$"]','way["natural"~"^(wood|beach|water|heath|scrub|coastline)$"]','way["leisure"~"^(park|nature_reserve)$"]'];
+  let q=`[out:json][timeout:20];`;
   NATURE_R.forEach(R=>{ q+=`(${nat.map(f=>`${f}(around:${R},${L});`).join("")});out count;`; });
-  q+=`(nwr["amenity"~"^(school|kindergarten|cafe|restaurant|community_centre|library|pharmacy|doctors)$"](around:900,${L});nwr["leisure"="playground"](around:900,${L});nwr["shop"~"^(supermarket|convenience)$"](around:1500,${L});nwr["highway"="bus_stop"](around:600,${L});nwr["railway"~"^(station|halt|tram_stop)$"](around:1500,${L}););out center tags 200;`;
-  const defs=hobbies.map(hobDef).filter(Boolean);
-  defs.forEach(d=>{ q+=hobQuery(d,L); });
-  const els=await overpass(q);
-
-  // Natur: første radius med treff
-  const counts=els.filter(e=>e.type==="count").map(e=>+(e.tags?.total||0));
-  let nature=null; for(let i=0;i<NATURE_R.length;i++){ if(counts[i]>0){ nature=NATURE_R[i]; break; } }
-  const tagged=els.filter(e=>e.type!=="count"&&e.tags).map(e=>{ const c=e.center||e; return {t:e.tags, lat:c.lat, lon:c.lon, d:km(p,c)*1000}; }).filter(e=>e.lat);
-
-  // Nabolag
+  const counts=(await overpass(q)).filter(e=>e.type==="count").map(e=>+(e.tags?.total||0));
+  for(let i=0;i<NATURE_R.length;i++){ if(counts[i]>0) return NATURE_R[i]; }
+  return null;
+}
+async function neighData(p){
+  const L=`${p.lat},${p.lon}`;
+  const q=`[out:json][timeout:20];(nwr["amenity"~"^(school|kindergarten|cafe|restaurant|community_centre|library|pharmacy|doctors)$"](around:900,${L});nwr["leisure"="playground"](around:900,${L});nwr["shop"~"^(supermarket|convenience)$"](around:1500,${L});nwr["highway"="bus_stop"](around:600,${L});nwr["railway"~"^(station|halt|tram_stop)$"](around:1500,${L}););out center tags 200;`;
+  const tagged=tagList(await overpass(q),p);
   const near=(test,max)=>tagged.filter(e=>test(e.t)&&e.d<=max).sort((a,b)=>a.d-b.d);
-  const nb={
+  return {
     school: near(t=>t.amenity==="school",900),
     kinder: near(t=>t.amenity==="kindergarten",900),
     shop:   near(t=>/^(supermarket|convenience)$/.test(t.shop||""),1500),
@@ -751,9 +757,24 @@ async function placeData(p, hobbies){
     meet:   near(t=>/^(cafe|restaurant|community_centre|library)$/.test(t.amenity||""),900),
     health: near(t=>/^(pharmacy|doctors)$/.test(t.amenity||""),900)
   };
-  // Fritid
-  const lei=defs.map(d=>{ const m=hobMatcher(d); const best=tagged.filter(e=>m(e.t)).sort((a,b)=>a.d-b.d)[0];
-    return {id:d.id, e:d.e, n:d.n, place:best?{lat:best.lat,lon:best.lon,name:best.t.name}:null, dist:best?best.d:null}; });
+}
+async function leisureData(p, hobbies){
+  const defs=hobbies.map(hobDef).filter(Boolean); if(!defs.length) return [];
+  const L=`${p.lat},${p.lon}`;
+  // Del opp i små forespørsler så én treg aktivitet ikke stopper resten
+  const out=[];
+  for(let i=0;i<defs.length;i+=4){
+    const chunk=defs.slice(i,i+4);
+    let tagged=[]; try{ tagged=tagList(await overpass(`[out:json][timeout:20];`+chunk.map(d=>hobQuery(d,L)).join("")),p); }catch(e){ chunk.forEach(d=>out.push({id:d.id,e:d.e,n:d.n,place:null,dist:null,failed:true})); continue; }
+    chunk.forEach(d=>{ const m=hobMatcher(d); const best=tagged.filter(e=>m(e.t)).sort((a,b)=>a.d-b.d)[0];
+      out.push({id:d.id, e:d.e, n:d.n, place:best?{lat:best.lat,lon:best.lon,name:best.t.name}:null, dist:best?best.d:null}); });
+  }
+  return out;
+}
+async function placeData(p, hobbies){
+  // To forespørsler samtidig (Overpass tillater to per bruker), deretter fritid
+  const [nature, nb] = await Promise.all([ natureData(p).catch(()=>undefined), neighData(p).catch(()=>undefined) ]);
+  const lei = await leisureData(p, hobbies).catch(()=>undefined);
   return {nature, nb, lei};
 }
 
@@ -808,16 +829,16 @@ async function analyze(place, extra={}){
   show("sLoading"); ["c1","c2","c3","c4"].forEach(id=>$(id).classList.remove("done"));
   setTimeout(()=>$("c1").classList.add("done"),250);
   const tripsP=Promise.all(profile.places.map(async pl=>({...(await travel(place,pl.place,pl.mode)),type:pl.type,label:pl.place.label,place:pl.place,mode:pl.mode,days:pl.days})));
-  const peopleMode=(profile.places[0]?.mode==="foot")?"bike":(profile.places[0]?.mode||"car");
+  const peopleMode=profile.visitMode||"car";
   const peopleP=Promise.all(profile.people.map(async pp=>({...(await travel(place,pp.place,peopleMode)),name:pp.name,place:pp.place,freq:+pp.freq})));
   const [trips,people]=await Promise.all([tripsP,peopleP]); $("c2").classList.add("done");
-  let pd=null; try{ pd=await placeData(place, profile.hobbies); }catch(e){}
+  const pd=await placeData(place, profile.hobbies);
   $("c3").classList.add("done");
-  const lmode=peopleMode;
-  const lei=pd?pd.lei.map(l=>({...l, min:l.place?estMinutes(place,l.place,l.dist<1500?"foot":lmode):null, walk:l.place&&l.dist<1500})):undefined;
+  const lmode=peopleMode==="transit"?"transit":peopleMode;
+  const lei=pd.lei?pd.lei.map(l=>({...l, min:l.place?estMinutes(place,l.place,l.dist<1500?"foot":lmode):null, walk:l.place&&l.dist<1500})):undefined;
   await new Promise(r=>setTimeout(r,350)); $("c4").classList.add("done");
   const existing=homes.find(h=>Math.abs(h.place.lat-place.lat)<1e-6&&Math.abs(h.place.lon-place.lon)<1e-6);
-  current={place, trips, people, nature:pd?pd.nature:undefined, nb:pd?pd.nb:undefined, lei,
+  current={place, trips, people, nature:pd.nature, nb:pd.nb, lei, visitMode:peopleMode,
     price:extra.price??existing?.price??null, fees:extra.fees??existing?.fees??null,
     light:existing?.light||"?", money:existing?.money||null, id:existing?.id||Date.now(), dbId:existing?.dbId};
   renderResult();
@@ -865,7 +886,7 @@ function renderResult(){
   const nbItem=(lab,arr)=>item(lab, arr.length?`${md(arr[0].d)}${arr[0].t.name?" · "+esc(arr[0].t.name):""}`:"ikke funnet");
   const val={
     commute:c.trips.map(t=>item(`${tName[t.type].split(" ")[0]} ${esc(t.label)} <span class="muted">(${mName[t.mode].split(" ")[0]} · ${t.days}d/uke)</span>`, mm(t.min)+est(t.est))).join(""),
-    friends:c.people.map(p=>item(`${esc(p.name)} <span class="muted">(${fName[String(p.freq)]||""})</span>`, mm(p.min)+est(p.est))).join(""),
+    friends:(c.people.length?`<div class="muted" style="font-size:.82rem;margin-bottom:4px">Reisetid med ${(mName[c.visitMode||"car"]||"").toLowerCase().replace(/^\S+ /,"")}</div>`:"")+c.people.map(p=>item(`${esc(p.name)} <span class="muted">(${fName[String(p.freq)]||""})</span>`, mm(p.min)+est(p.est))).join(""),
     nature:c.nature===undefined?"":item("Nærmeste skog, park eller vann", c.nature==null?"over 2 km":"innen "+md(c.nature)),
     leisure:(c.lei||[]).map(l=>item(`${l.e} ${esc(l.n)}${l.place?.name?' <span class="muted">· '+esc(l.place.name)+'</span>':""}`, l.min==null?"ikke funnet":(l.walk?"🚶 ":"")+mm(l.min)+est(true))).join(""),
     light:item("Dagslys i desember", dDec.toFixed(1).replace(".",",")+" t")+item("Dagslys i juni", daylight(c.place.lat,23.44).toFixed(1).replace(".",",")+" t"),
@@ -880,10 +901,11 @@ function renderResult(){
     let extra="";
     if(k==="light") extra=`<p class="f-why" style="margin-top:10px;font-weight:700;color:var(--ink)">Hvilken vei vender stua?</p><div class="chips" data-k="light">${[["S","Sør"],["V","Vest"],["O","Øst"],["N","Nord"],["?","Vet ikke"]].map(([v2,l])=>`<button type="button" class="chip" data-v="${v2}" aria-pressed="${(c.light||"?")===v2}">${l}</button>`).join("")}</div>`;
     if(k==="money"&&!(c.price&&profile.budget)) extra=`<p class="f-why" style="margin-top:10px;font-weight:700;color:var(--ink)">${c.price?"Legg inn budsjett i profilen for en sikrere vurdering – eller":""} Hvor komfortabel er du med prisen?</p><div class="chips" data-k="money">${[1,2,3,4,5].map(n=>`<button type="button" class="chip" data-v="${n}" aria-pressed="${c.money===n}">${n}</button>`).join("")}</div>`;
-    const empty=k==="money"?"Legg inn pris og budsjett – eller vurder selv under.":k==="nature"||k==="neigh"?"Kartdata svarte ikke akkurat nå. Prøv igjen om litt.":"";
+    const empty=k==="money"?"Legg inn pris og budsjett – eller vurder selv under.":k==="nature"||k==="neigh"?`Kartdata svarte ikke akkurat nå. <button type="button" class="chip retry" style="margin-left:6px">🔄 Prøv igjen</button>`:"";
     return `<div class="f"><div class="mini" style="background:conic-gradient(${has?col(v):"#eef0f6"} ${has?v:0}%, #eef0f6 0)"><div>${has?v:"–"}</div></div>
       <div><h3>${INFO[k].t}</h3>${val[k]?`<div class="f-val">${val[k]}</div>`:`<div class="f-val muted">${empty}</div>`}<p class="f-why">${INFO[k].why}</p>${extra}</div></div>`;
   }).join("");
+  $("factors").querySelectorAll(".retry").forEach(b=>b.addEventListener("click",()=>analyze(current.place,{price:current.price,fees:current.fees})));
   $("factors").querySelectorAll(".chips").forEach(g=>g.addEventListener("click",e=>{
     const b=e.target.closest(".chip"); if(!b) return;
     if(g.dataset.k==="light") current.light=b.dataset.v; else current.money=+b.dataset.v;
