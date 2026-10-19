@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sjekk en bolig – Lykkelig Hjem</title>
+<!-- versjon 4 -->
 <meta name="description" content="Skriv inn en adresse og få en lykkescore basert på lykkeforskning.">
 <meta name="theme-color" content="#ff5a3c">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23ff5a3c'/%3E%3Cpath d='M13 31 32 15l19 16v18a2 2 0 0 1-2 2H15a2 2 0 0 1-2-2z' fill='%23fff'/%3E%3Cpath d='M32 45s-8.5-5-8.5-10.8A4.8 4.8 0 0 1 32 31.3a4.8 4.8 0 0 1 8.5 2.9C40.5 40 32 45 32 45z' fill='%23ffc83d'/%3E%3C/svg%3E">
@@ -398,7 +399,7 @@
   </section>
 </main>
 
-<footer>Lykkelig Hjem · prototype · Kartdata © OpenStreetMap-bidragsytere, Kartverket og Entur</footer>
+<footer>Lykkelig Hjem · prototype v4 · Kartdata © OpenStreetMap-bidragsytere, Kartverket og Entur</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -724,13 +725,17 @@ async function travel(a,b,mode){
 /* ================= KARTDATA: ÉN SAMLET FORESPØRSEL ================= */
 const OVERPASS=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter","https://maps.mail.ru/osm/tools/overpass/api/interpreter"];
 const NATURE_R=[150,300,600,1000,1500,2000];
+let mapErrors=[];
 async function overpass(q){
   for(const url of OVERPASS){
+    const host=new URL(url).hostname;
     try{
       const r=await fetch(url,{method:"POST",signal:withTimeout(15000),body:"data="+encodeURIComponent(q),headers:{"Content-Type":"application/x-www-form-urlencoded"}});
-      if(r.ok){ const j=await r.json(); if(!j.remark || !/runtime error|timed out/i.test(j.remark)) return j.elements||[]; }
-    }catch(e){}
+      if(r.ok){ const j=await r.json(); if(!j.remark || !/runtime error|timed out/i.test(j.remark)) return j.elements||[]; mapErrors.push(host+": "+j.remark.slice(0,80)); }
+      else mapErrors.push(host+": HTTP "+r.status);
+    }catch(e){ mapErrors.push(host+": "+(e.name==="AbortError"?"tidsavbrudd":e.message)); }
   }
+  console.warn("Kartdata feilet:",mapErrors);
   throw new Error("overpass");
 }
 const tagList=(els,p)=>els.filter(e=>e.type!=="count"&&e.tags).map(e=>{ const c=e.center||e; return {t:e.tags, lat:c.lat, lon:c.lon, d:km(p,c)*1000}; }).filter(e=>e.lat);
@@ -769,6 +774,7 @@ async function leisureData(p, hobbies){
     chunk.forEach(d=>{ const m=hobMatcher(d); const best=tagged.filter(e=>m(e.t)).sort((a,b)=>a.d-b.d)[0];
       out.push({id:d.id, e:d.e, n:d.n, place:best?{lat:best.lat,lon:best.lon,name:best.t.name}:null, dist:best?best.d:null}); });
   }
+  if(out.length && out.every(o=>o.failed)) throw new Error("leisure");
   return out;
 }
 async function placeData(p, hobbies){
@@ -795,7 +801,8 @@ function computeScores(c){
   // Venner og familie: vektet etter hvor ofte dere ses
   if(c.people.length){ const fs=c.people.reduce((a,p)=>a+p.freq,0)||1; s.friends=clamp(c.people.reduce((a,p)=>a+interp(p.min,CURVE.friends)*p.freq,0)/fs); }
   if(c.nature!==undefined) s.nature=clamp(c.nature==null?8:interp(c.nature,CURVE.nature));
-  if(c.lei&&c.lei.length) s.leisure=clamp(c.lei.reduce((a,l)=>a+(l.min==null?5:interp(l.min,CURVE.leisure)),0)/c.lei.length);
+  const okLei=(c.lei||[]).filter(l=>!l.failed);
+  if(okLei.length) s.leisure=clamp(okLei.reduce((a,l)=>a+(l.min==null?5:interp(l.min,CURVE.leisure)),0)/okLei.length);
   s.light={S:92,V:85,O:70,N:40,"?":60}[c.light||"?"];
   if(c.nb){ const n=c.nb, has=a=>a.length>0;
     s.neigh=clamp(20 + (has(n.shop)?(n.shop[0].d<600?18:10):0) + (has(n.stop)?(n.stop[0].d<400?15:8):0) + (has(n.school)?10:0) + (has(n.kinder)?10:0) + Math.min(n.play.length,3)*5 + Math.min(n.meet.length,4)*3 + (has(n.health)?5:0)); }
@@ -832,6 +839,7 @@ async function analyze(place, extra={}){
   const peopleMode=profile.visitMode||"car";
   const peopleP=Promise.all(profile.people.map(async pp=>({...(await travel(place,pp.place,peopleMode)),name:pp.name,place:pp.place,freq:+pp.freq})));
   const [trips,people]=await Promise.all([tripsP,peopleP]); $("c2").classList.add("done");
+  mapErrors=[];
   const pd=await placeData(place, profile.hobbies);
   $("c3").classList.add("done");
   const lmode=peopleMode==="transit"?"transit":peopleMode;
@@ -888,7 +896,7 @@ function renderResult(){
     commute:c.trips.map(t=>item(`${tName[t.type].split(" ")[0]} ${esc(t.label)} <span class="muted">(${mName[t.mode].split(" ")[0]} · ${t.days}d/uke)</span>`, mm(t.min)+est(t.est))).join(""),
     friends:(c.people.length?`<div class="muted" style="font-size:.82rem;margin-bottom:4px">Reisetid med ${(mName[c.visitMode||"car"]||"").toLowerCase().replace(/^\S+ /,"")}</div>`:"")+c.people.map(p=>item(`${esc(p.name)} <span class="muted">(${fName[String(p.freq)]||""})</span>`, mm(p.min)+est(p.est))).join(""),
     nature:c.nature===undefined?"":item("Nærmeste skog, park eller vann", c.nature==null?"over 2 km":"innen "+md(c.nature)),
-    leisure:(c.lei||[]).map(l=>item(`${l.e} ${esc(l.n)}${l.place?.name?' <span class="muted">· '+esc(l.place.name)+'</span>':""}`, l.min==null?"ikke funnet":(l.walk?"🚶 ":"")+mm(l.min)+est(true))).join(""),
+    leisure:(c.lei||[]).map(l=>item(`${l.e} ${esc(l.n)}${l.place?.name?' <span class="muted">· '+esc(l.place.name)+'</span>':""}`, l.failed?"kunne ikke hentes":l.min==null?"ikke funnet":(l.walk?"🚶 ":"")+mm(l.min)+est(true))).join(""),
     light:item("Dagslys i desember", dDec.toFixed(1).replace(".",",")+" t")+item("Dagslys i juni", daylight(c.place.lat,23.44).toFixed(1).replace(".",",")+" t"),
     neigh:c.nb?[nbItem("🛒 Dagligvare",c.nb.shop),nbItem("🚏 Kollektivstopp",c.nb.stop),nbItem("🏫 Skole",c.nb.school),nbItem("🧸 Barnehage",c.nb.kinder),nbItem("🛝 Lekeplass",c.nb.play),item("☕ Kafeer og møteplasser innen 900 m", c.nb.meet.length)].join(""):"",
     money:c.price?item("Totalpris",kr(c.price))+(profile.budget?item("Ditt budsjett",kr(profile.budget)):"")+(c.fees?item("Felleskostnader",kr(c.fees)+"/mnd"):""):""
@@ -896,12 +904,12 @@ function renderResult(){
   const order=["commute","friends","money","nature","leisure","neigh","light"];
   $("factors").innerHTML=order.map(k=>{
     if(k==="friends"&&!c.people.length) return "";
-    if(k==="leisure"&&!(c.lei&&c.lei.length)) return "";
+    if(k==="leisure"&&!profile.hobbies.length) return "";
     const v=s[k], has=v!==undefined;
     let extra="";
     if(k==="light") extra=`<p class="f-why" style="margin-top:10px;font-weight:700;color:var(--ink)">Hvilken vei vender stua?</p><div class="chips" data-k="light">${[["S","Sør"],["V","Vest"],["O","Øst"],["N","Nord"],["?","Vet ikke"]].map(([v2,l])=>`<button type="button" class="chip" data-v="${v2}" aria-pressed="${(c.light||"?")===v2}">${l}</button>`).join("")}</div>`;
     if(k==="money"&&!(c.price&&profile.budget)) extra=`<p class="f-why" style="margin-top:10px;font-weight:700;color:var(--ink)">${c.price?"Legg inn budsjett i profilen for en sikrere vurdering – eller":""} Hvor komfortabel er du med prisen?</p><div class="chips" data-k="money">${[1,2,3,4,5].map(n=>`<button type="button" class="chip" data-v="${n}" aria-pressed="${c.money===n}">${n}</button>`).join("")}</div>`;
-    const empty=k==="money"?"Legg inn pris og budsjett – eller vurder selv under.":k==="nature"||k==="neigh"?`Kartdata svarte ikke akkurat nå. <button type="button" class="chip retry" style="margin-left:6px">🔄 Prøv igjen</button>`:"";
+    const empty=k==="money"?"Legg inn pris og budsjett – eller vurder selv under.":k==="nature"||k==="neigh"||k==="leisure"?`Kartdata svarte ikke akkurat nå. <button type="button" class="chip retry" style="margin-left:6px">🔄 Prøv igjen</button>${mapErrors.length?`<div style="font-size:.72rem;color:var(--muted);margin-top:6px">Feil: ${esc([...new Set(mapErrors)].join(" · "))}</div>`:""}`:"";
     return `<div class="f"><div class="mini" style="background:conic-gradient(${has?col(v):"#eef0f6"} ${has?v:0}%, #eef0f6 0)"><div>${has?v:"–"}</div></div>
       <div><h3>${INFO[k].t}</h3>${val[k]?`<div class="f-val">${val[k]}</div>`:`<div class="f-val muted">${empty}</div>`}<p class="f-why">${INFO[k].why}</p>${extra}</div></div>`;
   }).join("");
